@@ -29,17 +29,12 @@ export default function ZoneList({ zones, selectedZoneId, onSelect }: ZoneListPr
                   : "border-[#35A29F]/40 bg-[#071952]/50 hover:border-[#97FEED]/60"
               }`}
             >
-              <div className="flex items-center justify-between text-base font-semibold text-white mb-3">
+              <div className="flex items-center justify-between text-base font-semibold text-white">
                 <span>{zone.name}</span>
                 <span
                   className="h-3 w-3 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                   style={{ backgroundColor: STATUS_COLORS[zone.status] }}
                 />
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-[11px] text-[#97FEED] font-mono">
-                <span className="flex items-center gap-1"><Zap size={10} className="shrink-0"/> {zone.energyKw.toFixed(1)} kW</span>
-                <span className="flex items-center gap-1 justify-center"><Users size={10} className="shrink-0"/> {zone.occupancy}%</span>
-                <span className="flex items-center gap-1 justify-end"><Thermometer size={10} className="shrink-0"/> {zone.temperatureC}&deg;C</span>
               </div>
             </button>
           );
