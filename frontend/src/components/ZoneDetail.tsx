@@ -8,7 +8,7 @@ type ZoneDetailProps = {
 
 export default function ZoneDetail({ selectedZone }: ZoneDetailProps) {
   return (
-    <div className="rounded-2xl border border-[#97FEED] bg-[#0B666A] p-6 shadow-[0_0_30px_rgba(53,162,159,0.3)] relative overflow-hidden shrink-0">
+    <div className="rounded-2xl border border-[#97FEED] bg-[#0B666A] p-6 shadow-[0_0_30px_rgba(53,162,159,0.3)] relative overflow-hidden shrink-0 min-h-[250px]">
       <div className="absolute top-0 right-0 w-32 h-32 bg-[#97FEED] opacity-10 rounded-full blur-3xl" />
       <h3 className="text-xs uppercase tracking-[0.2em] text-black font-bold mb-1 opacity-70">
         Selected Zone Detail

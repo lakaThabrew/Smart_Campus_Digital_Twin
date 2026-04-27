@@ -7,8 +7,11 @@ import ZoneList from "./ZoneList";
 import ZoneDetail from "./ZoneDetail";
 import DashboardHeader from "./DashboardHeader";
 
+import Sidebar from "./Sidebar";
+
 export default function DigitalTwinDashboard() {
   const initialZones = useMemo<Zone[]>(
+    // ... items
     () => [
       {
         id: "eng",
@@ -67,37 +70,41 @@ export default function DigitalTwinDashboard() {
   );
 
   return (
-    <div className="mx-auto flex h-screen w-full flex-col gap-4 p-4 lg:p-6 bg-[#071952] overflow-hidden text-white font-sans">
-      <DashboardHeader 
-        campusLoad={campusLoad} 
-        campusOccupancy={campusOccupancy} 
-        activeZonesCount={zones.length} 
-      />
+    <div className="flex h-screen w-full bg-[#071952] overflow-hidden text-white font-sans">
+      <Sidebar />
+      
+      <main className="flex-1 flex flex-col gap-4 p-4 lg:p-6 min-w-0">
+        <DashboardHeader 
+          campusLoad={campusLoad} 
+          campusOccupancy={campusOccupancy} 
+          activeZonesCount={zones.length} 
+        />
 
-      <section className="grid flex-1 gap-4 lg:grid-cols-[1.5fr_0.8fr] min-h-0">
-        <div className="relative rounded-2xl border border-[#35A29F]/30 bg-[#071952] shadow-[0_0_20px_rgba(11,102,106,0.3)] overflow-hidden flex flex-col">
-          <div className="absolute top-0 w-full flex items-center justify-between bg-[#0B666A]/80 backdrop-blur-sm border-b border-[#35A29F]/50 z-10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#97FEED] font-bold">
-            <span>3D Campus Twin</span>
-            <span>Orbit + Click Building</span>
+        <section className="grid flex-1 gap-4 lg:grid-cols-[1.5fr_0.8fr] min-h-0">
+          <div className="relative rounded-2xl border border-[#35A29F]/30 bg-[#071952] shadow-[0_0_20px_rgba(11,102,106,0.3)] overflow-hidden flex flex-col">
+            <div className="absolute top-0 w-full flex items-center justify-between bg-[#0B666A]/80 backdrop-blur-sm border-b border-[#35A29F]/50 z-10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#97FEED] font-bold">
+              <span>3D Campus Twin</span>
+              <span>Orbit + Click Building</span>
+            </div>
+            <div className="flex-1 w-full bg-[#071952]">
+              <CampusTwinScene
+                zones={zones}
+                selectedZoneId={selectedZoneId}
+                onSelect={setSelectedZoneId}
+              />
+            </div>
           </div>
-          <div className="flex-1 w-full bg-[#071952]">
-            <CampusTwinScene
-              zones={zones}
-              selectedZoneId={selectedZoneId}
-              onSelect={setSelectedZoneId}
+
+          <aside className="flex flex-col gap-4 overflow-y-auto pr-1">
+            <ZoneList 
+              zones={zones} 
+              selectedZoneId={selectedZoneId} 
+              onSelect={setSelectedZoneId} 
             />
-          </div>
-        </div>
-
-        <aside className="grid gap-4 overflow-y-auto pr-1">
-          <ZoneList 
-            zones={zones} 
-            selectedZoneId={selectedZoneId} 
-            onSelect={setSelectedZoneId} 
-          />
-          <ZoneDetail selectedZone={selectedZone} />
-        </aside>
-      </section>
+            <ZoneDetail selectedZone={selectedZone} />
+          </aside>
+        </section>
+      </main>
     </div>
   );
 }
