@@ -71,7 +71,12 @@ export default function DigitalTwinDashboard() {
 
   return (
     <div className="flex h-screen w-full bg-[#071952] overflow-hidden text-white font-sans">
-      <Sidebar />
+      <Sidebar 
+        zones={zones} 
+        selectedZoneId={selectedZoneId} 
+        onSelect={setSelectedZoneId} 
+        selectedZone={selectedZone}
+      />
       
       <main className="flex-1 flex flex-col gap-4 p-4 lg:p-6 min-w-0">
         <DashboardHeader 
@@ -80,11 +85,11 @@ export default function DigitalTwinDashboard() {
           activeZonesCount={zones.length} 
         />
 
-        <section className="grid flex-1 gap-4 lg:grid-cols-[1.5fr_0.8fr] min-h-0">
-          <div className="relative rounded-2xl border border-[#35A29F]/30 bg-[#071952] shadow-[0_0_20px_rgba(11,102,106,0.3)] overflow-hidden flex flex-col">
+        <section className="flex-1 min-h-0">
+          <div className="relative h-full w-full rounded-2xl border border-[#35A29F]/30 bg-[#071952] shadow-[0_0_20px_rgba(11,102,106,0.3)] overflow-hidden flex flex-col">
             <div className="absolute top-0 w-full flex items-center justify-between bg-[#0B666A]/80 backdrop-blur-sm border-b border-[#35A29F]/50 z-10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#97FEED] font-bold">
-              <span>3D Campus Twin</span>
-              <span>Orbit + Click Building</span>
+              <span>3D Campus Twin Visualization</span>
+              <span>Rotate & Click to Inspect</span>
             </div>
             <div className="flex-1 w-full bg-[#071952]">
               <CampusTwinScene
@@ -94,15 +99,6 @@ export default function DigitalTwinDashboard() {
               />
             </div>
           </div>
-
-          <aside className="flex flex-col gap-4 overflow-y-auto pr-1">
-            <ZoneList 
-              zones={zones} 
-              selectedZoneId={selectedZoneId} 
-              onSelect={setSelectedZoneId} 
-            />
-            <ZoneDetail selectedZone={selectedZone} />
-          </aside>
         </section>
       </main>
     </div>

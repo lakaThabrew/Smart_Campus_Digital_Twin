@@ -11,7 +11,7 @@ type ZoneListProps = {
 
 export default function ZoneList({ zones, selectedZoneId, onSelect }: ZoneListProps) {
   return (
-    <div className="rounded-2xl border border-[#35A29F]/30 bg-[#0B666A]/30 p-5 backdrop-blur-md shadow-lg flex flex-col flex-grow min-h-[300px]">
+    <div className="flex flex-col flex-grow min-h-0">
       <h2 className="text-xs uppercase tracking-[0.2em] text-[#97FEED] font-bold mb-4">
         Zone Status Panel
       </h2>
