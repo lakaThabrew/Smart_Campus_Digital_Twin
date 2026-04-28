@@ -57,7 +57,7 @@ export default function DigitalTwinDashboard() {
   useEffect(() => {
     const timer = setInterval(() => {
       setZones((prev) => prev.map(updateZone));
-    }, 2000);
+    }, 5000);
 
     return () => clearInterval(timer);
   }, []);

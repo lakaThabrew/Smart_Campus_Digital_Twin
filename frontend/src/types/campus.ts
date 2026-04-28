@@ -15,10 +15,16 @@ export type ZoneLayout = {
 };
 
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  { id: "eng", position: [-4.5, 0, -2] },
-  { id: "library", position: [0, 0, -1.5] },
-  { id: "hostel", position: [4.2, 0, 0] },
-  { id: "sports", position: [-1.2, 0, 3.2] },
+ { id: "sports", position: [-8, 0, -5] },        // Sports Ground
+
+  // center-left
+  { id: "eng", position: [-2, 0, -2] },           // Engineering / departments
+
+  // center
+  { id: "library", position: [0, 0, 6] },         // Library (bottom center)
+
+  // right side
+  { id: "hostel", position: [6, 0, 0] },  
 ];
 
 export const STATUS_COLORS: Record<ZoneStatus, string> = {

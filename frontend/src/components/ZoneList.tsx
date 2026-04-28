@@ -15,7 +15,7 @@ export default function ZoneList({ zones, selectedZoneId, onSelect }: ZoneListPr
       <h2 className="text-xs uppercase tracking-[0.2em] text-[#97FEED] font-bold mb-4">
         Zone Status Panel
       </h2>
-      <div className="grid gap-3 flex-1 overflow-y-auto pr-1">
+      <div className="grid grid-cols-2 gap-2 flex-1 overflow-y-auto pr-1">
         {zones.map((zone) => {
           const active = selectedZoneId === zone.id;
           return (
@@ -23,19 +23,19 @@ export default function ZoneList({ zones, selectedZoneId, onSelect }: ZoneListPr
               key={zone.id}
               type="button"
               onClick={() => onSelect(zone.id)}
-              className={`rounded-xl border p-4 text-left transition-all duration-300 ${
+              className={`rounded-lg border p-1.5 text-left transition-all duration-300 flex flex-col items-center gap-1 ${
                 active
-                  ? "border-[#97FEED] bg-[#0B666A]/90 shadow-[0_0_15px_rgba(151,254,237,0.2)]"
-                  : "border-[#35A29F]/40 bg-[#071952]/50 hover:border-[#97FEED]/60"
+                  ? "border-[#97FEED] bg-[#0B666A]/90 shadow-[0_0_10px_rgba(151,254,237,0.2)]"
+                  : "border-[#35A29F]/20 bg-[#071952]/30 hover:border-[#97FEED]/40"
               }`}
             >
-              <div className="flex items-center justify-between text-base font-semibold text-white">
-                <span>{zone.name}</span>
-                <span
-                  className="h-3 w-3 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-                  style={{ backgroundColor: STATUS_COLORS[zone.status] }}
-                />
-              </div>
+              <span
+                className="h-2 w-2 rounded-full shrink-0"
+                style={{ backgroundColor: STATUS_COLORS[zone.status] }}
+              />
+              <span className="text-[10px] font-medium text-white text-center leading-tight break-words w-full">
+                {zone.name}
+              </span>
             </button>
           );
         })}
