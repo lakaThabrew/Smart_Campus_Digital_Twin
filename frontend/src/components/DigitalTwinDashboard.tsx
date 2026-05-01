@@ -43,313 +43,264 @@ export const STATUS_GLOW: Record<ZoneStatus, string> = {
 };
 
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  // Lagaan
   {
     id: "lagaan",
     name: "Lagaan",
     position: [-2.5, 0, -2],
     size: [2.5, 0.25, 2.5],
     roofType: "shed",
-    roofColor: "#2d6e2d",
-    wallColor: "#3a8a3a",
+    roofColor: "#3a5a40",
+    wallColor: "#dad7cd",
     label: "Lagaan",
   },
-
-  // Multipurpose Hall
   {
     id: "conference",
     name: "Multipurpose Hall",
     position: [-10.5, 0, 0.5],
     size: [4.2, 3.2, 2.2],
-    roofType: "hip",
-    roofColor: "#7a6040",
-    wallColor: "#c8b090",
+    roofType: "gabled",
+    roofColor: "#8b3a3a",
+    wallColor: "#f4f1ea",
     label: "Multipurpose Hall",
   },
-
-  // A Hostel
   {
     id: "hostel_a",
     name: "Hostel A",
     position: [10.5, 0, -14.5],
     size: [6.2, 4.0, 1.8],
-    roofType: "flat",
-    roofColor: "#dcdcdc",
-    wallColor: "#f0f0f0",
+    roofType: "hip",
+    roofColor: "#2c3e50",
+    wallColor: "#e2e8f0",
     label: "Hostel A",
   },
-
-  // Textile dept
   {
     id: "textile",
     name: "Dept of Textile & Clothing",
     position: [2.5, 0, -9.5],
     size: [2.8, 1.4, 2.6],
     roofType: "flat",
-    roofColor: "#808080",
-    wallColor: "#b8b8b8",
+    roofColor: "#475569",
+    wallColor: "#f8fafc",
     label: "Depart. of Textile",
   },
-
-  // Transport & Logistics
   {
     id: "transport",
     name: "Dept of Transport & Logistics",
     position: [12.5, 0, -4.0],
     size: [3.0, 2.0, 2.4],
     roofType: "flat",
-    roofColor: "#909090",
-    wallColor: "#c0c0c0",
+    roofColor: "#52525b",
+    wallColor: "#e4e4e7",
     label: "Transport & Logistics",
   },
-
-  // Civil Engineering
   {
     id: "civil",
     name: "Dept of Civil Engineering",
     position: [17, 0, -9.5],
     size: [1.8, 2.6, 8.5],
     roofType: "flat",
-    roofColor: "#707080",
-    wallColor: "#b0b0c0",
+    roofColor: "#3f3f46",
+    wallColor: "#d4d4d8",
     label: "Civil Engineering",
   },
-  // Sumansadasa Building
   {
     id: "cse",
     name: "Dept of Computer Science & Engineering",
     position: [-5.0, 0, 4.5],
     size: [8.0, 3.2, 2.2],
     roofType: "flat",
-    roofColor: "#6a7a8a",
-    wallColor: "#a0b0c0",
+    roofColor: "#1e293b",
+    wallColor: "#f1f5f9",
     label: "Sumanadasa Building",
   },
-
-  // Goda Canteen
   {
     id: "Goda canteen",
     name: "Goda Canteen",
     position: [-5, 0, 7.7],
     size: [1.8, 1.5, 1.2],
     roofType: "hip",
-    roofColor: "#b05030",
-    wallColor: "#d4aa60",
+    roofColor: "#9c2a2a",
+    wallColor: "#fef3c7",
     label: "Goda Canteen",
   },
-
-  // Sentra Court
   {
     id: "Sentra",
     name: "Sentra Court",
     position: [-2.5, 0, 7.7],
     size: [3, 1.5, 1.2],
-    roofType: "hip",
-    roofColor: "#18bf28",
-    wallColor: "#18be5a",
+    roofType: "gabled",
+    roofColor: "#1b4332",
+    wallColor: "#d8f3dc",
     label: "Sentra Court",
   },
-
-  // L Canteen
   {
     id: "canteen",
     name: "L Canteen",
     position: [1.7, 0, -0.5],
     size: [1.8, 1.5, 1.4],
     roofType: "hip",
-    roofColor: "#b05030",
-    wallColor: "#d4aa60",
+    roofColor: "#c2410c",
+    wallColor: "#ffedd5",
     label: "L Canteen",
   },
-
-  // Faculty of IT
   {
     id: "it",
     name: "Faculty of Information Technology",
     position: [7.5, 0, 3],
     size: [1.4, 3.0, 2],
     roofType: "flat",
-    roofColor: "#8090a0",
-    wallColor: "#b0c0d0",
+    roofColor: "#334155",
+    wallColor: "#cbd5e1",
     label: "Faculty of IT",
   },
-
-  // Hostel
   {
     id: "hostel",
     name: "Hostel C",
     position: [11.0, 0, 3],
     size: [3.4, 1.6, 2.4],
-    roofType: "flat",
-    roofColor: "#e0ccd0",
-    wallColor: "#f5e8ea",
+    roofType: "gabled",
+    roofColor: "#7f1d1d",
+    wallColor: "#fee2e2",
     label: "Hostel",
   },
-
-  // Faculty of Business Science
   {
     id: "buildeco",
     name: "Faculty of Business Science",
     position: [4.0, 0, -0.5],
     size: [2.2, 3.2, 1.2],
     roofType: "flat",
-    roofColor: "#6b5030",
-    wallColor: "#a89070",
+    roofColor: "#374151",
+    wallColor: "#f3f4f6",
     label: "Faculty of Business Science",
   },
-
-  // dept.of Maths
   {
     id: "maths",
     name: "Dept of Maths",
     position: [4.0, 0, -3.5],
     size: [2.2, 3.0, 2.0],
     roofType: "flat",
-    roofColor: "#dcdcdc",
-    wallColor: "#f4f4f4",
+    roofColor: "#1f2937",
+    wallColor: "#e5e7eb",
     label: "Dept of Maths",
   },
-
-  // Faculty of Medicine
   {
     id: "medicine",
     name: "Faculty of Medicine",
     position: [17, 0, 0],
     size: [2.2, 4, 3.2],
-    roofType: "flat",
-    roofColor: "#a07060",
-    wallColor: "#d0a090",
+    roofType: "hip",
+    roofColor: "#581c87",
+    wallColor: "#f3e8ff",
     label: "Faculty of Medicine",
   },
-  // dept of electronics and telecommunication engineering
   {
     id: "electronics",
     name: "Dept of Electronics & Telecommunication Engineering",
     position: [3, 0, 5.3],
     size: [1.2, 4, 1.2],
     roofType: "flat",
-    roofColor: "#613462",
-    wallColor: "#854771",
+    roofColor: "#0f172a",
+    wallColor: "#e2e8f0",
     label: "Dept of Electronics & Telecommunication Engineering",
   },
-
-  // NA1&NA2
   {
     id: "na1",
     name: "NA1&2",
     position: [18.5, 0, 6.0],
     size: [2.4, 2.0, 2.2],
     roofType: "flat",
-    roofColor: "#c8c8c8",
-    wallColor: "#eeeeee",
+    roofColor: "#4b5563",
+    wallColor: "#f9fafb",
     label: "NA1&2",
   },
-
-  // Wala Canteen (inside Sumandasa)
   {
     id: "wala_canteen",
     name: "Wala Canteen",
     position: [-10.0, 0, 5],
     size: [1, 0.8, 1],
-    roofType: "hip",
-    roofColor: "#a05030",
-    wallColor: "#d0a060",
+    roofType: "shed",
+    roofColor: "#831843",
+    wallColor: "#fce7f3",
     label: "Wala Canteen",
   },
-
-  // Dept of Material Science & Engineering
   {
     id: "material",
     name: "Dept of Material Science & Engineering",
     position: [-9.5, 0, 8.0],
     size: [2.0, 2.4, 2],
     roofType: "flat",
-    roofColor: "#806050",
-    wallColor: "#b09080",
+    roofColor: "#111827",
+    wallColor: "#d1d5db",
     label: "Material Science",
   },
-
-  // Dept of Chemical & Process Engineering
   {
     id: "chemical",
     name: "Dept of Chemical & Process Engineering",
     position: [-6.5, 0, 9.5],
     size: [3.0, 1.2, 2],
     roofType: "flat",
-    roofColor: "#607090",
-    wallColor: "#9ab0c8",
+    roofColor: "#172554",
+    wallColor: "#dbeafe",
     label: "Chemical & Process Eng",
   },
-
-  // Dept of Mechanical Engineering
   {
     id: "mechanical",
     name: "Dept of Mechanical Engineering",
     position: [-11.5, 0, 12.5],
     size: [7.2, 2.4, 2.8],
-    roofType: "flat",
-    roofColor: "#706050",
-    wallColor: "#a89070",
+    roofType: "shed",
+    roofColor: "#27272a",
+    wallColor: "#f4f4f5",
     label: "Mechanical Engineering",
   },
-
-  // Registrar Office & Examination
   {
     id: "registrar",
     name: "Registrar Office & Examination",
     position: [-4, 0, 14.2],
     size: [1.0, 1.5, 2],
     roofType: "gabled",
-    roofColor: "#5a4a30",
-    wallColor: "#9a8060",
+    roofColor: "#064e3b",
+    wallColor: "#d1fae5",
     label: "Registrar Office",
   },
-
-  // Admin building
   {
     id: "admin",
     name: "Admin Building",
     position: [-2.0, 0, 14.5],
     size: [2.0, 2.2, 2.4],
-    roofType: "gabled",
-    roofColor: "#7a6040",
-    wallColor: "#c8b090",
+    roofType: "hip",
+    roofColor: "#7f1d1d",
+    wallColor: "#fff1f2",
     label: "Admin",
   },
-
-  // Dept of Integrated Design
   {
     id: "intdesign",
     name: "Dept of Integrated Design",
     position: [5.5, 0, 7.5],
     size: [2.8, 2.2, 1],
     roofType: "flat",
-    roofColor: "#808090",
-    wallColor: "#b0b0cc",
+    roofColor: "#14532d",
+    wallColor: "#e8f5e9",
     label: "Integrated Design",
   },
-
-  // Dept of Graduate Studies
   {
     id: "graduate",
     name: "Faculty of Graduate Studies",
     position: [3.5, 0, 10.5],
     size: [2.8, 2.2, 2.2],
     roofType: "flat",
-    roofColor: "#706870",
-    wallColor: "#a898a8",
+    roofColor: "#312e81",
+    wallColor: "#e0e7ff",
     label: "Graduate Studies",
   },
-
-  // Library
   {
     id: "library",
     name: "Library",
     position: [3.5, 0, 13.5],
     size: [2.8, 2.2, 1.8],
     roofType: "gabled",
-    roofColor: "#4a3820",
-    wallColor: "#9a7850",
+    roofColor: "#a16207",
+    wallColor: "#fefce8",
     label: "Library",
   },
 ];
@@ -517,7 +468,7 @@ function Building({
   let roofHeight = 0.18;
   if (layout.roofType === "gabled") roofHeight = Math.min(w, d) * 0.35;
   else if (layout.roofType === "hip") roofHeight = Math.min(w, d) * 0.45;
-  
+
   const totalH = h + roofHeight;
 
   const Roof = () => {
@@ -558,7 +509,10 @@ function Building({
     }
     if (layout.roofType === "hip") {
       return (
-        <mesh position={[0, h + roofHeight / 2, 0]} rotation={[0, Math.PI / 4, 0]}>
+        <mesh
+          position={[0, h + roofHeight / 2, 0]}
+          rotation={[0, Math.PI / 4, 0]}
+        >
           <coneGeometry args={[Math.max(w, d) * 0.75 + 0.15, roofHeight, 4]} />
           <meshStandardMaterial color={layout.roofColor} roughness={0.6} />
         </mesh>
@@ -628,10 +582,7 @@ function Building({
             emissiveIntensity={1.0}
           />
         </mesh>
-        <Html
-          center
-          position={[0, totalH + 1.1, 0]}
-        >
+        <Html center position={[0, totalH + 1.1, 0]}>
           <div
             style={{
               background: "rgba(7,25,82,0.88)",
