@@ -215,11 +215,22 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     id: "medicine",
     name: "Faculty of Medicine",
     position: [17, 0, 0],
-    size: [2.2, 5, 3.2],
+    size: [2.2, 4, 3.2],
     roofType: "flat",
     roofColor: "#a07060",
     wallColor: "#d0a090",
     label: "Faculty of Medicine",
+  },
+  // dept of electronics and telecommunication engineering
+  {
+    id: "electronics",
+    name: "Dept of Electronics & Telecommunication Engineering",
+    position: [3, 0, 5.3],
+    size: [1.2, 4, 1.2],
+    roofType: "flat",
+    roofColor: "#613462",
+    wallColor: "#854771",
+    label: "Dept of Electronics & Telecommunication Engineering",
   },
 
   // NA1&NA2
@@ -908,7 +919,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "textile",
-    name: "Dept of Textile & Clothing",
+    name: "Dept of Textile",
     energyKw: 58.4,
     occupancy: 60,
     temperatureC: 29.5,
@@ -916,7 +927,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "civil",
-    name: "Dept of Civil Engineering",
+    name: "Dept of Civil",
     energyKw: 62.1,
     occupancy: 65,
     temperatureC: 29.8,
@@ -932,7 +943,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "transport",
-    name: "New Transport & Logistics",
+    name: "dept Transport",
     energyKw: 35.0,
     occupancy: 45,
     temperatureC: 29.0,
@@ -972,7 +983,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "conference",
-    name: "New Conference Hall",
+    name: "Multipurpose Hall",
     energyKw: 38.5,
     occupancy: 55,
     temperatureC: 28.5,
@@ -980,11 +991,19 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "it",
-    name: "Faculty of Information Technology",
+    name: "Faculty of IT",
     energyKw: 76.5,
     occupancy: 72,
     temperatureC: 31.5,
     status: "busy",
+  },
+  {
+    id: "electronics",
+    name: "Dept of Electronics",
+    energyKw: 54.0,
+    occupancy: 60,
+    temperatureC: 30.2,
+    status: "normal",
   },
   {
     id: "hostel",
@@ -996,7 +1015,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "female_hostel",
-    name: "Female Hostel",
+    name: "Hostel B",
     energyKw: 88.0,
     occupancy: 74,
     temperatureC: 31.0,
@@ -1020,7 +1039,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "hostel_na2",
-    name: "NA2 Hostel",
+    name: "Dept.of Maths",
     energyKw: 74.0,
     occupancy: 61,
     temperatureC: 30.1,
@@ -1036,7 +1055,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "admin",
-    name: "New Conference Hall",
+    name: "Admin Building",
     energyKw: 38.5,
     occupancy: 55,
     temperatureC: 28.5,
@@ -1044,19 +1063,11 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "cse",
-    name: "Dept of CS & Engineering",
+    name: "Dept of CSE",
     energyKw: 82.3,
     occupancy: 76,
     temperatureC: 31.2,
     status: "busy",
-  },
-  {
-    id: "maritime",
-    name: "Division of Maritime Studies",
-    energyKw: 42.0,
-    occupancy: 50,
-    temperatureC: 28.8,
-    status: "normal",
   },
   {
     id: "wala_canteen",
@@ -1068,7 +1079,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "buildeco",
-    name: "Dept of Building Economics",
+    name: "Faculty of Business",
     energyKw: 50.0,
     occupancy: 58,
     temperatureC: 29.0,
@@ -1076,7 +1087,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "material",
-    name: "Dept of Material Science",
+    name: "Dept of Material",
     energyKw: 65.0,
     occupancy: 62,
     temperatureC: 30.0,
@@ -1084,7 +1095,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "chemical",
-    name: "Dept of Chemical & Process Eng",
+    name: "Dept of Chemical",
     energyKw: 70.2,
     occupancy: 67,
     temperatureC: 30.8,
@@ -1092,7 +1103,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "mechanical",
-    name: "Dept of Mechanical Engineering",
+    name: "Dept of Mechanica",
     energyKw: 68.0,
     occupancy: 64,
     temperatureC: 30.4,
@@ -1100,7 +1111,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "registrar",
-    name: "Registrar Office & Examination",
+    name: "Reg. & Exam Office",
     energyKw: 32.0,
     occupancy: 40,
     temperatureC: 28.0,
@@ -1108,7 +1119,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "intdesign",
-    name: "Dept of Integrated Design",
+    name: "Dept of Integrated",
     energyKw: 48.0,
     occupancy: 57,
     temperatureC: 29.2,
@@ -1258,7 +1269,7 @@ export default function DigitalTwinDashboard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
             gap: 6,
             flex: 1,
             alignItems: "start",
@@ -1304,21 +1315,12 @@ export default function DigitalTwinDashboard() {
                     lineHeight: 1.2,
                     flex: 1,
                     minWidth: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   {zone.name}
-                </span>
-                <span
-                  style={{
-                    fontSize: 7,
-                    color: STATUS_COLORS[zone.status],
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    flexShrink: 0,
-                    letterSpacing: "0.04em",
-                  }}
-                >
-                  {zone.status}
                 </span>
               </button>
             );
