@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Building2, Navigation, Eye } from "lucide-react";
@@ -389,6 +389,11 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
     };
   }, [enabled, camera]);
 
+  const euler = useMemo(() => new THREE.Euler(0, 0, 0, "YXZ"), []);
+  const yawEuler = useMemo(() => new THREE.Euler(0, 0, 0), []);
+  const forward = useMemo(() => new THREE.Vector3(), []);
+  const right = useMemo(() => new THREE.Vector3(), []);
+
   useFrame((_, delta) => {
     if (!enabled) return;
 
@@ -396,15 +401,12 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
       keys.current["ShiftLeft"] || keys.current["ShiftRight"] ? 12 : 6;
     const dt = Math.min(delta, 0.05);
 
-    const euler = new THREE.Euler(pitch.current, yaw.current, 0, "YXZ");
+    euler.set(pitch.current, yaw.current, 0, "YXZ");
     camera.quaternion.setFromEuler(euler);
 
-    const forward = new THREE.Vector3(0, 0, -1).applyEuler(
-      new THREE.Euler(0, yaw.current, 0),
-    );
-    const right = new THREE.Vector3(1, 0, 0).applyEuler(
-      new THREE.Euler(0, yaw.current, 0),
-    );
+    yawEuler.set(0, yaw.current, 0);
+    forward.set(0, 0, -1).applyEuler(yawEuler);
+    right.set(1, 0, 0).applyEuler(yawEuler);
 
     if (keys.current["KeyW"] || keys.current["ArrowUp"])
       camera.position.addScaledVector(forward, speed * dt);
@@ -649,9 +651,8 @@ function Roads() {
           rotation={[-Math.PI / 2, 0, 0]}
           position={[0.0, 0.008, z]}
         >
-          {" "}
-          <planeGeometry args={[0.06, 0.7]} />{" "}
-          <meshStandardMaterial {...markings} opacity={0.6} transparent />{" "}
+          <planeGeometry args={[0.06, 0.7]} />
+          <meshStandardMaterial {...markings} opacity={0.6} transparent />
         </mesh>,
       );
     }
@@ -902,7 +903,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "canteen",
-    name: "Canteen",
+    name: "L Canteen",
     energyKw: 92.0,
     occupancy: 90,
     temperatureC: 36.0,
