@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
-import { Building2, Navigation, Eye, RotateCcw } from "lucide-react";
+import { Building2, Navigation, Eye } from "lucide-react";
 import * as THREE from "three";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
@@ -70,13 +70,13 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
   // A Hostel
   {
     id: "hostel_a",
-    name: "A Hostel",
+    name: "Hostel A",
     position: [10.5, 0, -14.5],
     size: [6.2, 4.0, 1.8],
     roofType: "flat",
     roofColor: "#dcdcdc",
     wallColor: "#f0f0f0",
-    label: "A Hostel",
+    label: "Hostel A",
   },
 
   // Textile dept
@@ -177,7 +177,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
   // Hostel
   {
     id: "hostel",
-    name: "Hostel",
+    name: "Hostel C",
     position: [11.0, 0, 3],
     size: [3.4, 1.6, 2.4],
     roofType: "flat",
@@ -354,6 +354,13 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
   },
 ];
 
+const WALK_BOUNDS = {
+  minX: -22,
+  maxX: 22,
+  minZ: -18,
+  maxZ: 20,
+};
+
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v));
 }
@@ -406,20 +413,24 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
     };
     const onClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target && target.closest("canvas")) {
-        document.documentElement.requestPointerLock?.();
+      const canvas = target?.closest("canvas") as HTMLCanvasElement | null;
+      if (canvas) {
+        canvas.requestPointerLock?.();
       }
     };
 
-    window.addEventListener("keydown", (e) => onKey(e, true));
-    window.addEventListener("keyup", (e) => onKey(e, false));
+    const onKeyDown = (e: KeyboardEvent) => onKey(e, true);
+    const onKeyUp = (e: KeyboardEvent) => onKey(e, false);
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("pointerlockchange", onPointerLockChange);
     document.addEventListener("click", onClick);
 
     return () => {
-      window.removeEventListener("keydown", (e) => onKey(e, true));
-      window.removeEventListener("keyup", (e) => onKey(e, false));
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("pointerlockchange", onPointerLockChange);
       document.removeEventListener("click", onClick);
@@ -456,8 +467,16 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
     // Keep height fixed at eye level
     camera.position.y = 1.7;
     // Clamp to campus bounds
-    camera.position.x = clamp(camera.position.x, -15, 15);
-    camera.position.z = clamp(camera.position.z, -13, 15);
+    camera.position.x = clamp(
+      camera.position.x,
+      WALK_BOUNDS.minX,
+      WALK_BOUNDS.maxX,
+    );
+    camera.position.z = clamp(
+      camera.position.z,
+      WALK_BOUNDS.minZ,
+      WALK_BOUNDS.maxZ,
+    );
   });
 
   return null;
@@ -512,19 +531,6 @@ function Building({
       const ridge = h * 0.38;
       return (
         <group position={[0, h / 2, 0]}>
-          {[-1, 1].map((side) => (
-            <mesh
-              key={side}
-              rotation={[0, side === 1 ? 0 : Math.PI, 0]}
-              position={[0, 0, (side * d) / 2]}
-            >
-              <meshStandardMaterial
-                color={layout.roofColor}
-                roughness={0.6}
-                side={THREE.DoubleSide}
-              />
-            </mesh>
-          ))}
           <mesh
             rotation={[Math.atan2(ridge, w / 2), 0, 0]}
             position={[0, ridge / 2, 0]}
@@ -934,16 +940,8 @@ const INITIAL_ZONES: Zone[] = [
     status: "normal",
   },
   {
-    id: "lblock",
-    name: "L Block",
-    energyKw: 44.0,
-    occupancy: 70,
-    temperatureC: 30.5,
-    status: "busy",
-  },
-  {
     id: "transport",
-    name: "dept Transport",
+    name: "Dept of Transport",
     energyKw: 35.0,
     occupancy: 45,
     temperatureC: 29.0,
@@ -975,7 +973,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "hostel_a",
-    name: "A Hostel",
+    name: "Hostel A",
     energyKw: 95.1,
     occupancy: 78,
     temperatureC: 32.0,
@@ -1014,14 +1012,6 @@ const INITIAL_ZONES: Zone[] = [
     status: "busy",
   },
   {
-    id: "female_hostel",
-    name: "Hostel B",
-    energyKw: 88.0,
-    occupancy: 74,
-    temperatureC: 31.0,
-    status: "busy",
-  },
-  {
     id: "na1",
     name: "NA1&NA2",
     energyKw: 79.0,
@@ -1036,14 +1026,6 @@ const INITIAL_ZONES: Zone[] = [
     occupancy: 59,
     temperatureC: 29.7,
     status: "normal",
-  },
-  {
-    id: "hostel_na2",
-    name: "Dept.of Maths",
-    energyKw: 74.0,
-    occupancy: 61,
-    temperatureC: 30.1,
-    status: "busy",
   },
   {
     id: "medicine",
@@ -1103,7 +1085,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "mechanical",
-    name: "Dept of Mechanica",
+    name: "Dept of Mechanical",
     energyKw: 68.0,
     occupancy: 64,
     temperatureC: 30.4,
@@ -1240,6 +1222,7 @@ export default function DigitalTwinDashboard() {
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search zones"
           placeholder="Search zones..."
           style={{
             background: "rgba(7,25,82,0.5)",
