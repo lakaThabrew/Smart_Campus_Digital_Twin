@@ -649,9 +649,8 @@ function Roads() {
           rotation={[-Math.PI / 2, 0, 0]}
           position={[0.0, 0.008, z]}
         >
-          {" "}
-          <planeGeometry args={[0.06, 0.7]} />{" "}
-          <meshStandardMaterial {...markings} opacity={0.6} transparent />{" "}
+          <planeGeometry args={[0.06, 0.7]} />
+          <meshStandardMaterial {...markings} opacity={0.6} transparent />
         </mesh>,
       );
     }
@@ -902,7 +901,7 @@ const INITIAL_ZONES: Zone[] = [
   },
   {
     id: "canteen",
-    name: "Canteen",
+    name: "L Canteen",
     energyKw: 92.0,
     occupancy: 90,
     temperatureC: 36.0,
