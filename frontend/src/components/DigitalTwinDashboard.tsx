@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
-import { Building2, Navigation, Eye } from "lucide-react";
+import { Building2, Navigation, Eye, RotateCcw } from "lucide-react";
 import * as THREE from "three";
+
+// ─── Types & Config ───────────────────────────────────────────────────────────
 
 export type ZoneStatus = "normal" | "busy" | "critical";
 
@@ -39,276 +41,350 @@ export const STATUS_GLOW: Record<ZoneStatus, string> = {
   critical: "#FF8B6E",
 };
 
-// ─── REVISED CAMPUS LAYOUT ────────────────────────────────────────────────────
-// Road system uses a clear grid:
-//   Main N-S spine:   X = 0,  Z = -12 to +14
-//   East perimeter:   X = 13, Z = -12 to +14
-//   West perimeter:   X = -13, Z = -12 to +14
-//   South perimeter:  Z = 14, X = -13 to +13
-//   North boundary:   Z = -12
-//   E-W cross roads at Z = -9, -5, -1, 3, 7, 11
-//   Secondary N-S at X = -7 (west block) and X = 7 (east block)
-//
-// Buildings are placed BETWEEN roads with adequate clearance (≥1.2 units from road centres)
+// ─── Campus Layout (accurate to UoM Google Maps) ──────────────────────────────
+// Map coordinate system: X = east (+) / west (-), Z = south (+) / north (-)
+// Map spans roughly X: -14 to +14, Z: -12 to +14
+// Main Street runs vertically near X=0, from Z=-10 to Z=13
+
+// ─── Campus Layout ────────────────────────────────────────────────────────────
+// Map coordinate system: X = east (+) / west (-), Z = south (+) / north (-)
+// Based on hand-drawn sketch (revised):
+//   Top-left:    Play Ground (large) + Pavilion + New Conference Hall
+//   Top-right:   A Hostel, Textile & Clothing, Transport & Logistics, Civil Eng.
+//   Mid-left:    Sumandasa Building (large) containing Wala Canteen + Maritime Studies
+//   Mid-center:  CS & Engineering, Faculty of IT, Canteen, Building Economics
+//   Mid-right:   Female Hostel, Faculty of Medicine, NA1 Hostel, NA2 Hostel
+//   Lower-left:  Material Science, Chemical & Process Eng., Mechanical Eng.
+//   Lower-center:Registrar Office, Admin
+//   Lower-right: Integrated Design, Graduate Studies, Library
+//   Bottom:      Main Entrance (center), Side Entrance (left)
 
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  // ── NORTHWEST QUAD (X: -13 to -2, Z: -12 to -2) ─────────────────────────
+  // ── NORTH / TOP ───────────────────────────────────────────────────────────
+
+  // Play Ground (large open field, top-left)
   {
     id: "sports",
-    position: [-9.5, 0, -9.5],
-    size: [5.5, 0.3, 4.5],
+    name: "Play Ground",
+    position: [-7.5, 0, -7.5],
+    size: [9.0, 0.25, 5.5],
     roofType: "shed",
     roofColor: "#2d6e2d",
     wallColor: "#3a8a3a",
-    label: "Sports Ground",
-    name: "Sports Ground",
+    label: "Play Ground",
   },
+
+  // Pavilion (inside play ground, top-left corner)
   {
     id: "pavilion",
-    position: [-9.5, 0, -5.8],
-    size: [1.8, 1.8, 1.4],
+    name: "Pavilion",
+    position: [-11.0, 0, -9.0],
+    size: [2.0, 1.5, 1.2],
     roofType: "hip",
     roofColor: "#7a5535",
     wallColor: "#c8b090",
     label: "Pavilion",
-    name: "Pavilion",
   },
+
+  // New Conference Hall (circular/prominent, left side of play ground)
   {
-    id: "civil",
-    position: [-4.5, 0, -9.5],
-    size: [3.0, 2.8, 2.6],
-    roofType: "flat",
-    roofColor: "#707080",
-    wallColor: "#b0b0c0",
-    label: "Civil Engineering",
-    name: "Dept of Civil Engineering",
+    id: "conference",
+    name: "New Conference Hall",
+    position: [-10.5, 0, -6.5],
+    size: [2.2, 2.2, 2.2],
+    roofType: "hip",
+    roofColor: "#7a6040",
+    wallColor: "#c8b090",
+    label: "New Conference Hall",
   },
-  {
-    id: "textile",
-    position: [-4.5, 0, -6.2],
-    size: [3.2, 2.4, 2.6],
-    roofType: "flat",
-    roofColor: "#808080",
-    wallColor: "#b8b8b8",
-    label: "Textile & Clothing",
-    name: "Dept of Textile & Clothing",
-  },
-  // ── NORTHEAST QUAD (X: 2 to 13, Z: -12 to -2) ────────────────────────────
-  {
-    id: "transport",
-    position: [4.0, 0, -9.5],
-    size: [2.8, 2.2, 2.4],
-    roofType: "flat",
-    roofColor: "#909090",
-    wallColor: "#c0c0c0",
-    label: "Transport & Logistics",
-    name: "New Transport & Logistics",
-  },
+
+  // A Hostel (top-right, above back gate road)
   {
     id: "hostel_a",
-    position: [9.5, 0, -9.5],
-    size: [2.8, 4.2, 2.8],
+    name: "A Hostel",
+    position: [7.5, 0, -9.5],
+    size: [3.2, 4.0, 1.8],
     roofType: "flat",
     roofColor: "#dcdcdc",
     wallColor: "#f0f0f0",
     label: "A Hostel",
-    name: "A Hostel",
   },
+
+  // Textile & Clothing (top-right block, below back gate)
   {
-    id: "lblock",
-    position: [4.0, 0, -6.2],
-    size: [2.4, 2.8, 2.2],
+    id: "textile",
+    name: "Dept of Textile & Clothing",
+    position: [3.5, 0, -7.5],
+    size: [2.8, 2.4, 2.6],
     roofType: "flat",
-    roofColor: "#888888",
-    wallColor: "#bbbbbb",
-    label: "L Block",
-    name: "L Block",
+    roofColor: "#808080",
+    wallColor: "#b8b8b8",
+    label: "Textile & Clothing",
   },
+
+  // Transport & Logistics (right of textile)
   {
-    id: "female_hostel",
-    position: [9.5, 0, -6.2],
-    size: [2.4, 3.4, 2.4],
+    id: "transport",
+    name: "Dept of Transport & Logistics",
+    position: [7.0, 0, -6.0],
+    size: [3.0, 2.0, 2.4],
     roofType: "flat",
-    roofColor: "#e0ccd0",
-    wallColor: "#f5e8ea",
-    label: "Female Hostel",
-    name: "Female Hostel",
+    roofColor: "#909090",
+    wallColor: "#c0c0c0",
+    label: "Transport & Logistics",
   },
-  // ── WEST-CENTER QUAD (X: -13 to -2, Z: -2 to 6) ─────────────────────────
+
+  // Civil Engineering (far-right vertical block)
   {
-    id: "admin",
-    position: [-9.5, 0, -2.5],
-    size: [2.8, 2.4, 2.4],
-    roofType: "gabled",
-    roofColor: "#7a6040",
-    wallColor: "#c8b090",
-    label: "Conference Hall",
-    name: "New Conference Hall",
-  },
-  {
-    id: "maritime",
-    position: [-9.5, 0, 0.8],
-    size: [2.6, 2.2, 2.2],
+    id: "civil",
+    name: "Dept of Civil Engineering",
+    position: [11.5, 0, -4.5],
+    size: [1.8, 2.6, 5.5],
     roofType: "flat",
-    roofColor: "#607080",
-    wallColor: "#90a8b8",
-    label: "Maritime Studies",
-    name: "Division of Maritime Studies",
+    roofColor: "#707080",
+    wallColor: "#b0b0c0",
+    label: "Civil Engineering",
   },
+
+  // ── UPPER-CENTER / MID ────────────────────────────────────────────────────
+
+  // CS & Engineering (left of main road, center)
   {
-    id: "wala_canteen",
-    position: [-4.5, 0, -2.5],
-    size: [2.0, 1.6, 1.8],
+    id: "cse",
+    name: "Dept of Computer Science & Engineering",
+    position: [-5.0, 0, 4.5],
+    size: [8.0, 3.2, 2.2],
+    roofType: "flat",
+    roofColor: "#6a7a8a",
+    wallColor: "#a0b0c0",
+    label: "Sumanadasa Building",
+  },
+
+  // Goda Canteen (small, between CSE and road)
+  {
+    id: "Goda canteen",
+    name: "Goda Canteen",
+    position: [-5, 0, 7.7],
+    size: [1.8, 1.5, 1.2],
     roofType: "hip",
-    roofColor: "#a05030",
-    wallColor: "#d0a060",
-    label: "Wala Canteen",
-    name: "Wala Canteen",
+    roofColor: "#b05030",
+    wallColor: "#d4aa60",
+    label: "Goda Canteen",
   },
+
+  // Goda Canteen (small, between CSE and road)
   {
-    id: "material",
-    position: [-9.5, 0, 4.0],
-    size: [3.0, 2.6, 2.6],
-    roofType: "flat",
-    roofColor: "#806050",
-    wallColor: "#b09080",
-    label: "Material Science",
-    name: "Dept of Material Science & Engineering",
+    id: "Sentra",
+    name: "Sentra Court",
+    position: [-2.5, 0, 7.7],
+    size: [3, 1.5, 1.2],
+    roofType: "hip",
+    roofColor: "#18bf28",
+    wallColor: "#18be5a",
+    label: "Sentra Court",
   },
-  {
-    id: "buildeco",
-    position: [-4.5, 0, 1.5],
-    size: [3.0, 2.4, 2.4],
-    roofType: "gabled",
-    roofColor: "#6b5030",
-    wallColor: "#a89070",
-    label: "Building Economics",
-    name: "Dept of Building Economics",
-  },
-  // ── EAST-CENTER QUAD (X: 2 to 13, Z: -2 to 6) ───────────────────────────
+
+  // Canteen (small, between CSE and road)
   {
     id: "canteen",
-    position: [4.0, 0, -2.5],
-    size: [2.0, 1.6, 1.8],
+    name: "Canteen",
+    position: [1.5, 0, -0.5],
+    size: [1.8, 1.5, 1.4],
     roofType: "hip",
     roofColor: "#b05030",
     wallColor: "#d4aa60",
     label: "Canteen",
-    name: "Canteen",
   },
-  {
-    id: "cse",
-    position: [4.0, 0, 0.5],
-    size: [3.8, 3.0, 3.0],
-    roofType: "flat",
-    roofColor: "#6a7a8a",
-    wallColor: "#a0b0c0",
-    label: "CS & Engineering",
-    name: "Dept of CS & Engineering",
-  },
+
+  // Faculty of IT (right of main road, center)
   {
     id: "it",
-    position: [9.5, 0, -2.5],
-    size: [3.4, 3.2, 2.8],
+    name: "Faculty of Information Technology",
+    position: [4.5, 0, -1.5],
+    size: [3.4, 3.0, 2.8],
     roofType: "flat",
     roofColor: "#8090a0",
     wallColor: "#b0c0d0",
     label: "Faculty of IT",
-    name: "Faculty of Information Technology",
   },
+
+  // Female Hostel (east, mid)
   {
-    id: "bh1",
-    position: [9.5, 0, 1.0],
-    size: [2.2, 3.2, 2.2],
+    id: "female_hostel",
+    name: "Female Hostel",
+    position: [9.0, 0, 0.5],
+    size: [2.4, 3.2, 2.4],
     roofType: "flat",
-    roofColor: "#d0c8c0",
-    wallColor: "#ede8e0",
-    label: "BH1",
-    name: "BH1",
+    roofColor: "#e0ccd0",
+    wallColor: "#f5e8ea",
+    label: "Female Hostel",
   },
-  // ── SOUTH-WEST QUAD (X: -13 to -2, Z: 6 to 14) ───────────────────────────
+
+  // Building Economics (center, below CSE)
   {
-    id: "chemical",
-    position: [-9.5, 0, 7.5],
-    size: [3.2, 2.6, 2.6],
-    roofType: "flat",
-    roofColor: "#607090",
-    wallColor: "#9ab0c8",
-    label: "Chemical & Process Eng",
-    name: "Dept of Chemical & Process Engineering",
-  },
-  {
-    id: "mechanical",
-    position: [-9.5, 0, 11.0],
-    size: [3.2, 2.6, 2.6],
-    roofType: "flat",
-    roofColor: "#706050",
-    wallColor: "#a89070",
-    label: "Mechanical Engineering",
-    name: "Dept of Mechanical Engineering",
-  },
-  {
-    id: "registrar",
-    position: [-4.5, 0, 7.5],
-    size: [2.8, 2.2, 2.2],
+    id: "buildeco",
+    name: "Dept of Building Economics",
+    position: [-2.0, 0, -2.5],
+    size: [3.2, 2.2, 2.2],
     roofType: "gabled",
-    roofColor: "#5a4a30",
-    wallColor: "#9a8060",
-    label: "Registrar Office",
-    name: "Registrar Office & Examination",
+    roofColor: "#6b5030",
+    wallColor: "#a89070",
+    label: "Building Economics",
   },
-  // ── SOUTH-EAST QUAD (X: 2 to 13, Z: 6 to 14) ────────────────────────────
+
+  // Faculty of Medicine (far east)
   {
     id: "medicine",
+    name: "Faculty of Medicine",
     position: [9.5, 0, 4.5],
-    size: [3.2, 3.0, 3.0],
+    size: [3.4, 2.8, 3.2],
     roofType: "flat",
     roofColor: "#a07060",
     wallColor: "#d0a090",
     label: "Faculty of Medicine",
-    name: "Faculty of Medicine",
   },
+
+  // NA1 Hostel (east, below medicine)
+  {
+    id: "hostel_na1",
+    name: "NA1 Hostel",
+    position: [8.5, 0, 8.0],
+    size: [2.4, 3.0, 2.2],
+    roofType: "flat",
+    roofColor: "#c8c8c8",
+    wallColor: "#eeeeee",
+    label: "NA1 Hostel",
+  },
+
+  // NA2 Hostel (east, below NA1)
+  {
+    id: "hostel_na2",
+    name: "NA2 Hostel",
+    position: [11.0, 0, 8.0],
+    size: [2.2, 3.0, 2.0],
+    roofType: "flat",
+    roofColor: "#dcdcdc",
+    wallColor: "#f4f4f4",
+    label: "NA2 Hostel",
+  },
+
+  // ── LEFT / WEST (Sumandasa Block) ─────────────────────────────────────────
+
+  // Wala Canteen (inside Sumandasa)
+  {
+    id: "wala_canteen",
+    name: "Wala Canteen",
+    position: [-10.0, 0, 5],
+    size: [1, 0.8, 1],
+    roofType: "hip",
+    roofColor: "#a05030",
+    wallColor: "#d0a060",
+    label: "Wala Canteen",
+  },
+  // ── LOWER-LEFT ────────────────────────────────────────────────────────────
+
+  // Dept of Material Science & Engineering
+  {
+    id: "material",
+    name: "Dept of Material Science & Engineering",
+    position: [-9.5, 0, 8.0],
+    size: [2.0, 2.4, 2],
+    roofType: "flat",
+    roofColor: "#806050",
+    wallColor: "#b09080",
+    label: "Material Science",
+  },
+
+  // Dept of Chemical & Process Engineering
+  {
+    id: "chemical",
+    name: "Dept of Chemical & Process Engineering",
+    position: [-6.5, 0, 9.5],
+    size: [3.0, 1.2, 2],
+    roofType: "flat",
+    roofColor: "#607090",
+    wallColor: "#9ab0c8",
+    label: "Chemical & Process Eng",
+  },
+
+  // Dept of Mechanical Engineering (bottom-left, with side entrance)
+  {
+    id: "mechanical",
+    name: "Dept of Mechanical Engineering",
+    position: [-11.5, 0, 12.5],
+    size: [7.2, 2.4, 2.8],
+    roofType: "flat",
+    roofColor: "#706050",
+    wallColor: "#a89070",
+    label: "Mechanical Engineering",
+  },
+
+  // ── LOWER-CENTER ──────────────────────────────────────────────────────────
+
+  // Registrar Office & Examination
+  {
+    id: "registrar",
+    name: "Registrar Office & Examination",
+    position: [-4, 0, 14.2],
+    size: [1.0, 1.5, 2],
+    roofType: "gabled",
+    roofColor: "#5a4a30",
+    wallColor: "#9a8060",
+    label: "Registrar Office",
+  },
+
+  // Admin building (center, near main entrance)
+  {
+    id: "admin",
+    name: "Admin Building",
+    position: [-2.0, 0, 14.5],
+    size: [2.0, 2.2, 2.4],
+    roofType: "gabled",
+    roofColor: "#7a6040",
+    wallColor: "#c8b090",
+    label: "Admin",
+  },
+
+  // ── LOWER-RIGHT ───────────────────────────────────────────────────────────
+
+  // Dept of Integrated Design
   {
     id: "intdesign",
-    position: [4.0, 0, 7.5],
-    size: [2.8, 2.4, 2.4],
+    name: "Dept of Integrated Design",
+    position: [5.5, 0, 7.5],
+    size: [2.8, 2.2, 1],
     roofType: "flat",
     roofColor: "#808090",
     wallColor: "#b0b0cc",
     label: "Integrated Design",
-    name: "Dept of Integrated Design",
   },
-  {
-    id: "majlis",
-    position: [9.5, 0, 7.5],
-    size: [2.2, 2.0, 2.0],
-    roofType: "hip",
-    roofColor: "#406040",
-    wallColor: "#709870",
-    label: "Majlis Ul Islam",
-    name: "Majlis Ul Islam",
-  },
+
+  // Dept of Graduate Studies
   {
     id: "graduate",
-    position: [4.0, 0, 11.0],
-    size: [2.8, 2.4, 2.4],
+    name: "Faculty of Graduate Studies",
+    position: [3.5, 0, 10.5],
+    size: [2.8, 2.2, 2.2],
     roofType: "flat",
     roofColor: "#706870",
     wallColor: "#a898a8",
     label: "Graduate Studies",
-    name: "Faculty of Graduate Studies",
   },
+
+  // Library
   {
     id: "library",
-    position: [9.5, 0, 11.0],
-    size: [3.0, 2.4, 2.8],
+    name: "Library",
+    position: [3.5, 0, 13.5],
+    size: [2.8, 2.2, 1.8],
     roofType: "gabled",
     roofColor: "#4a3820",
     wallColor: "#9a7850",
     label: "Library",
-    name: "Library",
   },
 ];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v));
@@ -333,387 +409,8 @@ function updateZone(zone: Zone): Zone {
   };
 }
 
-// ─── Street Lamp ──────────────────────────────────────────────────────────────
-function StreetLamp({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      {/* Pole */}
-      <mesh position={[0, 1.5, 0]}>
-        <cylinderGeometry args={[0.05, 0.07, 3.0, 8]} />
-        <meshStandardMaterial color="#555566" metalness={0.8} roughness={0.2} />
-      </mesh>
-      {/* Horizontal arm */}
-      <mesh position={[0.35, 3.05, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.7, 6]} />
-        <meshStandardMaterial color="#555566" metalness={0.8} roughness={0.2} />
-      </mesh>
-      {/* Lamp head */}
-      <mesh position={[0.7, 3.05, 0]}>
-        <boxGeometry args={[0.28, 0.12, 0.2]} />
-        <meshStandardMaterial color="#333344" metalness={0.7} roughness={0.3} />
-      </mesh>
-      {/* Light bulb glow */}
-      <mesh position={[0.7, 2.98, 0]}>
-        <sphereGeometry args={[0.07, 8, 8]} />
-        <meshStandardMaterial
-          color="#fffbe0"
-          emissive="#ffe88a"
-          emissiveIntensity={2.5}
-        />
-      </mesh>
-      {/* Actual point light */}
-      <pointLight
-        position={[0.7, 2.9, 0]}
-        intensity={4}
-        distance={6}
-        color="#ffe8a0"
-        decay={2}
-      />
-    </group>
-  );
-}
-
-// ─── Park Bench ───────────────────────────────────────────────────────────────
-function ParkBench({
-  position,
-  rotation = 0,
-}: {
-  position: [number, number, number];
-  rotation?: number;
-}) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      {/* Seat slats */}
-      {[-0.12, 0, 0.12].map((z) => (
-        <mesh key={z} position={[0, 0.4, z]}>
-          <boxGeometry args={[0.9, 0.06, 0.1]} />
-          <meshStandardMaterial color="#8B5E3C" roughness={0.8} />
-        </mesh>
-      ))}
-      {/* Backrest */}
-      {[-0.08, 0.08].map((z) => (
-        <mesh key={z} position={[0, 0.72, z - 0.28]}>
-          <boxGeometry args={[0.9, 0.06, 0.08]} />
-          <meshStandardMaterial color="#8B5E3C" roughness={0.8} />
-        </mesh>
-      ))}
-      {/* Back support post */}
-      <mesh position={[0, 0.57, -0.33]}>
-        <boxGeometry args={[0.85, 0.32, 0.05]} />
-        <meshStandardMaterial color="#6B4423" roughness={0.85} />
-      </mesh>
-      {/* Legs (4) */}
-      {[
-        [-0.37, -0.32],
-        [0.37, -0.32],
-        [-0.37, 0.22],
-        [0.37, 0.22],
-      ].map(([x, z], i) => (
-        <mesh key={i} position={[x, 0.22, z]}>
-          <boxGeometry args={[0.06, 0.44, 0.06]} />
-          <meshStandardMaterial color="#444" metalness={0.6} roughness={0.4} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-// ─── Outdoor Chair ────────────────────────────────────────────────────────────
-function OutdoorChair({
-  position,
-  rotation = 0,
-  color = "#e8c87a",
-}: {
-  position: [number, number, number];
-  rotation?: number;
-  color?: string;
-}) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      {/* Seat */}
-      <mesh position={[0, 0.38, 0]}>
-        <boxGeometry args={[0.35, 0.05, 0.35]} />
-        <meshStandardMaterial color={color} roughness={0.7} />
-      </mesh>
-      {/* Back */}
-      <mesh position={[0, 0.6, -0.15]}>
-        <boxGeometry args={[0.35, 0.4, 0.04]} />
-        <meshStandardMaterial color={color} roughness={0.7} />
-      </mesh>
-      {/* Legs */}
-      {[
-        [-0.14, -0.14],
-        [0.14, -0.14],
-        [-0.14, 0.14],
-        [0.14, 0.14],
-      ].map(([x, z], i) => (
-        <mesh key={i} position={[x, 0.19, z]}>
-          <cylinderGeometry args={[0.025, 0.025, 0.38, 6]} />
-          <meshStandardMaterial color="#555" metalness={0.5} roughness={0.5} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-// ─── Round Table ──────────────────────────────────────────────────────────────
-function RoundTable({
-  position,
-}: {
-  position: [number, number, number];
-}) {
-  return (
-    <group position={position}>
-      <mesh position={[0, 0.52, 0]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
-        <meshStandardMaterial color="#ccc" metalness={0.3} roughness={0.6} />
-      </mesh>
-      <mesh position={[0, 0.28, 0]}>
-        <cylinderGeometry args={[0.04, 0.06, 0.5, 8]} />
-        <meshStandardMaterial color="#888" metalness={0.6} roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.04, 0]}>
-        <cylinderGeometry args={[0.18, 0.18, 0.04, 12]} />
-        <meshStandardMaterial color="#888" metalness={0.6} roughness={0.3} />
-      </mesh>
-    </group>
-  );
-}
-
-// ─── Outdoor Furniture Clusters ───────────────────────────────────────────────
-function FurnitureScene() {
-  // Seating area clusters placed in open areas between buildings
-  const clusters = [
-    // Near canteen area
-    { pos: [1.8, 0, -1.5] as [number, number, number], type: "canteen" },
-    // Near Wala canteen
-    { pos: [-2.8, 0, -1.5] as [number, number, number], type: "wala" },
-    // Open square near CSE
-    { pos: [1.8, 0, 2.0] as [number, number, number], type: "cse" },
-    // Near library entrance
-    { pos: [7.8, 0, 12.5] as [number, number, number], type: "library" },
-    // Near conference hall
-    { pos: [-7.5, 0, -0.5] as [number, number, number], type: "conf" },
-  ];
-
-  return (
-    <>
-      {clusters.map((c, ci) => (
-        <group key={ci} position={c.pos}>
-          <RoundTable position={[0, 0, 0]} />
-          <OutdoorChair
-            position={[0.55, 0, 0]}
-            rotation={-Math.PI / 2}
-            color="#e8c87a"
-          />
-          <OutdoorChair
-            position={[-0.55, 0, 0]}
-            rotation={Math.PI / 2}
-            color="#e8c87a"
-          />
-          <OutdoorChair
-            position={[0, 0, 0.55]}
-            rotation={Math.PI}
-            color="#e8c87a"
-          />
-          <OutdoorChair
-            position={[0, 0, -0.55]}
-            rotation={0}
-            color="#e8c87a"
-          />
-        </group>
-      ))}
-
-      {/* Benches along main spine at regular intervals */}
-      {[-7.5, -3.5, 0.5, 4.5, 9.0].map((z, i) => (
-        <ParkBench
-          key={`bench-west-${i}`}
-          position={[-1.1, 0, z]}
-          rotation={Math.PI / 2}
-        />
-      ))}
-      {[-7.5, -3.5, 0.5, 4.5, 9.0].map((z, i) => (
-        <ParkBench
-          key={`bench-east-${i}`}
-          position={[1.1, 0, z]}
-          rotation={-Math.PI / 2}
-        />
-      ))}
-      {/* East side benches */}
-      {[-7.5, -4.0, 0.5, 4.5, 9.0].map((z, i) => (
-        <ParkBench
-          key={`bench-east2-${i}`}
-          position={[7.0, 0, z]}
-          rotation={0}
-        />
-      ))}
-    </>
-  );
-}
-
-// ─── Street Lamps ─────────────────────────────────────────────────────────────
-function LampsScene() {
-  // Along main N-S spine (X=0) at Z intervals
-  const spineZs = [-11, -8, -5, -2, 1, 4, 7, 10, 13];
-  // Along east perimeter (X=13)
-  const eastZs = [-10, -6, -2, 2, 6, 10];
-  // Along west perimeter (X=-13)
-  const westZs = [-10, -6, -2, 2, 6, 10];
-  // Along cross roads
-  const crossX = [-11, -7, 7, 11];
-
-  return (
-    <>
-      {spineZs.map((z) => (
-        <StreetLamp key={`sp-${z}`} position={[-0.9, 0, z]} />
-      ))}
-      {spineZs.map((z) => (
-        <StreetLamp key={`sp2-${z}`} position={[0.9, 0, z]} />
-      ))}
-      {eastZs.map((z) => (
-        <StreetLamp key={`ep-${z}`} position={[12.2, 0, z]} />
-      ))}
-      {westZs.map((z) => (
-        <StreetLamp key={`wp-${z}`} position={[-12.2, 0, z]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-n-${x}`} position={[x, 0, -9]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-m-${x}`} position={[x, 0, -5]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-c-${x}`} position={[x, 0, -1]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-s-${x}`} position={[x, 0, 3]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-ss-${x}`} position={[x, 0, 7]} />
-      ))}
-      {crossX.map((x) => (
-        <StreetLamp key={`cr-sss-${x}`} position={[x, 0, 11]} />
-      ))}
-    </>
-  );
-}
-
-// ─── Roads (clean grid) ───────────────────────────────────────────────────────
-function Roads() {
-  const road = "#5a5a66";
-  const pave = "#7a7a88";
-
-  const RoadPlane = ({
-    x, z, w, d, rot = 0, type = "road",
-  }: {
-    x: number; z: number; w: number; d: number; rot?: number; type?: string;
-  }) => (
-    <mesh rotation={[-Math.PI / 2, 0, rot]} position={[x, 0.006, z]} receiveShadow>
-      <planeGeometry args={[w, d]} />
-      <meshStandardMaterial color={type === "road" ? road : pave} roughness={0.9} />
-    </mesh>
-  );
-
-  // Centre-line dashes for main N-S spine
-  const Dashes = () => (
-    <>
-      {Array.from({ length: 26 }, (_, i) => -12 + i * 1.4).map((z) => (
-        <mesh key={z} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.009, z]}>
-          <planeGeometry args={[0.07, 0.75]} />
-          <meshStandardMaterial color="#ffffffaa" transparent opacity={0.55} />
-        </mesh>
-      ))}
-    </>
-  );
-
-  const CrossDashes = ({ z }: { z: number }) => (
-    <>
-      {Array.from({ length: 18 }, (_, i) => -13 + i * 1.5).map((x) => (
-        <mesh key={x} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.009, z]}>
-          <planeGeometry args={[0.75, 0.07]} />
-          <meshStandardMaterial color="#ffffff88" transparent opacity={0.45} />
-        </mesh>
-      ))}
-    </>
-  );
-
-  return (
-    <group>
-      {/* Main N-S spine */}
-      <RoadPlane x={0} z={1} w={1.4} d={28} />
-      <Dashes />
-
-      {/* Secondary N-S roads */}
-      <RoadPlane x={-7} z={1} w={1.2} d={28} />
-      <RoadPlane x={7} z={1} w={1.2} d={28} />
-
-      {/* East & West perimeter N-S */}
-      <RoadPlane x={13} z={1} w={1.2} d={28} />
-      <RoadPlane x={-13} z={1} w={1.2} d={28} />
-
-      {/* E-W cross roads */}
-      {[-9, -5, -1, 3, 7, 11].map((z) => (
-        <group key={z}>
-          <RoadPlane x={0} z={z} w={28} d={1.1} />
-          <CrossDashes z={z} />
-        </group>
-      ))}
-
-      {/* South perimeter E-W */}
-      <RoadPlane x={0} z={13.5} w={28} d={1.2} />
-
-      {/* North boundary E-W */}
-      <RoadPlane x={0} z={-12} w={28} d={1.0} />
-
-      {/* Pavement strips at building edges */}
-      {/* West block inner */}
-      <RoadPlane x={-5.7} z={1} w={0.5} d={28} type="pave" />
-      {/* East block inner */}
-      <RoadPlane x={5.7} z={1} w={0.5} d={28} type="pave" />
-    </group>
-  );
-}
-
-// ─── Ground ───────────────────────────────────────────────────────────────────
-function Ground() {
-  return (
-    <>
-      {/* Base grass */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[42, 42]} />
-        <meshStandardMaterial color="#4a7a38" roughness={0.95} />
-      </mesh>
-      {/* Sports field bright grass */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-9.5, 0.005, -9.5]}>
-        <planeGeometry args={[6, 5]} />
-        <meshStandardMaterial color="#3a9530" roughness={0.88} />
-      </mesh>
-      {/* Field markings */}
-      {[-2, 0, 2].map((x) => (
-        <mesh key={x} rotation={[-Math.PI / 2, 0, 0]} position={[x - 9.5, 0.007, -9.5]}>
-          <planeGeometry args={[0.07, 4.5]} />
-          <meshStandardMaterial color="#ffffff" transparent opacity={0.4} />
-        </mesh>
-      ))}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-9.5, 0.007, -9.5]}>
-        <planeGeometry args={[6, 0.07]} />
-        <meshStandardMaterial color="#ffffff" transparent opacity={0.4} />
-      </mesh>
-      {/* Plaza / courtyard areas */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.003, -0.5]}>
-        <planeGeometry args={[2.8, 4.0]} />
-        <meshStandardMaterial color="#b0a890" roughness={0.92} />
-      </mesh>
-      {/* Paved quad near canteen */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2.8, 0.003, -2]}>
-        <planeGeometry args={[3.5, 2.5]} />
-        <meshStandardMaterial color="#a8a090" roughness={0.9} />
-      </mesh>
-    </>
-  );
-}
-
 // ─── First-Person Walker ──────────────────────────────────────────────────────
+
 function FirstPersonController({ enabled }: { enabled: boolean }) {
   const { camera } = useThree();
   const keys = useRef<Record<string, boolean>>({});
@@ -723,44 +420,74 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
 
   useEffect(() => {
     if (!enabled) return;
+
+    // Set initial walk camera position
     camera.position.set(0, 1.7, 6);
-    const onKey = (e: KeyboardEvent, down: boolean) => { keys.current[e.code] = down; };
+
+    const onKey = (e: KeyboardEvent, down: boolean) => {
+      keys.current[e.code] = down;
+    };
     const onMouseMove = (e: MouseEvent) => {
       if (!pointerLocked.current) return;
       yaw.current -= e.movementX * 0.002;
-      pitch.current = clamp(pitch.current - e.movementY * 0.002, -1.2, 0.4);
+      pitch.current -= e.movementY * 0.002;
+      pitch.current = clamp(pitch.current, -1.2, 0.4);
     };
-    const onPointerLockChange = () => { pointerLocked.current = document.pointerLockElement !== null; };
+    const onPointerLockChange = () => {
+      pointerLocked.current = document.pointerLockElement !== null;
+    };
     const onClick = (e: MouseEvent) => {
-      if ((e.target as HTMLElement)?.closest("canvas")) document.documentElement.requestPointerLock?.();
+      const target = e.target as HTMLElement;
+      if (target && target.closest("canvas")) {
+        document.documentElement.requestPointerLock?.();
+      }
     };
+
     window.addEventListener("keydown", (e) => onKey(e, true));
     window.addEventListener("keyup", (e) => onKey(e, false));
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("pointerlockchange", onPointerLockChange);
     document.addEventListener("click", onClick);
+
     return () => {
       window.removeEventListener("keydown", (e) => onKey(e, true));
       window.removeEventListener("keyup", (e) => onKey(e, false));
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("pointerlockchange", onPointerLockChange);
       document.removeEventListener("click", onClick);
-      document.exitPointerLock?.();
+      if (document.exitPointerLock) document.exitPointerLock();
     };
   }, [enabled, camera]);
 
   useFrame((_, delta) => {
     if (!enabled) return;
-    const speed = (keys.current["ShiftLeft"] || keys.current["ShiftRight"]) ? 12 : 6;
+
+    const speed =
+      keys.current["ShiftLeft"] || keys.current["ShiftRight"] ? 12 : 6;
     const dt = Math.min(delta, 0.05);
-    camera.quaternion.setFromEuler(new THREE.Euler(pitch.current, yaw.current, 0, "YXZ"));
-    const forward = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(0, yaw.current, 0));
-    const right = new THREE.Vector3(1, 0, 0).applyEuler(new THREE.Euler(0, yaw.current, 0));
-    if (keys.current["KeyW"] || keys.current["ArrowUp"]) camera.position.addScaledVector(forward, speed * dt);
-    if (keys.current["KeyS"] || keys.current["ArrowDown"]) camera.position.addScaledVector(forward, -speed * dt);
-    if (keys.current["KeyA"] || keys.current["ArrowLeft"]) camera.position.addScaledVector(right, -speed * dt);
-    if (keys.current["KeyD"] || keys.current["ArrowRight"]) camera.position.addScaledVector(right, speed * dt);
+
+    const euler = new THREE.Euler(pitch.current, yaw.current, 0, "YXZ");
+    camera.quaternion.setFromEuler(euler);
+
+    const forward = new THREE.Vector3(0, 0, -1).applyEuler(
+      new THREE.Euler(0, yaw.current, 0),
+    );
+    const right = new THREE.Vector3(1, 0, 0).applyEuler(
+      new THREE.Euler(0, yaw.current, 0),
+    );
+
+    if (keys.current["KeyW"] || keys.current["ArrowUp"])
+      camera.position.addScaledVector(forward, speed * dt);
+    if (keys.current["KeyS"] || keys.current["ArrowDown"])
+      camera.position.addScaledVector(forward, -speed * dt);
+    if (keys.current["KeyA"] || keys.current["ArrowLeft"])
+      camera.position.addScaledVector(right, -speed * dt);
+    if (keys.current["KeyD"] || keys.current["ArrowRight"])
+      camera.position.addScaledVector(right, speed * dt);
+
+    // Keep height fixed at eye level
     camera.position.y = 1.7;
+    // Clamp to campus bounds
     camera.position.x = clamp(camera.position.x, -15, 15);
     camera.position.z = clamp(camera.position.z, -13, 15);
   });
@@ -769,10 +496,17 @@ function FirstPersonController({ enabled }: { enabled: boolean }) {
 }
 
 // ─── Building ─────────────────────────────────────────────────────────────────
+
 function Building({
-  layout, zone, selected, onClick,
+  layout,
+  zone,
+  selected,
+  onClick,
 }: {
-  layout: ZoneLayout; zone: Zone; selected: boolean; onClick: () => void;
+  layout: ZoneLayout;
+  zone: Zone;
+  selected: boolean;
+  onClick: () => void;
 }) {
   const meshRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
@@ -781,37 +515,72 @@ function Building({
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
+    const targetY = hovered || selected ? 0.1 : 0;
     meshRef.current.position.y = THREE.MathUtils.lerp(
       meshRef.current.position.y,
-      hovered || selected ? 0.12 : 0,
-      delta * 6,
+      targetY,
+      delta * 5,
     );
   });
 
   const wallColor = selected ? "#d8eeff" : layout.wallColor;
-  const emissiveInt = selected ? 0.5 : hovered ? 0.28 : 0.07;
+  const emissive = STATUS_COLORS[zone.status];
+  const emissiveInt = selected ? 0.5 : hovered ? 0.3 : 0.08;
 
   const Roof = () => {
     if (layout.roofType === "flat") {
       return (
         <mesh position={[0, h / 2 + 0.09, 0]}>
           <boxGeometry args={[w + 0.15, 0.18, d + 0.15]} />
-          <meshStandardMaterial color={layout.roofColor} roughness={0.5} metalness={0.1} />
+          <meshStandardMaterial
+            color={layout.roofColor}
+            roughness={0.5}
+            metalness={0.1}
+          />
         </mesh>
       );
     }
     if (layout.roofType === "gabled") {
       const ridge = h * 0.38;
-      const slopeAngle = Math.atan2(ridge, w / 2);
-      const slopeLen = Math.sqrt((w / 2) ** 2 + ridge ** 2);
       return (
         <group position={[0, h / 2, 0]}>
-          <mesh rotation={[slopeAngle, 0, 0]} position={[0, ridge / 2, slopeLen / 2]}>
-            <boxGeometry args={[w + 0.3, 0.14, slopeLen * 2 + 0.1]} />
+          {[-1, 1].map((side) => (
+            <mesh
+              key={side}
+              rotation={[0, side === 1 ? 0 : Math.PI, 0]}
+              position={[0, 0, (side * d) / 2]}
+            >
+              <meshStandardMaterial
+                color={layout.roofColor}
+                roughness={0.6}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+          ))}
+          <mesh
+            rotation={[Math.atan2(ridge, w / 2), 0, 0]}
+            position={[0, ridge / 2, 0]}
+          >
+            <boxGeometry
+              args={[
+                w + 0.3,
+                0.14,
+                Math.sqrt((w / 2) ** 2 + ridge ** 2) * 2 + 0.1,
+              ]}
+            />
             <meshStandardMaterial color={layout.roofColor} roughness={0.6} />
           </mesh>
-          <mesh rotation={[-slopeAngle, 0, 0]} position={[0, ridge / 2, -slopeLen / 2]}>
-            <boxGeometry args={[w + 0.3, 0.14, slopeLen * 2 + 0.1]} />
+          <mesh
+            rotation={[-Math.atan2(ridge, w / 2), 0, 0]}
+            position={[0, ridge / 2, 0]}
+          >
+            <boxGeometry
+              args={[
+                w + 0.3,
+                0.14,
+                Math.sqrt((w / 2) ** 2 + ridge ** 2) * 2 + 0.1,
+              ]}
+            />
             <meshStandardMaterial color={layout.roofColor} roughness={0.6} />
           </mesh>
         </group>
@@ -819,8 +588,8 @@ function Building({
     }
     if (layout.roofType === "hip") {
       return (
-        <mesh position={[0, h / 2 + 0.12, 0]}>
-          <coneGeometry args={[(w / 2 + d / 2) * 0.52 + 0.2, h * 0.48, 4]} />
+        <mesh position={[0, h / 2 + 0.1, 0]}>
+          <coneGeometry args={[(w / 2 + d / 2) * 0.5 + 0.2, h * 0.45, 4]} />
           <meshStandardMaterial color={layout.roofColor} roughness={0.6} />
         </mesh>
       );
@@ -862,7 +631,10 @@ function Building({
     <group position={[px, 0, pz]}>
       <group
         ref={meshRef}
-        onClick={(e) => { e.stopPropagation(); onClick(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
@@ -870,7 +642,7 @@ function Building({
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial
             color={wallColor}
-            emissive={STATUS_COLORS[zone.status]}
+            emissive={emissive}
             emissiveIntensity={emissiveInt}
             roughness={0.55}
             metalness={0.08}
@@ -878,31 +650,44 @@ function Building({
         </mesh>
         <Windows />
         <Roof />
-        {/* Status beacon */}
-        <mesh position={[0, h + 0.6 + (layout.roofType === "hip" ? h * 0.25 : layout.roofType === "gabled" ? h * 0.22 : 0), 0]}>
+        <mesh
+          position={[
+            0,
+            h + 0.55 + (layout.roofType === "gabled" ? h * 0.2 : 0),
+            0,
+          ]}
+        >
           <sphereGeometry args={[0.16, 12, 12]} />
           <meshStandardMaterial
             color={STATUS_COLORS[zone.status]}
             emissive={STATUS_GLOW[zone.status]}
-            emissiveIntensity={1.2}
+            emissiveIntensity={1.0}
           />
         </mesh>
         <Html
           center
-          position={[0, h + 1.4 + (layout.roofType === "hip" ? h * 0.25 : layout.roofType === "gabled" ? h * 0.22 : 0), 0]}
+          position={[
+            0,
+            h + 1.3 + (layout.roofType === "gabled" ? h * 0.2 : 0),
+            0,
+          ]}
         >
-          <div style={{
-            background: "rgba(7,25,82,0.9)",
-            border: `1px solid ${selected ? STATUS_COLORS[zone.status] : "#35A29F44"}`,
-            color: "#fff",
-            fontSize: "10px",
-            fontWeight: 600,
-            padding: "2px 7px",
-            borderRadius: "5px",
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-            boxShadow: selected ? `0 0 12px ${STATUS_COLORS[zone.status]}88` : "none",
-          }}>
+          <div
+            style={{
+              background: "rgba(7,25,82,0.88)",
+              border: `1px solid ${selected ? STATUS_COLORS[zone.status] : "#35A29F55"}`,
+              color: "#fff",
+              fontSize: "10px",
+              fontWeight: 600,
+              padding: "2px 7px",
+              borderRadius: "5px",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+              boxShadow: selected
+                ? `0 0 10px ${STATUS_COLORS[zone.status]}88`
+                : "none",
+            }}
+          >
             {layout.label}
           </div>
         </Html>
@@ -911,35 +696,178 @@ function Building({
   );
 }
 
+// ─── Roads (accurate to UoM map) ─────────────────────────────────────────────
+
+function Roads() {
+  const road = { color: "#5a5a5a", roughness: 0.95 };
+  const pave = { color: "#888888", roughness: 0.9 };
+  const markings = { color: "#ffffff", roughness: 0.8 };
+
+  const RoadPlane = ({
+    x,
+    z,
+    w,
+    d,
+    rot = 0,
+    type = "road",
+  }: {
+    x: number;
+    z: number;
+    w: number;
+    d: number;
+    rot?: number;
+    type?: "road" | "pave";
+  }) => (
+    <mesh
+      rotation={[-Math.PI / 2, 0, rot]}
+      position={[x, 0.006, z]}
+      receiveShadow
+    >
+      <planeGeometry args={[w, d]} />
+      <meshStandardMaterial {...(type === "road" ? road : pave)} />
+    </mesh>
+  );
+
+  // Centre-line dashes for main street
+  const Dashes = () => {
+    const dashes = [];
+    for (let z = -13; z < 16; z += 1.4) {
+      dashes.push(
+        <mesh
+          key={z}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0.0, 0.008, z]}
+        >
+          {" "}
+          <planeGeometry args={[0.06, 0.7]} />{" "}
+          <meshStandardMaterial {...markings} opacity={0.6} transparent />{" "}
+        </mesh>,
+      );
+    }
+    return <>{dashes}</>;
+  };
+
+  // Centre-line dashes for horizontal roads (X direction)
+  const DashesHorizontal = () => {
+    const dashes = [];
+    for (let x = -20; x < 20; x += 1.4) {
+      dashes.push(
+        <mesh
+          key={x}
+          rotation={[-Math.PI / 2, 0, Math.PI / 2]} // rotate to align along X
+          position={[2.0 + x, 0.008, 17.0]} // align with your south road
+        >
+          <planeGeometry args={[0.06, 0.7]} />
+          <meshStandardMaterial {...markings} opacity={0.6} transparent />
+        </mesh>,
+      );
+    }
+    return <>{dashes}</>;
+  };
+
+  return (
+    <group>
+      {/* ── MAIN STREET — vertical spine X≈0, full N→S ── */}
+      <RoadPlane x={0} z={3.0} w={1.3} d={30} />
+      <Dashes />
+
+      {/* ── BOTTOM / SOUTH PERIMETER — main gate ── */}
+      <RoadPlane x={2.0} z={17.0} w={40} d={2.4} />
+      <DashesHorizontal />
+
+      {/* ── CROSS ROAD D: Chemical */}
+      <RoadPlane x={-3.1} z={9.5} w={5} d={0.6} type="pave" />
+
+      {/* ── BOTTOM RIGHT — Integrated ── */}
+      <RoadPlane x={4.5} z={8.5} w={9} d={1.0} />
+
+      {/* ── MECHANICAL / SIDE ENTRANCE spur west ── */}
+      <RoadPlane x={-11} z={14.5} w={10} d={0.9} />
+      <RoadPlane x={-6.0} z={15.5} w={0.9} d={3} />
+
+      {/* Roads Sumandasa block ── */}
+      <RoadPlane x={-6} z={6.5} w={12} d={1} />
+      <RoadPlane x={-8} z={2.5} w={16} d={1} />
+      <RoadPlane x={-12.0} z={4.5} w={1.0} d={5} />
+
+      <RoadPlane x={-16.0} z={8.45} w={1.0} d={13} />
+    </group>
+  );
+}
+
+// ─── Ground ───────────────────────────────────────────────────────────────────
+
+function Ground() {
+  return (
+    <>
+      {/* Main grass */}
+      <mesh
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, -0.01, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[40, 40]} />
+        <meshStandardMaterial color="#4a8a38" roughness={0.96} />
+      </mesh>
+      {/* Sports field grass (brighter) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-8.5, 0.005, -7]}>
+        <planeGeometry args={[7, 5]} />
+        <meshStandardMaterial color="#3a9a30" roughness={0.9} />
+      </mesh>
+      {/* Sports field lines */}
+      {[-2, 0, 2].map((x) => (
+        <mesh
+          key={x}
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[x - 8.5, 0.007, -7]}
+        >
+          <planeGeometry args={[0.06, 4.5]} />
+          <meshStandardMaterial color="#ffffff" opacity={0.4} transparent />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 // ─── Scene ────────────────────────────────────────────────────────────────────
+
 function CampusScene({
-  zones, selectedId, onSelect, walkMode,
+  zones,
+  selectedId,
+  onSelect,
+  walkMode,
 }: {
-  zones: Zone[]; selectedId: string; onSelect: (id: string) => void; walkMode: boolean;
+  zones: Zone[];
+  selectedId: string;
+  onSelect: (id: string) => void;
+  walkMode: boolean;
 }) {
   return (
     <>
-      <color attach="background" args={["#b8ccdf"]} />
-      <fog attach="fog" args={["#b8ccdf", 32, 72]} />
-      <ambientLight intensity={1.2} />
+      <color attach="background" args={["#c0d4ee"]} />
+      <fog attach="fog" args={["#c0d4ee", 30, 70]} />
+
+      <ambientLight intensity={1.1} />
       <directionalLight
-        position={[14, 22, 12]}
-        intensity={1.6}
+        position={[12, 20, 10]}
+        intensity={1.5}
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-far={70}
-        shadow-camera-left={-30}
-        shadow-camera-right={30}
-        shadow-camera-top={30}
-        shadow-camera-bottom={-30}
+        shadow-camera-far={60}
+        shadow-camera-left={-25}
+        shadow-camera-right={25}
+        shadow-camera-top={25}
+        shadow-camera-bottom={-25}
       />
-      <directionalLight position={[-12, 14, -10]} intensity={0.4} color="#ddeeff" />
-      <hemisphereLight args={["#bbd4f0", "#3a6e28", 0.55]} />
+      <directionalLight
+        position={[-10, 12, -8]}
+        intensity={0.35}
+        color="#ddeeff"
+      />
+      <hemisphereLight args={["#bdd4f0", "#3a7030", 0.5]} />
 
       <Ground />
       <Roads />
-      <LampsScene />
-      <FurnitureScene />
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);
@@ -963,46 +891,221 @@ function CampusScene({
           enablePan
           panSpeed={1.5}
           minDistance={6}
-          maxDistance={42}
-          maxPolarAngle={Math.PI / 2.12}
+          maxDistance={38}
+          maxPolarAngle={Math.PI / 2.15}
           autoRotate={false}
-          target={[0, 0, 1]}
+          target={[1, 0, 1]}
         />
       )}
     </>
   );
 }
 
-// ─── Initial Data ─────────────────────────────────────────────────────────────
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+
 const INITIAL_ZONES: Zone[] = [
-  { id: "sports", name: "Sports Ground", energyKw: 20.0, occupancy: 15, temperatureC: 27.0, status: "normal" },
-  { id: "pavilion", name: "Pavilion", energyKw: 12.0, occupancy: 10, temperatureC: 27.5, status: "normal" },
-  { id: "textile", name: "Dept of Textile & Clothing", energyKw: 58.4, occupancy: 60, temperatureC: 29.5, status: "normal" },
-  { id: "civil", name: "Dept of Civil Engineering", energyKw: 62.1, occupancy: 65, temperatureC: 29.8, status: "normal" },
-  { id: "lblock", name: "L Block", energyKw: 44.0, occupancy: 70, temperatureC: 30.5, status: "busy" },
-  { id: "transport", name: "New Transport & Logistics", energyKw: 35.0, occupancy: 45, temperatureC: 29.0, status: "normal" },
-  { id: "canteen", name: "Canteen", energyKw: 92.0, occupancy: 90, temperatureC: 36.0, status: "critical" },
-  { id: "hostel_a", name: "A Hostel", energyKw: 95.1, occupancy: 78, temperatureC: 32.0, status: "busy" },
-  { id: "it", name: "Faculty of Information Technology", energyKw: 76.5, occupancy: 72, temperatureC: 31.5, status: "busy" },
-  { id: "female_hostel", name: "Female Hostel", energyKw: 88.0, occupancy: 74, temperatureC: 31.0, status: "busy" },
-  { id: "bh1", name: "BH1", energyKw: 72.0, occupancy: 68, temperatureC: 30.5, status: "busy" },
-  { id: "medicine", name: "Faculty of Medicine", energyKw: 77.0, occupancy: 73, temperatureC: 31.8, status: "busy" },
-  { id: "admin", name: "New Conference Hall", energyKw: 38.5, occupancy: 55, temperatureC: 28.5, status: "normal" },
-  { id: "cse", name: "Dept of CS & Engineering", energyKw: 82.3, occupancy: 76, temperatureC: 31.2, status: "busy" },
-  { id: "maritime", name: "Division of Maritime Studies", energyKw: 42.0, occupancy: 50, temperatureC: 28.8, status: "normal" },
-  { id: "wala_canteen", name: "Wala Canteen", energyKw: 55.0, occupancy: 80, temperatureC: 33.5, status: "busy" },
-  { id: "buildeco", name: "Dept of Building Economics", energyKw: 50.0, occupancy: 58, temperatureC: 29.0, status: "normal" },
-  { id: "material", name: "Dept of Material Science", energyKw: 65.0, occupancy: 62, temperatureC: 30.0, status: "normal" },
-  { id: "chemical", name: "Dept of Chemical & Process Eng", energyKw: 70.2, occupancy: 67, temperatureC: 30.8, status: "busy" },
-  { id: "mechanical", name: "Dept of Mechanical Engineering", energyKw: 68.0, occupancy: 64, temperatureC: 30.4, status: "normal" },
-  { id: "registrar", name: "Registrar Office & Examination", energyKw: 32.0, occupancy: 40, temperatureC: 28.0, status: "normal" },
-  { id: "intdesign", name: "Dept of Integrated Design", energyKw: 48.0, occupancy: 57, temperatureC: 29.2, status: "normal" },
-  { id: "graduate", name: "Faculty of Graduate Studies", energyKw: 52.0, occupancy: 62, temperatureC: 29.8, status: "normal" },
-  { id: "library", name: "Library", energyKw: 58.0, occupancy: 82, temperatureC: 30.5, status: "busy" },
-  { id: "majlis", name: "Majlis Ul Islam", energyKw: 18.0, occupancy: 30, temperatureC: 28.0, status: "normal" },
+  {
+    id: "sports",
+    name: "Sports Ground",
+    energyKw: 20.0,
+    occupancy: 15,
+    temperatureC: 27.0,
+    status: "normal",
+  },
+  {
+    id: "pavilion",
+    name: "Pavilion",
+    energyKw: 12.0,
+    occupancy: 10,
+    temperatureC: 27.5,
+    status: "normal",
+  },
+  {
+    id: "textile",
+    name: "Dept of Textile & Clothing",
+    energyKw: 58.4,
+    occupancy: 60,
+    temperatureC: 29.5,
+    status: "normal",
+  },
+  {
+    id: "civil",
+    name: "Dept of Civil Engineering",
+    energyKw: 62.1,
+    occupancy: 65,
+    temperatureC: 29.8,
+    status: "normal",
+  },
+  {
+    id: "lblock",
+    name: "L Block",
+    energyKw: 44.0,
+    occupancy: 70,
+    temperatureC: 30.5,
+    status: "busy",
+  },
+  {
+    id: "transport",
+    name: "New Transport & Logistics",
+    energyKw: 35.0,
+    occupancy: 45,
+    temperatureC: 29.0,
+    status: "normal",
+  },
+  {
+    id: "Goda canteen",
+    name: "Goda Canteen",
+    energyKw: 85.0,
+    occupancy: 75,
+    temperatureC: 34.5,
+    status: "busy",
+  },
+  {
+    id: "Sentra",
+    name: "Sentra Court",
+    energyKw: 80.0,
+    occupancy: 70,
+    temperatureC: 33.5,
+    status: "busy",
+  },
+  {
+    id: "canteen",
+    name: "Canteen",
+    energyKw: 92.0,
+    occupancy: 90,
+    temperatureC: 36.0,
+    status: "critical",
+  },
+  {
+    id: "hostel_a",
+    name: "A Hostel",
+    energyKw: 95.1,
+    occupancy: 78,
+    temperatureC: 32.0,
+    status: "busy",
+  },
+  {
+    id: "it",
+    name: "Faculty of Information Technology",
+    energyKw: 76.5,
+    occupancy: 72,
+    temperatureC: 31.5,
+    status: "busy",
+  },
+  {
+    id: "female_hostel",
+    name: "Female Hostel",
+    energyKw: 88.0,
+    occupancy: 74,
+    temperatureC: 31.0,
+    status: "busy",
+  },
+  {
+    id: "medicine",
+    name: "Faculty of Medicine",
+    energyKw: 77.0,
+    occupancy: 73,
+    temperatureC: 31.8,
+    status: "busy",
+  },
+  {
+    id: "admin",
+    name: "New Conference Hall",
+    energyKw: 38.5,
+    occupancy: 55,
+    temperatureC: 28.5,
+    status: "normal",
+  },
+  {
+    id: "cse",
+    name: "Dept of CS & Engineering",
+    energyKw: 82.3,
+    occupancy: 76,
+    temperatureC: 31.2,
+    status: "busy",
+  },
+  {
+    id: "maritime",
+    name: "Division of Maritime Studies",
+    energyKw: 42.0,
+    occupancy: 50,
+    temperatureC: 28.8,
+    status: "normal",
+  },
+  {
+    id: "wala_canteen",
+    name: "Wala Canteen",
+    energyKw: 55.0,
+    occupancy: 80,
+    temperatureC: 33.5,
+    status: "busy",
+  },
+  {
+    id: "buildeco",
+    name: "Dept of Building Economics",
+    energyKw: 50.0,
+    occupancy: 58,
+    temperatureC: 29.0,
+    status: "normal",
+  },
+  {
+    id: "material",
+    name: "Dept of Material Science",
+    energyKw: 65.0,
+    occupancy: 62,
+    temperatureC: 30.0,
+    status: "normal",
+  },
+  {
+    id: "chemical",
+    name: "Dept of Chemical & Process Eng",
+    energyKw: 70.2,
+    occupancy: 67,
+    temperatureC: 30.8,
+    status: "busy",
+  },
+  {
+    id: "mechanical",
+    name: "Dept of Mechanical Engineering",
+    energyKw: 68.0,
+    occupancy: 64,
+    temperatureC: 30.4,
+    status: "normal",
+  },
+  {
+    id: "registrar",
+    name: "Registrar Office & Examination",
+    energyKw: 32.0,
+    occupancy: 40,
+    temperatureC: 28.0,
+    status: "normal",
+  },
+  {
+    id: "intdesign",
+    name: "Dept of Integrated Design",
+    energyKw: 48.0,
+    occupancy: 57,
+    temperatureC: 29.2,
+    status: "normal",
+  },
+  {
+    id: "graduate",
+    name: "Faculty of Graduate Studies",
+    energyKw: 52.0,
+    occupancy: 62,
+    temperatureC: 29.8,
+    status: "normal",
+  },
+  {
+    id: "library",
+    name: "Library",
+    energyKw: 58.0,
+    occupancy: 82,
+    temperatureC: 30.5,
+    status: "busy",
+  },
 ];
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
 export default function DigitalTwinDashboard() {
   const [zones, setZones] = useState<Zone[]>(INITIAL_ZONES);
   const [selectedId, setSelectedId] = useState<string>("it");
@@ -1014,52 +1117,89 @@ export default function DigitalTwinDashboard() {
     return () => clearInterval(t);
   }, []);
 
-  const toggleWalkMode = useCallback(() => setWalkMode((v) => !v), []);
+  const toggleWalkMode = useCallback(() => {
+    setWalkMode((v) => !v);
+  }, []);
+
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
   const campusLoad = zones.reduce((a, z) => a + z.energyKw, 0);
-  const campusOcc = Math.round(zones.reduce((a, z) => a + z.occupancy, 0) / zones.length);
+  const campusOcc = Math.round(
+    zones.reduce((a, z) => a + z.occupancy, 0) / zones.length,
+  );
   const criticalCount = zones.filter((z) => z.status === "critical").length;
+
   const filteredZones = zones.filter((z) =>
     z.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
-    <div style={{
-      display: "flex",
-      height: "100vh",
-      width: "100%",
-      background: "#071952",
-      overflow: "hidden",
-      color: "#fff",
-      fontFamily: "'Segoe UI', system-ui, sans-serif",
-    }}>
-      {/* ── Sidebar ── */}
-      <nav style={{
-        width: 300,
-        flexShrink: 0,
-        background: "rgba(11,102,106,0.18)",
-        borderRight: "1px solid rgba(53,162,159,0.3)",
+    <div
+      style={{
         display: "flex",
-        flexDirection: "column",
-        padding: 14,
-        gap: 10,
-        overflowY: "auto",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 2 }}>
-          <div style={{
-            width: 38, height: 38, borderRadius: 10,
-            background: "#97FEED", display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
+        height: "100vh",
+        width: "100%",
+        background: "#071952",
+        overflow: "hidden",
+        color: "#fff",
+        fontFamily: "'Segoe UI', system-ui, sans-serif",
+      }}
+    >
+      {/* ── Sidebar ── */}
+      <nav
+        style={{
+          width: 300,
+          flexShrink: 0,
+          background: "rgba(11,102,106,0.18)",
+          borderRight: "1px solid rgba(53,162,159,0.3)",
+          display: "flex",
+          flexDirection: "column",
+          padding: 14,
+          gap: 10,
+          overflowY: "auto",
+        }}
+      >
+        {/* Logo */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 2,
+          }}
+        >
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 10,
+              background: "#97FEED",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Building2 color="#071952" size={20} />
           </div>
-          <span style={{ fontWeight: 700, fontSize: 19, letterSpacing: "-0.5px" }}>
+          <span
+            style={{ fontWeight: 700, fontSize: 19, letterSpacing: "-0.5px" }}
+          >
             UOM<span style={{ color: "#97FEED" }}>Twin</span>
           </span>
-          <span style={{ marginLeft: "auto", fontSize: 9, color: "#97FEED88", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+          <span
+            style={{
+              marginLeft: "auto",
+              fontSize: 9,
+              color: "#97FEED88",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+            }}
+          >
             UoM
           </span>
         </div>
 
+        {/* Search */}
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
@@ -1067,16 +1207,37 @@ export default function DigitalTwinDashboard() {
           style={{
             background: "rgba(7,25,82,0.5)",
             border: "1px solid rgba(53,162,159,0.3)",
-            borderRadius: 8, padding: "7px 10px",
-            color: "#fff", fontSize: 11, outline: "none",
+            borderRadius: 8,
+            padding: "7px 10px",
+            color: "#fff",
+            fontSize: 11,
+            outline: "none",
           }}
         />
 
-        <p style={{ fontSize: 9, textTransform: "uppercase", letterSpacing: "0.18em", color: "#97FEED", fontWeight: 700, marginBottom: 4 }}>
+        {/* Zone list */}
+        <p
+          style={{
+            fontSize: 9,
+            textTransform: "uppercase",
+            letterSpacing: "0.18em",
+            color: "#97FEED",
+            fontWeight: 700,
+            marginBottom: 4,
+          }}
+        >
           Zone Status Panel ({filteredZones.length})
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 6, flex: 1, alignItems: "start" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+            gap: 6,
+            flex: 1,
+            alignItems: "start",
+          }}
+        >
           {filteredZones.map((zone) => {
             const active = zone.id === selectedId;
             return (
@@ -1084,24 +1245,53 @@ export default function DigitalTwinDashboard() {
                 key={zone.id}
                 onClick={() => setSelectedId(zone.id)}
                 style={{
-                  background: active ? "rgba(11,102,106,0.85)" : "rgba(7,25,82,0.35)",
+                  background: active
+                    ? "rgba(11,102,106,0.85)"
+                    : "rgba(7,25,82,0.35)",
                   border: `1px solid ${active ? "#97FEED" : "rgba(53,162,159,0.18)"}`,
-                  borderRadius: 8, padding: "6px 8px",
-                  cursor: "pointer", display: "flex", alignItems: "center",
-                  gap: 6, transition: "all 0.2s", textAlign: "left",
-                  minWidth: 0, minHeight: 36,
+                  borderRadius: 8,
+                  padding: "6px 8px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  transition: "all 0.2s",
+                  textAlign: "left",
+                  minWidth: 0,
+                  minHeight: 36,
                 }}
               >
-                <span style={{
-                  width: 8, height: 8, borderRadius: "50%",
-                  background: STATUS_COLORS[zone.status],
-                  boxShadow: `0 0 4px ${STATUS_COLORS[zone.status]}`,
-                  flexShrink: 0,
-                }} />
-                <span style={{ fontSize: 9, color: "#fff", lineHeight: 1.2, flex: 1, minWidth: 0 }}>
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    background: STATUS_COLORS[zone.status],
+                    boxShadow: `0 0 4px ${STATUS_COLORS[zone.status]}`,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 9,
+                    color: "#fff",
+                    lineHeight: 1.2,
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
                   {zone.name}
                 </span>
-                <span style={{ fontSize: 7, color: STATUS_COLORS[zone.status], fontWeight: 700, textTransform: "uppercase", flexShrink: 0, letterSpacing: "0.04em" }}>
+                <span
+                  style={{
+                    fontSize: 7,
+                    color: STATUS_COLORS[zone.status],
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    flexShrink: 0,
+                    letterSpacing: "0.04em",
+                  }}
+                >
                   {zone.status}
                 </span>
               </button>
@@ -1110,86 +1300,203 @@ export default function DigitalTwinDashboard() {
         </div>
 
         {/* Zone detail */}
-        <div style={{ borderRadius: 14, border: "1px solid #97FEED", background: "#0B666A", padding: 16, flexShrink: 0 }}>
-          <p style={{ fontSize: 9, color: "rgba(0,0,0,0.55)", fontWeight: 700, textTransform: "uppercase", marginBottom: 3 }}>
+        <div
+          style={{
+            borderRadius: 14,
+            border: "1px solid #97FEED",
+            background: "#0B666A",
+            padding: 16,
+            flexShrink: 0,
+          }}
+        >
+          <p
+            style={{
+              fontSize: 9,
+              color: "rgba(0,0,0,0.55)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              marginBottom: 3,
+            }}
+          >
             Selected Zone
           </p>
-          <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 12, lineHeight: 1.3 }}>
+          <p
+            style={{
+              fontSize: 15,
+              fontWeight: 700,
+              marginBottom: 12,
+              lineHeight: 1.3,
+            }}
+          >
             {selectedZone.name}
           </p>
-          <div style={{
-            background: "rgba(7,25,82,0.5)", borderRadius: 8,
-            border: "1px solid rgba(53,162,159,0.35)",
-            padding: 12, display: "flex", flexDirection: "column", gap: 8, fontSize: 12, fontFamily: "monospace",
-          }}>
+          <div
+            style={{
+              background: "rgba(7,25,82,0.5)",
+              borderRadius: 8,
+              border: "1px solid rgba(53,162,159,0.35)",
+              padding: 12,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+              fontSize: 12,
+              fontFamily: "monospace",
+            }}
+          >
             {[
-              ["STATUS", selectedZone.status.toUpperCase(), STATUS_COLORS[selectedZone.status]],
+              [
+                "STATUS",
+                selectedZone.status.toUpperCase(),
+                STATUS_COLORS[selectedZone.status],
+              ],
               ["Energy", `${selectedZone.energyKw.toFixed(1)} kW`, "#97FEED"],
               ["Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
               ["Temperature", `${selectedZone.temperatureC}°C`, "#97FEED"],
             ].map(([label, value, color], i) => (
-              <div key={i} style={{
-                display: "flex", justifyContent: "space-between",
-                paddingBottom: i < 3 ? 8 : 0,
-                borderBottom: i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
-              }}>
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingBottom: i < 3 ? 8 : 0,
+                  borderBottom:
+                    i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
+                }}
+              >
                 <span style={{ color: "#97FEED" }}>{label}</span>
                 <span style={{ color, fontWeight: 700 }}>{value}</span>
               </div>
             ))}
           </div>
           <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 9, color: "#fff", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 5 }}>
+            <div
+              style={{
+                fontSize: 9,
+                color: "#fff",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+                marginBottom: 5,
+              }}
+            >
               Capacity
             </div>
-            <div style={{ height: 10, borderRadius: 5, background: "rgba(7,25,82,0.8)", border: "1px solid rgba(53,162,159,0.35)", padding: 2 }}>
-              <div style={{
-                height: "100%", borderRadius: 3,
-                background: STATUS_COLORS[selectedZone.status],
-                width: `${selectedZone.occupancy}%`,
-                transition: "width 0.6s ease",
-              }} />
+            <div
+              style={{
+                height: 10,
+                borderRadius: 5,
+                background: "rgba(7,25,82,0.8)",
+                border: "1px solid rgba(53,162,159,0.35)",
+                padding: 2,
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  borderRadius: 3,
+                  background: STATUS_COLORS[selectedZone.status],
+                  width: `${selectedZone.occupancy}%`,
+                  transition: "width 0.6s ease",
+                }}
+              />
             </div>
           </div>
         </div>
       </nav>
 
       {/* ── Main ── */}
-      <main style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10, padding: 14, minWidth: 0 }}>
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+          padding: 14,
+          minWidth: 0,
+        }}
+      >
         {/* Header */}
-        <header style={{
-          background: "rgba(11,102,106,0.35)",
-          border: "1px solid rgba(53,162,159,0.3)",
-          borderRadius: 14, padding: "12px 18px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          gap: 14, flexShrink: 0,
-        }}>
+        <header
+          style={{
+            background: "rgba(11,102,106,0.35)",
+            border: "1px solid rgba(53,162,159,0.3)",
+            borderRadius: 14,
+            padding: "12px 18px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 14,
+            flexShrink: 0,
+          }}
+        >
           <div>
-            <p style={{ fontSize: 9, color: "#97FEED", textTransform: "uppercase", letterSpacing: "0.18em", fontWeight: 700 }}>
+            <p
+              style={{
+                fontSize: 9,
+                color: "#97FEED",
+                textTransform: "uppercase",
+                letterSpacing: "0.18em",
+                fontWeight: 700,
+              }}
+            >
               Group I3 Demo • University of Moratuwa
             </p>
             <h1 style={{ fontSize: 20, fontWeight: 700, margin: "2px 0" }}>
               Smart Campus Twin Control
             </h1>
             <p style={{ fontSize: 11, color: "rgba(151,254,237,0.75)" }}>
-              Real-time 3D campus — occupancy · temperature · energy · street lamps · seating
+              Real-time 3D campus — occupancy · temperature · energy states
             </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, minWidth: 300 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 8,
+              minWidth: 300,
+            }}
+          >
             {[
               ["Campus Energy", `${campusLoad.toFixed(1)} kW`],
               ["Avg Occupancy", `${campusOcc}%`],
               ["Active Zones", `${zones.length}`],
-              ["Alerts", criticalCount > 0 ? `${criticalCount} critical` : "None"],
+              [
+                "Alerts",
+                criticalCount > 0 ? `${criticalCount} critical` : "None",
+              ],
             ].map(([label, val]) => (
-              <div key={label} style={{ background: "rgba(7,25,82,0.55)", border: "1px solid rgba(53,162,159,0.3)", borderRadius: 9, padding: "7px 12px" }}>
-                <div style={{ fontSize: 9, color: "rgba(151,254,237,0.8)", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: 2 }}>
+              <div
+                key={label}
+                style={{
+                  background: "rgba(7,25,82,0.55)",
+                  border: "1px solid rgba(53,162,159,0.3)",
+                  borderRadius: 9,
+                  padding: "7px 12px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 9,
+                    color: "rgba(151,254,237,0.8)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    fontWeight: 700,
+                    marginBottom: 2,
+                  }}
+                >
                   {label}
                 </div>
-                <div style={{
-                  fontSize: 15, fontWeight: 700, fontFamily: "monospace",
-                  color: label === "Alerts" && criticalCount > 0 ? STATUS_COLORS.critical : "#97FEED",
-                }}>
+                <div
+                  style={{
+                    fontSize: 15,
+                    fontWeight: 700,
+                    fontFamily: "monospace",
+                    color:
+                      label === "Alerts" && criticalCount > 0
+                        ? STATUS_COLORS.critical
+                        : "#97FEED",
+                  }}
+                >
                   {val}
                 </div>
               </div>
@@ -1198,20 +1505,43 @@ export default function DigitalTwinDashboard() {
         </header>
 
         {/* 3D Canvas */}
-        <section style={{ flex: 1, borderRadius: 14, border: "1px solid rgba(53,162,159,0.3)", overflow: "hidden", position: "relative" }}>
+        <section
+          style={{
+            flex: 1,
+            borderRadius: 14,
+            border: "1px solid rgba(53,162,159,0.3)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+        >
           {/* Toolbar */}
-          <div style={{
-            position: "absolute", top: 0, left: 0, right: 0, zIndex: 10,
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            background: "rgba(11,102,106,0.82)", borderBottom: "1px solid rgba(53,162,159,0.4)",
-            padding: "7px 14px", fontSize: 10,
-            textTransform: "uppercase", letterSpacing: "0.16em", color: "#97FEED", fontWeight: 700, gap: 12,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              background: "rgba(11,102,106,0.8)",
+              borderBottom: "1px solid rgba(53,162,159,0.4)",
+              padding: "7px 14px",
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: "0.16em",
+              color: "#97FEED",
+              fontWeight: 700,
+              gap: 12,
+            }}
+          >
             <span>3D Campus Twin — University of Moratuwa</span>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {walkMode && (
                 <span style={{ fontSize: 9, color: "#FAC75A", opacity: 0.9 }}>
-                  Click canvas → WASD/Arrows · Mouse to look · Shift for speed
+                  Click canvas → WASD/Arrow keys to move · Mouse to look · Shift
+                  for speed
                 </span>
               )}
               <button
@@ -1219,63 +1549,116 @@ export default function DigitalTwinDashboard() {
                 style={{
                   background: walkMode ? "#97FEED" : "rgba(7,25,82,0.7)",
                   border: `1px solid ${walkMode ? "#97FEED" : "rgba(53,162,159,0.5)"}`,
-                  borderRadius: 7, padding: "5px 12px",
+                  borderRadius: 7,
+                  padding: "5px 12px",
                   color: walkMode ? "#071952" : "#97FEED",
-                  cursor: "pointer", fontSize: 10, fontWeight: 700,
-                  display: "flex", alignItems: "center", gap: 5,
-                  letterSpacing: "0.08em", textTransform: "uppercase",
+                  cursor: "pointer",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
                 }}
               >
                 {walkMode ? <Eye size={12} /> : <Navigation size={12} />}
                 {walkMode ? "Orbit Mode" : "Walk Mode"}
               </button>
-              {!walkMode && <span style={{ fontSize: 9, opacity: 0.7 }}>Drag · Scroll · Click</span>}
+              {!walkMode && (
+                <span style={{ fontSize: 9, opacity: 0.7 }}>
+                  Drag · Scroll · Click
+                </span>
+              )}
             </div>
           </div>
 
-          <Canvas camera={{ position: [12, 16, 22], fov: 50 }} shadows style={{ width: "100%", height: "100%" }}>
-            <CampusScene zones={zones} selectedId={selectedId} onSelect={setSelectedId} walkMode={walkMode} />
+          <Canvas
+            camera={{ position: [10, 12, 18], fov: 52 }}
+            shadows
+            style={{ width: "100%", height: "100%" }}
+          >
+            <CampusScene
+              zones={zones}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              walkMode={walkMode}
+            />
           </Canvas>
 
           {/* Legend */}
-          <div style={{
-            position: "absolute", bottom: 10, right: 10, zIndex: 10,
-            background: "rgba(7,25,82,0.88)", border: "1px solid rgba(53,162,159,0.3)",
-            borderRadius: 8, padding: "8px 12px",
-            display: "flex", gap: 16, fontSize: 10,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              bottom: 10,
+              right: 10,
+              zIndex: 10,
+              background: "rgba(7,25,82,0.85)",
+              border: "1px solid rgba(53,162,159,0.3)",
+              borderRadius: 8,
+              padding: "8px 12px",
+              display: "flex",
+              gap: 12,
+              fontSize: 10,
+            }}
+          >
             {(["normal", "busy", "critical"] as ZoneStatus[]).map((s) => (
-              <div key={s} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 9, height: 9, borderRadius: "50%", background: STATUS_COLORS[s], boxShadow: `0 0 5px ${STATUS_COLORS[s]}`, display: "inline-block" }} />
-                <span style={{ color: "#97FEED", textTransform: "capitalize" }}>{s}</span>
+              <div
+                key={s}
+                style={{ display: "flex", alignItems: "center", gap: 5 }}
+              >
+                <span
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    background: STATUS_COLORS[s],
+                    boxShadow: `0 0 5px ${STATUS_COLORS[s]}`,
+                  }}
+                />
+                <span style={{ color: "#97FEED", textTransform: "capitalize" }}>
+                  {s}
+                </span>
               </div>
             ))}
-            <div style={{ width: 1, background: "rgba(53,162,159,0.3)" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ fontSize: 12 }}>💡</span>
-              <span style={{ color: "#97FEED" }}>Lamps</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ fontSize: 12 }}>🪑</span>
-              <span style={{ color: "#97FEED" }}>Seating</span>
-            </div>
           </div>
 
-          {/* Walk controls */}
+          {/* Walk mode compass */}
           {walkMode && (
-            <div style={{
-              position: "absolute", bottom: 10, left: 10, zIndex: 10,
-              background: "rgba(7,25,82,0.88)", border: "1px solid rgba(53,162,159,0.35)",
-              borderRadius: 8, padding: "8px 14px",
-              fontSize: 9, color: "#97FEED", fontWeight: 700,
-              textTransform: "uppercase", letterSpacing: "0.1em",
-            }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 14px" }}>
-                <span>W / ↑</span><span style={{ color: "#fff" }}>Forward</span>
-                <span>S / ↓</span><span style={{ color: "#fff" }}>Backward</span>
-                <span>A / ←</span><span style={{ color: "#fff" }}>Left</span>
-                <span>D / →</span><span style={{ color: "#fff" }}>Right</span>
-                <span>Shift</span><span style={{ color: "#fff" }}>Run</span>
+            <div
+              style={{
+                position: "absolute",
+                bottom: 10,
+                left: 10,
+                zIndex: 10,
+                background: "rgba(7,25,82,0.85)",
+                border: "1px solid rgba(53,162,159,0.35)",
+                borderRadius: 8,
+                padding: "8px 14px",
+                fontSize: 9,
+                color: "#97FEED",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.1em",
+              }}
+            >
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "2px 14px",
+                }}
+              >
+                <span>W / ↑</span>
+                <span style={{ color: "#fff" }}>Forward</span>
+                <span>S / ↓</span>
+                <span style={{ color: "#fff" }}>Backward</span>
+                <span>A / ←</span>
+                <span style={{ color: "#fff" }}>Left</span>
+                <span>D / →</span>
+                <span style={{ color: "#fff" }}>Right</span>
+                <span>Shift</span>
+                <span style={{ color: "#fff" }}>Run</span>
               </div>
             </div>
           )}
