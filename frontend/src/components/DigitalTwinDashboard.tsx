@@ -43,17 +43,6 @@ export const STATUS_GLOW: Record<ZoneStatus, string> = {
 };
 
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  // Play Ground
-  {
-    id: "sports",
-    name: "Play Ground",
-    position: [-7.5, 0, -7.5],
-    size: [9.0, 0.25, 5.5],
-    roofType: "shed",
-    roofColor: "#2d6e2d",
-    wallColor: "#3a8a3a",
-    label: "Play Ground",
-  },
   // Lagaan
   {
     id: "lagaan",
@@ -78,7 +67,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Multipurpose Hall",
   },
 
-  // A Hostel 
+  // A Hostel
   {
     id: "hostel_a",
     name: "A Hostel",
@@ -102,7 +91,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Depart. of Textile",
   },
 
-  // Transport & Logistics 
+  // Transport & Logistics
   {
     id: "transport",
     name: "Dept of Transport & Logistics",
@@ -114,7 +103,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Transport & Logistics",
   },
 
-  // Civil Engineering 
+  // Civil Engineering
   {
     id: "civil",
     name: "Dept of Civil Engineering",
@@ -125,7 +114,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     wallColor: "#b0b0c0",
     label: "Civil Engineering",
   },
-  // Sumansadasa Building 
+  // Sumansadasa Building
   {
     id: "cse",
     name: "Dept of Computer Science & Engineering",
@@ -137,7 +126,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Sumanadasa Building",
   },
 
-  // Goda Canteen 
+  // Goda Canteen
   {
     id: "Goda canteen",
     name: "Goda Canteen",
@@ -149,7 +138,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Goda Canteen",
   },
 
-  // Sentra Court 
+  // Sentra Court
   {
     id: "Sentra",
     name: "Sentra Court",
@@ -161,7 +150,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Sentra Court",
   },
 
-  // L Canteen 
+  // L Canteen
   {
     id: "canteen",
     name: "L Canteen",
@@ -197,7 +186,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Hostel",
   },
 
-  // Faculty of Business Science 
+  // Faculty of Business Science
   {
     id: "buildeco",
     name: "Faculty of Business Science",
@@ -221,7 +210,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Dept of Maths",
   },
 
-  // Faculty of Medicine 
+  // Faculty of Medicine
   {
     id: "medicine",
     name: "Faculty of Medicine",
@@ -245,7 +234,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "NA1&2",
   },
 
- // Wala Canteen (inside Sumandasa)
+  // Wala Canteen (inside Sumandasa)
   {
     id: "wala_canteen",
     name: "Wala Canteen",
@@ -281,7 +270,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Chemical & Process Eng",
   },
 
-  // Dept of Mechanical Engineering 
+  // Dept of Mechanical Engineering
   {
     id: "mechanical",
     name: "Dept of Mechanical Engineering",
@@ -293,7 +282,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Mechanical Engineering",
   },
 
- // Registrar Office & Examination
+  // Registrar Office & Examination
   {
     id: "registrar",
     name: "Registrar Office & Examination",
@@ -305,7 +294,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Registrar Office",
   },
 
-  // Admin building 
+  // Admin building
   {
     id: "admin",
     name: "Admin Building",
@@ -664,7 +653,7 @@ function Building({
   );
 }
 
-// ─── Roads (accurate to UoM map) ─────────────────────────────────────────────
+// Roads
 
 function Roads() {
   const road = { color: "#5a5a5a", roughness: 0.95 };
@@ -802,6 +791,23 @@ function Ground() {
         <planeGeometry args={[7, 5]} />
         <meshStandardMaterial color="#3a9a30" roughness={0.9} />
       </mesh>
+      <Html center position={[-8.5, 0.45, -7]}>
+        <div
+          style={{
+            background: "rgba(7,25,82,0.88)",
+            border: "1px solid #35A29F55",
+            color: "#fff",
+            fontSize: "10px",
+            fontWeight: 600,
+            padding: "2px 7px",
+            borderRadius: "5px",
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+          }}
+        >
+          Play Ground
+        </div>
+      </Html>
       {/* Sports field lines */}
       {[-2, 0, 2].map((x) => (
         <mesh
@@ -889,17 +895,9 @@ function CampusScene({
   );
 }
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
+// Dashboard
 
 const INITIAL_ZONES: Zone[] = [
-  {
-    id: "sports",
-    name: "Sports Ground",
-    energyKw: 20.0,
-    occupancy: 15,
-    temperatureC: 27.0,
-    status: "normal",
-  },
   {
     id: "lagaan",
     name: "Lagaan",
