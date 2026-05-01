@@ -21,6 +21,7 @@ export type Zone = {
 
 export type ZoneLayout = {
   id: string;
+  name: string;
   position: [number, number, number];
   size: [number, number, number];
   roofType: "flat" | "gabled" | "hip" | "shed";
@@ -41,27 +42,7 @@ export const STATUS_GLOW: Record<ZoneStatus, string> = {
   critical: "#FF8B6E",
 };
 
-// ─── Campus Layout (accurate to UoM Google Maps) ──────────────────────────────
-// Map coordinate system: X = east (+) / west (-), Z = south (+) / north (-)
-// Map spans roughly X: -14 to +14, Z: -12 to +14
-// Main Street runs vertically near X=0, from Z=-10 to Z=13
-
-// ─── Campus Layout ────────────────────────────────────────────────────────────
-// Map coordinate system: X = east (+) / west (-), Z = south (+) / north (-)
-// Based on hand-drawn sketch (revised):
-//   Top-left:    Play Ground (large) + Pavilion + New Conference Hall
-//   Top-right:   A Hostel, Textile & Clothing, Transport & Logistics, Civil Eng.
-//   Mid-left:    Sumandasa Building (large) containing Wala Canteen + Maritime Studies
-//   Mid-center:  CS & Engineering, Faculty of IT, Canteen, Building Economics
-//   Mid-right:   Female Hostel, Faculty of Medicine, NA1 Hostel, NA2 Hostel
-//   Lower-left:  Material Science, Chemical & Process Eng., Mechanical Eng.
-//   Lower-center:Registrar Office, Admin
-//   Lower-right: Integrated Design, Graduate Studies, Library
-//   Bottom:      Main Entrance (center), Side Entrance (left)
-
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  // ── NORTH / TOP ───────────────────────────────────────────────────────────
-
   // Play Ground (large open field, top-left)
   {
     id: "sports",
@@ -73,60 +54,59 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     wallColor: "#3a8a3a",
     label: "Play Ground",
   },
-
-  // Pavilion (inside play ground, top-left corner)
+  // Lagaan
   {
-    id: "pavilion",
-    name: "Pavilion",
-    position: [-11.0, 0, -9.0],
-    size: [2.0, 1.5, 1.2],
-    roofType: "hip",
-    roofColor: "#7a5535",
-    wallColor: "#c8b090",
-    label: "Pavilion",
+    id: "lagaan",
+    name: "Lagaan",
+    position: [-2.5, 0, -2],
+    size: [2.5, 0.25, 2.5],
+    roofType: "shed",
+    roofColor: "#2d6e2d",
+    wallColor: "#3a8a3a",
+    label: "Lagaan",
   },
 
-  // New Conference Hall (circular/prominent, left side of play ground)
+  // Multipurpose Hall
   {
     id: "conference",
-    name: "New Conference Hall",
-    position: [-10.5, 0, -6.5],
-    size: [2.2, 2.2, 2.2],
+    name: "Multipurpose Hall",
+    position: [-10.5, 0, 0.5],
+    size: [4.2, 3.2, 2.2],
     roofType: "hip",
     roofColor: "#7a6040",
     wallColor: "#c8b090",
-    label: "New Conference Hall",
+    label: "Multipurpose Hall",
   },
 
-  // A Hostel (top-right, above back gate road)
+  // A Hostel 
   {
     id: "hostel_a",
     name: "A Hostel",
-    position: [7.5, 0, -9.5],
-    size: [3.2, 4.0, 1.8],
+    position: [10.5, 0, -14.5],
+    size: [6.2, 4.0, 1.8],
     roofType: "flat",
     roofColor: "#dcdcdc",
     wallColor: "#f0f0f0",
     label: "A Hostel",
   },
 
-  // Textile & Clothing (top-right block, below back gate)
+  // Textile dept
   {
     id: "textile",
     name: "Dept of Textile & Clothing",
-    position: [3.5, 0, -7.5],
-    size: [2.8, 2.4, 2.6],
+    position: [2.5, 0, -9.5],
+    size: [2.8, 1.4, 2.6],
     roofType: "flat",
     roofColor: "#808080",
     wallColor: "#b8b8b8",
-    label: "Textile & Clothing",
+    label: "Depart. of Textile",
   },
 
-  // Transport & Logistics (right of textile)
+  // Transport & Logistics 
   {
     id: "transport",
     name: "Dept of Transport & Logistics",
-    position: [7.0, 0, -6.0],
+    position: [12.5, 0, -4.0],
     size: [3.0, 2.0, 2.4],
     roofType: "flat",
     roofColor: "#909090",
@@ -134,21 +114,18 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Transport & Logistics",
   },
 
-  // Civil Engineering (far-right vertical block)
+  // Civil Engineering 
   {
     id: "civil",
     name: "Dept of Civil Engineering",
-    position: [11.5, 0, -4.5],
-    size: [1.8, 2.6, 5.5],
+    position: [17, 0, -9.5],
+    size: [1.8, 2.6, 8.5],
     roofType: "flat",
     roofColor: "#707080",
     wallColor: "#b0b0c0",
     label: "Civil Engineering",
   },
-
-  // ── UPPER-CENTER / MID ────────────────────────────────────────────────────
-
-  // CS & Engineering (left of main road, center)
+  // Sumansadasa Building 
   {
     id: "cse",
     name: "Dept of Computer Science & Engineering",
@@ -160,7 +137,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Sumanadasa Building",
   },
 
-  // Goda Canteen (small, between CSE and road)
+  // Goda Canteen 
   {
     id: "Goda canteen",
     name: "Goda Canteen",
@@ -172,7 +149,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Goda Canteen",
   },
 
-  // Goda Canteen (small, between CSE and road)
+  // Sentra Court 
   {
     id: "Sentra",
     name: "Sentra Court",
@@ -184,93 +161,91 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Sentra Court",
   },
 
-  // Canteen (small, between CSE and road)
+  // L Canteen 
   {
     id: "canteen",
-    name: "Canteen",
-    position: [1.5, 0, -0.5],
+    name: "L Canteen",
+    position: [1.7, 0, -0.5],
     size: [1.8, 1.5, 1.4],
     roofType: "hip",
     roofColor: "#b05030",
     wallColor: "#d4aa60",
-    label: "Canteen",
+    label: "L Canteen",
   },
 
-  // Faculty of IT (right of main road, center)
+  // Faculty of IT
   {
     id: "it",
     name: "Faculty of Information Technology",
-    position: [4.5, 0, -1.5],
-    size: [3.4, 3.0, 2.8],
+    position: [7.5, 0, 3],
+    size: [1.4, 3.0, 2],
     roofType: "flat",
     roofColor: "#8090a0",
     wallColor: "#b0c0d0",
     label: "Faculty of IT",
   },
 
-  // Female Hostel (east, mid)
+  // Hostel
   {
-    id: "female_hostel",
-    name: "Female Hostel",
-    position: [9.0, 0, 0.5],
-    size: [2.4, 3.2, 2.4],
+    id: "hostel",
+    name: "Hostel",
+    position: [11.0, 0, 3],
+    size: [3.4, 1.6, 2.4],
     roofType: "flat",
     roofColor: "#e0ccd0",
     wallColor: "#f5e8ea",
-    label: "Female Hostel",
+    label: "Hostel",
   },
 
-  // Building Economics (center, below CSE)
+  // Faculty of Business Science 
   {
     id: "buildeco",
-    name: "Dept of Building Economics",
-    position: [-2.0, 0, -2.5],
-    size: [3.2, 2.2, 2.2],
-    roofType: "gabled",
+    name: "Faculty of Business Science",
+    position: [4.0, 0, -0.5],
+    size: [2.2, 3.2, 1.2],
+    roofType: "flat",
     roofColor: "#6b5030",
     wallColor: "#a89070",
-    label: "Building Economics",
+    label: "Faculty of Business Science",
   },
 
-  // Faculty of Medicine (far east)
+  // dept.of Maths
+  {
+    id: "maths",
+    name: "Dept of Maths",
+    position: [4.0, 0, -3.5],
+    size: [2.2, 3.0, 2.0],
+    roofType: "flat",
+    roofColor: "#dcdcdc",
+    wallColor: "#f4f4f4",
+    label: "Dept of Maths",
+  },
+
+  // Faculty of Medicine 
   {
     id: "medicine",
     name: "Faculty of Medicine",
-    position: [9.5, 0, 4.5],
-    size: [3.4, 2.8, 3.2],
+    position: [17, 0, 0],
+    size: [2.2, 5, 3.2],
     roofType: "flat",
     roofColor: "#a07060",
     wallColor: "#d0a090",
     label: "Faculty of Medicine",
   },
 
-  // NA1 Hostel (east, below medicine)
+  // NA1&NA2
   {
-    id: "hostel_na1",
-    name: "NA1 Hostel",
-    position: [8.5, 0, 8.0],
-    size: [2.4, 3.0, 2.2],
+    id: "na1",
+    name: "NA1&2",
+    position: [18.5, 0, 6.0],
+    size: [2.4, 2.0, 2.2],
     roofType: "flat",
     roofColor: "#c8c8c8",
     wallColor: "#eeeeee",
-    label: "NA1 Hostel",
+    label: "NA1&2",
   },
 
-  // NA2 Hostel (east, below NA1)
-  {
-    id: "hostel_na2",
-    name: "NA2 Hostel",
-    position: [11.0, 0, 8.0],
-    size: [2.2, 3.0, 2.0],
-    roofType: "flat",
-    roofColor: "#dcdcdc",
-    wallColor: "#f4f4f4",
-    label: "NA2 Hostel",
-  },
-
-  // ── LEFT / WEST (Sumandasa Block) ─────────────────────────────────────────
-
-  // Wala Canteen (inside Sumandasa)
+ // Wala Canteen (inside Sumandasa)
   {
     id: "wala_canteen",
     name: "Wala Canteen",
@@ -281,7 +256,6 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     wallColor: "#d0a060",
     label: "Wala Canteen",
   },
-  // ── LOWER-LEFT ────────────────────────────────────────────────────────────
 
   // Dept of Material Science & Engineering
   {
@@ -307,7 +281,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Chemical & Process Eng",
   },
 
-  // Dept of Mechanical Engineering (bottom-left, with side entrance)
+  // Dept of Mechanical Engineering 
   {
     id: "mechanical",
     name: "Dept of Mechanical Engineering",
@@ -319,9 +293,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Mechanical Engineering",
   },
 
-  // ── LOWER-CENTER ──────────────────────────────────────────────────────────
-
-  // Registrar Office & Examination
+ // Registrar Office & Examination
   {
     id: "registrar",
     name: "Registrar Office & Examination",
@@ -333,7 +305,7 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Registrar Office",
   },
 
-  // Admin building (center, near main entrance)
+  // Admin building 
   {
     id: "admin",
     name: "Admin Building",
@@ -344,8 +316,6 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     wallColor: "#c8b090",
     label: "Admin",
   },
-
-  // ── LOWER-RIGHT ───────────────────────────────────────────────────────────
 
   // Dept of Integrated Design
   {
@@ -383,8 +353,6 @@ export const CAMPUS_LAYOUT: ZoneLayout[] = [
     label: "Library",
   },
 ];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v));
@@ -784,13 +752,33 @@ function Roads() {
       {/* ── MECHANICAL / SIDE ENTRANCE spur west ── */}
       <RoadPlane x={-11} z={14.5} w={10} d={0.9} />
       <RoadPlane x={-6.0} z={15.5} w={0.9} d={3} />
+      <RoadPlane x={-16.0} z={8.45} w={1.0} d={13} />
 
       {/* Roads Sumandasa block ── */}
       <RoadPlane x={-6} z={6.5} w={12} d={1} />
       <RoadPlane x={-8} z={2.5} w={16} d={1} />
       <RoadPlane x={-12.0} z={4.5} w={1.0} d={5} />
 
-      <RoadPlane x={-16.0} z={8.45} w={1.0} d={13} />
+      {/* Roads Civil and others ── */}
+      <RoadPlane x={3.0} z={6.5} w={6} d={1} />
+      <RoadPlane x={6.0} z={4} w={1} d={6} />
+      <RoadPlane x={10.5} z={1} w={10} d={1} />
+      <RoadPlane x={15} z={-8} w={1} d={18} />
+      <RoadPlane x={3.0} z={-11.5} w={6} d={1} />
+      <RoadPlane x={6.0} z={-14} w={1} d={6} />
+      <RoadPlane x={10.0} z={-16.5} w={9} d={1} />
+
+      {/* Roads L canteen and business ── */}
+      <RoadPlane x={3.1} z={1} w={4.9} d={1} type="pave" />
+
+      {/* Roads NA1 and NA2 ── */}
+      <RoadPlane x={11.5} z={6} w={10} d={1} />
+
+      {/* Roads Fac. of Medicine ── */}
+      <RoadPlane x={16.5} z={4} w={1} d={5} />
+
+      {/* Roads dept.of Maths ── */}
+      <RoadPlane x={2.1} z={-3} w={3} d={1} type="pave" />
     </group>
   );
 }
@@ -913,11 +901,11 @@ const INITIAL_ZONES: Zone[] = [
     status: "normal",
   },
   {
-    id: "pavilion",
-    name: "Pavilion",
-    energyKw: 12.0,
-    occupancy: 10,
-    temperatureC: 27.5,
+    id: "lagaan",
+    name: "Lagaan",
+    energyKw: 46.0,
+    occupancy: 52,
+    temperatureC: 29.1,
     status: "normal",
   },
   {
@@ -985,6 +973,14 @@ const INITIAL_ZONES: Zone[] = [
     status: "busy",
   },
   {
+    id: "conference",
+    name: "New Conference Hall",
+    energyKw: 38.5,
+    occupancy: 55,
+    temperatureC: 28.5,
+    status: "normal",
+  },
+  {
     id: "it",
     name: "Faculty of Information Technology",
     energyKw: 76.5,
@@ -993,11 +989,43 @@ const INITIAL_ZONES: Zone[] = [
     status: "busy",
   },
   {
+    id: "hostel",
+    name: "Hostel",
+    energyKw: 86.0,
+    occupancy: 68,
+    temperatureC: 31.0,
+    status: "busy",
+  },
+  {
     id: "female_hostel",
     name: "Female Hostel",
     energyKw: 88.0,
     occupancy: 74,
     temperatureC: 31.0,
+    status: "busy",
+  },
+  {
+    id: "na1",
+    name: "NA1&NA2",
+    energyKw: 79.0,
+    occupancy: 66,
+    temperatureC: 30.4,
+    status: "busy",
+  },
+  {
+    id: "maths",
+    name: "Dept of Maths",
+    energyKw: 63.0,
+    occupancy: 59,
+    temperatureC: 29.7,
+    status: "normal",
+  },
+  {
+    id: "hostel_na2",
+    name: "NA2 Hostel",
+    energyKw: 74.0,
+    occupancy: 61,
+    temperatureC: 30.1,
     status: "busy",
   },
   {
