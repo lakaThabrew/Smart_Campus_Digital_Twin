@@ -43,7 +43,7 @@ export const STATUS_GLOW: Record<ZoneStatus, string> = {
 };
 
 export const CAMPUS_LAYOUT: ZoneLayout[] = [
-  // Play Ground (large open field, top-left)
+  // Play Ground
   {
     id: "sports",
     name: "Play Ground",
@@ -699,7 +699,7 @@ function Roads() {
   // Centre-line dashes for main street
   const Dashes = () => {
     const dashes = [];
-    for (let z = -13; z < 16; z += 1.4) {
+    for (let z = -11; z < 16; z += 1.4) {
       dashes.push(
         <mesh
           key={z}
@@ -718,7 +718,7 @@ function Roads() {
   // Centre-line dashes for horizontal roads (X direction)
   const DashesHorizontal = () => {
     const dashes = [];
-    for (let x = -20; x < 20; x += 1.4) {
+    for (let x = -19; x < 16; x += 1.4) {
       dashes.push(
         <mesh
           key={x}
@@ -735,12 +735,12 @@ function Roads() {
 
   return (
     <group>
-      {/* ── MAIN STREET — vertical spine X≈0, full N→S ── */}
+      {/* ── MAIN STREET — vertical */}
       <RoadPlane x={0} z={3.0} w={1.3} d={30} />
       <Dashes />
 
-      {/* ── BOTTOM / SOUTH PERIMETER — main gate ── */}
-      <RoadPlane x={2.0} z={17.0} w={40} d={2.4} />
+      {/* ── Main Road ── */}
+      <RoadPlane x={0.0} z={17.0} w={36} d={2.4} />
       <DashesHorizontal />
 
       {/* ── CROSS ROAD D: Chemical */}
