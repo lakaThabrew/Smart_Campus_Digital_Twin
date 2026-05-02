@@ -6,6 +6,7 @@ import { Html, OrbitControls } from "@react-three/drei";
 import { Building2, Navigation, Eye } from "lucide-react";
 import * as THREE from "three";
 import CampusTrees from "./CampusTrees";
+import CampusFurniture from "./CampusFurniture";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
 
@@ -821,6 +822,7 @@ function CampusScene({
       <Ground />
       <Roads />
       <CampusTrees />
+      <CampusFurniture/>
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);
