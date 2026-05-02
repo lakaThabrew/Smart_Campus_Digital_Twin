@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import { Building2, Navigation, Eye } from "lucide-react";
 import * as THREE from "three";
+import CampusTrees from "./CampusTrees";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
 
@@ -800,7 +801,9 @@ function CampusScene({
         intensity={1.5}
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-far={60}
+        shadow-bias={-0.0004}
+        shadow-camera-near={0.5}
+        shadow-camera-far={70}
         shadow-camera-left={-25}
         shadow-camera-right={25}
         shadow-camera-top={25}
@@ -811,10 +814,11 @@ function CampusScene({
         intensity={0.35}
         color="#ddeeff"
       />
-      <hemisphereLight args={["#bdd4f0", "#3a7030", 0.5]} />
+      <hemisphereLight args={["#c8daf0", "#3a7030", 0.5]} />
 
       <Ground />
       <Roads />
+      <CampusTrees />
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);
@@ -1522,7 +1526,7 @@ export default function DigitalTwinDashboard() {
 
           <Canvas
             camera={{ position: [10, 12, 18], fov: 52 }}
-            shadows
+            shadows={{type: THREE.PCFShadowMap}}
             style={{ width: "100%", height: "100%" }}
           >
             <CampusScene
