@@ -7,6 +7,7 @@ import { Building2, Navigation, Eye, ChevronDown, ChevronRight } from "lucide-re
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { BUILDING_DATA } from "./indoor/FloorData";
+import CampusTrees from "./CampusTrees";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
 
@@ -615,7 +616,7 @@ function Building({
 // Roads
 
 function Roads() {
-  const road = { color: "#5a5a5a", roughness: 0.95 };
+  const road = { color: "#3d3b3b", roughness: 0.95 };
   const pave = { color: "#888888", roughness: 0.9 };
   const markings = { color: "#ffffff", roughness: 0.8 };
 
@@ -746,7 +747,7 @@ function Ground() {
       </mesh>
       {/* Sports field grass (brighter) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-8.5, 0.005, -7]}>
-        <planeGeometry args={[7, 5]} />
+        <circleGeometry args={[5, 32]} />
         <meshStandardMaterial color="#3a9a30" roughness={0.9} />
       </mesh>
       <Html center position={[-8.5, 0.45, -7]}>
@@ -805,7 +806,9 @@ function CampusScene({
         intensity={1.5}
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-far={60}
+        shadow-bias={-0.0004}
+        shadow-camera-near={0.5}
+        shadow-camera-far={70}
         shadow-camera-left={-25}
         shadow-camera-right={25}
         shadow-camera-top={25}
@@ -816,10 +819,11 @@ function CampusScene({
         intensity={0.35}
         color="#ddeeff"
       />
-      <hemisphereLight args={["#bdd4f0", "#3a7030", 0.5]} />
+      <hemisphereLight args={["#c8daf0", "#3a7030", 0.5]} />
 
       <Ground />
       <Roads />
+      <CampusTrees />
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);
