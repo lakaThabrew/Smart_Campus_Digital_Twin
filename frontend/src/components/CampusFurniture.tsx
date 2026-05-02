@@ -16,13 +16,13 @@ interface FurnitureItem {
 // Structure: base plate → pole → arm → lamp head
 // Kept as individual meshes in a group so each lamp is one logical object.
 
-function LampPost({ x, z }: { x: number; z: number }) {
+function LampPost({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
   const POLE_H   = 3.2;
   const ARM_LEN  = 0.6;
   const HEAD_Y   = POLE_H + 0.1;
 
   return (
-    <group position={[x, 0, z]}>
+    <group position={[x, 0, z]} rotation={[0, rotation, 0]}>
       {/* Base plate */}
       <mesh position={[0, 0.06, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[0.18, 0.20, 0.12, 8]} />
@@ -190,18 +190,18 @@ function WasteBins({ items }: { items: FurnitureItem[] }) {
 
 const LAMP_POSITIONS: FurnitureItem[] = [
   // Right side of main vertical street
-  { x:  1.8, z: -6.0 },
-  { x:  1.8, z:  2.0 },
+  { x:  1.8, z: -6.0, rotation: Math.PI },
+  { x:  1.8, z:  2.0, rotation: Math.PI },
   // Left side of main vertical street
-  { x: -1.8, z: -8.0 },
-  { x: -1.8, z:  0.5 },
-  { x: -1.8, z: 12.0 },
+  { x: -1.8, z: -8.0, rotation: 0 },
+  { x: -1.8, z:  0.5, rotation: 0 },
+  { x: -1.8, z: 12.0, rotation: 0 },
   // Along bottom campus road (south side, z=15.5)
-  { x: -14.0, z: 15.5 },
-  { x:  -9.0, z: 15.5 },
-  { x:   1.0, z: 15.5 },
-  { x:   6.0, z: 15.5 },
-  { x:  11.0, z: 15.5 },
+  { x: -14.0, z: 15.5, rotation: -Math.PI / 2  },
+  { x:  -9.0, z: 15.5, rotation: -Math.PI / 2  },
+  { x:   1.0, z: 15.5, rotation: -Math.PI / 2  },
+  { x:   6.0, z: 15.5, rotation: -Math.PI / 2  },
+  { x:  11.0, z: 15.5, rotation: -Math.PI / 2  },
 ];
 
 const BENCH_ITEMS: BenchData[] = [
@@ -249,7 +249,7 @@ export default function CampusFurniture() {
     <>
       {/* Street lamps — individual components (complex multi-mesh shape + light) */}
       {LAMP_POSITIONS.map((pos, i) => (
-        <LampPost key={i} x={pos.x} z={pos.z} />
+        <LampPost key={i} x={pos.x} z={pos.z} rotation={pos.rotation} />
       ))}
 
       {/* Benches */}
