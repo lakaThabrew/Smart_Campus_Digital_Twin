@@ -230,7 +230,10 @@ export default function CampusTrees() {
 
     [pineTrunkRef, pineCanopyRef, broadTrunkRef, broadCanopyRef,
       tropTrunkRef, tropCanopyRef, bushRef].forEach((ref) => {
-      if (ref.current) ref.current.instanceMatrix.needsUpdate = true;
+      if (ref.current) {
+        ref.current.instanceMatrix.needsUpdate = true;
+        ref.current.geometry.computeBoundingSphere();
+      }
     });
   }, [pines, broads, tropicals, bushes]);
 

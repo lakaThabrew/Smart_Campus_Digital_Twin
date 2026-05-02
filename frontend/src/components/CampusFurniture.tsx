@@ -118,8 +118,14 @@ function Benches({ items }: { items: BenchData[] }) {
       });
     });
 
-    if (seatRef.current) seatRef.current.instanceMatrix.needsUpdate = true;
-    if (legRef.current)  legRef.current.instanceMatrix.needsUpdate  = true;
+    if (seatRef.current) {
+        seatRef.current.instanceMatrix.needsUpdate = true;
+        seatRef.current.geometry.computeBoundingSphere();
+    }
+    if (legRef.current) {
+        legRef.current.instanceMatrix.needsUpdate = true;
+        legRef.current.geometry.computeBoundingSphere();
+    }
   }, [items]);
 
   return (
@@ -160,8 +166,14 @@ function WasteBins({ items }: { items: FurnitureItem[] }) {
       lidRef.current?.setMatrixAt(i, dummy.matrix);
     });
 
-    if (bodyRef.current) bodyRef.current.instanceMatrix.needsUpdate = true;
-    if (lidRef.current)  lidRef.current.instanceMatrix.needsUpdate  = true;
+    if (bodyRef.current) {
+        bodyRef.current.instanceMatrix.needsUpdate = true;
+        bodyRef.current.geometry.computeBoundingSphere();
+    }
+    if (lidRef.current) {
+        lidRef.current.instanceMatrix.needsUpdate = true;
+        lidRef.current.geometry.computeBoundingSphere();
+    }
   }, [items]);
 
   return (
