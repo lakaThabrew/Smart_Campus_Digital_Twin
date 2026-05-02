@@ -611,7 +611,7 @@ function Building({
 // Roads
 
 function Roads() {
-  const road = { color: "#5a5a5a", roughness: 0.95 };
+  const road = { color: "#3d3b3b", roughness: 0.95 };
   const pave = { color: "#888888", roughness: 0.9 };
   const markings = { color: "#ffffff", roughness: 0.8 };
 
@@ -742,7 +742,7 @@ function Ground() {
       </mesh>
       {/* Sports field grass (brighter) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-8.5, 0.005, -7]}>
-        <planeGeometry args={[7, 5]} />
+        <circleGeometry args={[5, 32]} />
         <meshStandardMaterial color="#3a9a30" roughness={0.9} />
       </mesh>
       <Html center position={[-8.5, 0.45, -7]}>

@@ -76,7 +76,7 @@ const FOREST_ZONES = [
   // Narrow strip above main road — "behind the library" forest
   { cx:  10,   cz: 13.5, rx: 8,   rz: 5, count: 75, forest: true,  pine: 0.9, broad: 0.5, trop: 0.9 },
   // South of playground — largest open area on campus
-  { cx: -9,   cz: -14,  rx: 5,   rz: 2.5, count: 25, forest: true,  pine: 0.6, broad: 0.3, trop: 0.1 },
+  { cx: -5,   cz: -14,  rx: 10,   rz: 2.5, count: 25, forest: true,  pine: 0.6, broad: 0.3, trop: 0.1 },
   // West edge tree line alongside sports field
   { cx: -17,  cz: -8,   rx: 1.5, rz: 6,   count: 18, forest: true,  pine: 0.7, broad: 0.2, trop: 0.1 },
 ];
@@ -248,7 +248,7 @@ export default function CampusTrees() {
       </instancedMesh>
       <instancedMesh ref={broadCanopyRef} args={[undefined, undefined, broads.length]} castShadow receiveShadow>
         <sphereGeometry args={[0.7, 8, 6]} />
-        <meshStandardMaterial color="#2d6b3a" roughness={0.9} metalness={0} />
+        <meshStandardMaterial color="#2aa143" roughness={0.9} metalness={0} />
       </instancedMesh>
 
       {/* Tropical trees */}
