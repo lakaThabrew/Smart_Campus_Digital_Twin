@@ -1,18 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import FloorPlan2D from "@/components/indoor/FloorPlan2D";
 import FloorNavigator from "@/components/indoor/FloorNavigator";
-import { LIBRARY_FLOORS } from "@/components/indoor/FloorData";
+import { BUILDING_DATA } from "@/components/indoor/FloorData";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { notFound } from "next/navigation";
 
-export default function LibraryBuildingPage() {
-  // floor state represents the actual floor number (-1 for basement, 0 for ground, etc.)
-  const [floor, setFloor] = useState(0);
+export default function DynamicBuildingPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const building = BUILDING_DATA[id];
 
-  // Map floor number to array index (floorNumber -1 is index 0)
-  const floorIndex = floor + 1;
+  if (!building) {
+    return notFound();
+  }
+
+  const [floor, setFloor] = useState(building.minFloor);
+
+  // Calculate index for floor array (offset by minFloor if necessary)
+  const floorIndex = floor - building.minFloor;
 
   return (
     <div style={{ 
@@ -46,7 +53,7 @@ export default function LibraryBuildingPage() {
         Back to Dashboard
       </Link>
 
-      {/* Left Sidebar */}
+      {/* Left Sidebar: Controls & Info */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "350px" }}>
         <h1 style={{ 
           marginBottom: "0.2rem", 
@@ -57,7 +64,7 @@ export default function LibraryBuildingPage() {
           textShadow: "0 4px 10px rgba(0,0,0,0.3)",
           lineHeight: 1.1
         }}>
-          Library
+          {building.name}
         </h1>
         <div style={{ 
           marginBottom: "2.5rem", 
@@ -76,19 +83,19 @@ export default function LibraryBuildingPage() {
 
         <FloorNavigator
           floor={floor}
-          minFloor={-1}
-          maxFloor={3}
+          minFloor={building.minFloor}
+          maxFloor={building.maxFloor}
           goUp={() => setFloor((f) => f + 1)}
           goDown={() => setFloor((f) => f - 1)}
         />
       </div>
 
-      {/* Right Area: Map */}
+      {/* Right Area: Enlarged Map */}
       <FloorPlan2D
-        floor={LIBRARY_FLOORS[floorIndex]}
+        floor={building.floors[floorIndex]}
         floorNumber={floor}
-        minFloor={-1}
-        maxFloor={3}
+        minFloor={building.minFloor}
+        maxFloor={building.maxFloor}
         goUp={() => setFloor((f) => f + 1)}
         goDown={() => setFloor((f) => f - 1)}
       />

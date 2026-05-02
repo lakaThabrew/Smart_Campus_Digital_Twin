@@ -6,6 +6,7 @@ import { Html, OrbitControls } from "@react-three/drei";
 import { Building2, Navigation, Eye, ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
+import { BUILDING_DATA } from "./indoor/FloorData";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
 
@@ -1367,7 +1368,7 @@ export default function DigitalTwinDashboard() {
               />
             </div>
           </div>
-          {["cse", "it", "library"].includes(selectedId) && (
+          {Object.keys(BUILDING_DATA).includes(selectedId) && (
             <button
               onClick={() => {
                 router.push(`/building/${selectedId}`);

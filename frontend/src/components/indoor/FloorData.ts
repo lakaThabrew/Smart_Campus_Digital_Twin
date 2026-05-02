@@ -161,3 +161,27 @@ export const LIBRARY_FLOORS: Floor[] = [
   { floorNumber: 2, rooms: [{ id: "lib_reading2", name: "Reading Area B", x: 50, y: 50, width: 300, height: 250, type: "room" }, { id: "lib_stairs", name: "Staircase", x: 400, y: 50, width: 100, height: 100, type: "stairs" }] },
   { floorNumber: 3, rooms: [{ id: "lib_silent", name: "Silent Study", x: 50, y: 50, width: 300, height: 250, type: "room" }, { id: "lib_stairs", name: "Staircase", x: 400, y: 50, width: 100, height: 100, type: "stairs" }] },
 ];
+
+export const BUILDING_DATA: Record<
+  string,
+  { name: string; floors: Floor[]; minFloor: number; maxFloor: number }
+> = {
+  cse: {
+    name: "Sumanadasa Building",
+    floors: SUMANADASA_FLOORS,
+    minFloor: 0,
+    maxFloor: 3,
+  },
+  it: {
+    name: "Faculty of IT",
+    floors: IT_FLOORS,
+    minFloor: 0,
+    maxFloor: 5,
+  },
+  library: {
+    name: "Library",
+    floors: LIBRARY_FLOORS,
+    minFloor: -1,
+    maxFloor: 3,
+  },
+};
