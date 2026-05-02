@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
+const CAMPUS_BOUNDS = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 40);
+
 // ─── Seeded deterministic random ─────────────────────────────────────────────
 function sr(seed: number): number {
   const x = Math.sin(seed + 1) * 43758.5453123;
@@ -232,7 +234,7 @@ export default function CampusTrees() {
       tropTrunkRef, tropCanopyRef, bushRef].forEach((ref) => {
       if (ref.current) {
         ref.current.instanceMatrix.needsUpdate = true;
-        ref.current.geometry.computeBoundingSphere();
+        ref.current.geometry.boundingSphere = CAMPUS_BOUNDS;
       }
     });
   }, [pines, broads, tropicals, bushes]);
