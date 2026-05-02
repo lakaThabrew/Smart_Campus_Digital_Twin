@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
-import { Building2, Navigation, Eye } from "lucide-react";
+import { Building2, Navigation, Eye, ChevronDown, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import * as THREE from "three";
 
 // ─── Types & Config ───────────────────────────────────────────────────────────
@@ -323,9 +324,10 @@ function deriveStatus(occ: number, temp: number): ZoneStatus {
 }
 
 function updateZone(zone: Zone): Zone {
-  const e = clamp(zone.energyKw + (Math.random() * 11 - 5.5), 15, 140);
-  const o = clamp(zone.occupancy + (Math.random() * 10 - 5), 5, 98);
-  const t = clamp(zone.temperatureC + (Math.random() * 1.8 - 0.9), 22, 38);
+  // Simulating an average of multiple room sensors (smaller fluctuations than single rooms)
+  const e = clamp(zone.energyKw + (Math.random() * 4 - 2), 15, 140);
+  const o = clamp(zone.occupancy + (Math.random() * 2 - 1), 5, 98);
+  const t = clamp(zone.temperatureC + (Math.random() * 0.4 - 0.2), 22, 38);
   return {
     ...zone,
     energyKw: +e.toFixed(1),
@@ -574,7 +576,7 @@ function Building({
             metalness={0.08}
           />
         </mesh>
-        <Windows />
+        {layout.id !== "lagaan" && <Windows />}
         <Roof />
         <mesh position={[0, totalH + 0.4, 0]}>
           <sphereGeometry args={[0.16, 12, 12]} />
@@ -1068,6 +1070,24 @@ export default function DigitalTwinDashboard() {
   const [selectedId, setSelectedId] = useState<string>("it");
   const [walkMode, setWalkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(["Departments"]);
+  const router = useRouter();
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category) 
+        : [...prev, category]
+    );
+  };
+
+  const categories = {
+    Departments: ["cse", "it", "civil", "textile", "transport", "electronics", "maths", "medicine", "material", "chemical", "mechanical", "intdesign", "graduate", "buildeco"],
+    Canteens: ["Goda canteen", "Sentra", "canteen", "wala_canteen"],
+    Hostels: ["hostel_a", "hostel"],
+    "Admin & Services": ["admin", "registrar", "library"],
+    Facilities: ["lagaan", "conference", "na1"]
+  };
 
   useEffect(() => {
     const t = setInterval(() => setZones((prev) => prev.map(updateZone)), 5000);
@@ -1095,67 +1115,29 @@ export default function DigitalTwinDashboard() {
         display: "flex",
         height: "100vh",
         width: "100%",
-        background: "#071952",
+        background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", // Richer background
         overflow: "hidden",
         color: "#fff",
-        fontFamily: "'Segoe UI', system-ui, sans-serif",
+        fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", // Modern font preference
+        paddingTop: "64px",
       }}
     >
       {/* ── Sidebar ── */}
       <nav
         style={{
-          width: 300,
+          width: 320,
           flexShrink: 0,
-          background: "rgba(11,102,106,0.18)",
-          borderRight: "1px solid rgba(53,162,159,0.3)",
+          background: "rgba(11, 102, 106, 0.12)",
+          backdropFilter: "blur(15px)",
+          borderRight: "1px solid rgba(151, 254, 237, 0.15)",
           display: "flex",
           flexDirection: "column",
-          padding: 14,
-          gap: 10,
+          padding: "20px 16px",
+          gap: 16,
           overflowY: "auto",
+          boxShadow: "10px 0 30px rgba(0,0,0,0.3)"
         }}
       >
-        {/* Logo */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 2,
-          }}
-        >
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 10,
-              background: "#97FEED",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Building2 color="#071952" size={20} />
-          </div>
-          <span
-            style={{ fontWeight: 700, fontSize: 19, letterSpacing: "-0.5px" }}
-          >
-            UOM<span style={{ color: "#97FEED" }}>Twin</span>
-          </span>
-          <span
-            style={{
-              marginLeft: "auto",
-              fontSize: 9,
-              color: "#97FEED88",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-            }}
-          >
-            UoM
-          </span>
-        </div>
-
         {/* Search */}
         <input
           value={searchQuery}
@@ -1187,120 +1169,156 @@ export default function DigitalTwinDashboard() {
           Zone Status Panel ({filteredZones.length})
         </p>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-            gap: 6,
-            flex: 1,
-            alignItems: "start",
-          }}
-        >
-          {filteredZones.map((zone) => {
-            const active = zone.id === selectedId;
+        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+          {Object.entries(categories).map(([category, zoneIds]) => {
+            const zonesInCategory = filteredZones.filter(z => zoneIds.includes(z.id));
+            if (zonesInCategory.length === 0) return null;
+            
+            const isExpanded = expandedCategories.includes(category);
+
             return (
-              <button
-                key={zone.id}
-                onClick={() => setSelectedId(zone.id)}
-                style={{
-                  background: active
-                    ? "rgba(11,102,106,0.85)"
-                    : "rgba(7,25,82,0.35)",
-                  border: `1px solid ${active ? "#97FEED" : "rgba(53,162,159,0.18)"}`,
-                  borderRadius: 8,
-                  padding: "6px 8px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  transition: "all 0.2s",
-                  textAlign: "left",
-                  minWidth: 0,
-                  minHeight: 36,
-                }}
-              >
-                <span
+              <div key={category} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                <button
+                  onClick={() => toggleCategory(category)}
                   style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    background: STATUS_COLORS[zone.status],
-                    boxShadow: `0 0 4px ${STATUS_COLORS[zone.status]}`,
-                    flexShrink: 0,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 9,
-                    color: "#fff",
-                    lineHeight: 1.2,
-                    flex: 1,
-                    minWidth: 0,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
+                    background: "none",
+                    border: "none",
+                    color: "#97FEED",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "4px 0",
+                    cursor: "pointer",
+                    textAlign: "left"
                   }}
                 >
-                  {zone.name}
-                </span>
-              </button>
+                  {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                  {category} ({zonesInCategory.length})
+                </button>
+                
+                {isExpanded && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                      gap: 4,
+                      paddingLeft: 4
+                    }}
+                  >
+                    {zonesInCategory.map((zone) => {
+                      const active = zone.id === selectedId;
+                      return (
+                        <button
+                          key={zone.id}
+                          onClick={() => setSelectedId(zone.id)}
+                          style={{
+                            background: active
+                              ? "rgba(11,102,106,0.85)"
+                              : "rgba(7,25,82,0.35)",
+                            border: `1px solid ${active ? "#97FEED" : "rgba(53,162,159,0.18)"}`,
+                            borderRadius: 6,
+                            padding: "4px 6px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            transition: "all 0.2s",
+                            textAlign: "left",
+                            minWidth: 0,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: "50%",
+                              background: STATUS_COLORS[zone.status],
+                              boxShadow: `0 0 3px ${STATUS_COLORS[zone.status]}`,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontSize: 8,
+                              color: "#fff",
+                              lineHeight: 1.2,
+                              flex: 1,
+                              minWidth: 0,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {zone.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
 
-        {/* Zone detail */}
+        {/* Zone detail HUD */}
         <div
           style={{
-            borderRadius: 14,
-            border: "1px solid #97FEED",
-            background: "#0B666A",
-            padding: 16,
+            borderRadius: 20,
+            border: "1px solid rgba(151, 254, 237, 0.4)",
+            background: "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
+            backdropFilter: "blur(10px)",
+            padding: 20,
             flexShrink: 0,
+            boxShadow: "0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(151, 254, 237, 0.1)",
           }}
         >
           <p
             style={{
-              fontSize: 9,
-              color: "rgba(0,0,0,0.55)",
-              fontWeight: 700,
+              fontSize: 10,
+              color: "#97FEED",
+              fontWeight: 800,
               textTransform: "uppercase",
-              marginBottom: 3,
+              letterSpacing: "1.5px",
+              marginBottom: 6,
+              opacity: 0.8
             }}
           >
             Selected Zone
           </p>
-          <p
+          <h2
             style={{
-              fontSize: 15,
-              fontWeight: 700,
-              marginBottom: 12,
-              lineHeight: 1.3,
+              fontSize: 22,
+              fontWeight: 800,
+              marginBottom: 16,
+              lineHeight: 1.2,
+              color: "#fff",
+              letterSpacing: "-0.5px"
             }}
           >
             {selectedZone.name}
-          </p>
+          </h2>
           <div
             style={{
-              background: "rgba(7,25,82,0.5)",
-              borderRadius: 8,
-              border: "1px solid rgba(53,162,159,0.35)",
-              padding: 12,
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: 12,
+              border: "1px solid rgba(151, 254, 237, 0.15)",
+              padding: 16,
               display: "flex",
               flexDirection: "column",
-              gap: 8,
-              fontSize: 12,
-              fontFamily: "monospace",
+              gap: 10,
+              fontSize: 13,
             }}
           >
             {[
-              [
-                "STATUS",
-                selectedZone.status.toUpperCase(),
-                STATUS_COLORS[selectedZone.status],
-              ],
-              ["Energy", `${selectedZone.energyKw.toFixed(1)} kW`, "#97FEED"],
-              ["Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
-              ["Temperature", `${selectedZone.temperatureC}°C`, "#97FEED"],
+              ["STATUS", selectedZone.status.toUpperCase(), STATUS_COLORS[selectedZone.status]],
+              ["Avg. Energy", `${selectedZone.energyKw.toFixed(1)} kW`, "#97FEED"],
+              ["Avg. Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
+              ["Avg. Temp", `${selectedZone.temperatureC.toFixed(1)}°C`, "#97FEED"],
             ].map(([label, value, color], i) => (
               <div
                 key={i}
@@ -1308,8 +1326,7 @@ export default function DigitalTwinDashboard() {
                   display: "flex",
                   justifyContent: "space-between",
                   paddingBottom: i < 3 ? 8 : 0,
-                  borderBottom:
-                    i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
+                  borderBottom: i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
                 }}
               >
                 <span style={{ color: "#97FEED" }}>{label}</span>
@@ -1350,106 +1367,109 @@ export default function DigitalTwinDashboard() {
               />
             </div>
           </div>
+          {["cse", "it", "library"].includes(selectedId) && (
+            <button
+              onClick={() => {
+                router.push(`/building/${selectedId}`);
+              }}
+              style={{
+                marginTop: 14,
+                width: "100%",
+                padding: "10px",
+                borderRadius: 8,
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 700,
+                background: "#97FEED",
+                color: "#071952",
+              }}
+            >
+              Go Inside
+            </button>
+          )}
         </div>
       </nav>
 
-      {/* ── Main ── */}
+      {/* ── Main Area ── */}
       <main
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 10,
-          padding: 14,
-          minWidth: 0,
+          padding: 24,
+          gap: 24,
+          overflow: "hidden",
         }}
       >
-        {/* Header */}
+        {/* Header HUD */}
         <header
           style={{
-            background: "rgba(11,102,106,0.35)",
-            border: "1px solid rgba(53,162,159,0.3)",
-            borderRadius: 14,
-            padding: "12px 18px",
             display: "flex",
-            alignItems: "center",
             justifyContent: "space-between",
-            gap: 14,
-            flexShrink: 0,
+            alignItems: "flex-end",
+            background: "rgba(11, 102, 106, 0.15)",
+            backdropFilter: "blur(10px)",
+            padding: "24px 30px",
+            borderRadius: 24,
+            border: "1px solid rgba(151, 254, 237, 0.2)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
           }}
         >
           <div>
             <p
               style={{
-                fontSize: 9,
+                fontSize: 11,
                 color: "#97FEED",
+                fontWeight: 800,
+                letterSpacing: "2px",
                 textTransform: "uppercase",
-                letterSpacing: "0.18em",
-                fontWeight: 700,
+                opacity: 0.8
               }}
             >
               Group I3 Demo • University of Moratuwa
             </p>
-            <h1 style={{ fontSize: 20, fontWeight: 700, margin: "2px 0" }}>
-              Smart Campus Twin Control
+            <h1
+              style={{
+                fontSize: 42,
+                fontWeight: 900,
+                color: "#fff",
+                letterSpacing: "-1.5px",
+                margin: "4px 0",
+                textShadow: "0 4px 20px rgba(151, 254, 237, 0.3)"
+              }}
+            >
+              Smart Campus <span style={{ color: "#97FEED" }}>Twin Control</span>
             </h1>
-            <p style={{ fontSize: 11, color: "rgba(151,254,237,0.75)" }}>
-              Real-time 3D campus — occupancy · temperature · energy states
+            <p style={{ color: "rgba(151, 254, 237, 0.6)", fontSize: 13, fontWeight: 500 }}>
+              Real-time 3D campus infrastructure monitoring — occupancy · temperature · energy states
             </p>
           </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 8,
-              minWidth: 300,
-            }}
-          >
+
+          <div style={{ display: "flex", gap: 16 }}>
             {[
-              ["Campus Energy", `${campusLoad.toFixed(1)} kW`],
-              ["Avg Occupancy", `${campusOcc}%`],
-              ["Active Zones", `${zones.length}`],
-              [
-                "Alerts",
-                criticalCount > 0 ? `${criticalCount} critical` : "None",
-              ],
-            ].map(([label, val]) => (
-              <div
-                key={label}
-                style={{
-                  background: "rgba(7,25,82,0.55)",
-                  border: "1px solid rgba(53,162,159,0.3)",
-                  borderRadius: 9,
-                  padding: "7px 12px",
-                }}
-              >
+              { label: "CAMPUS ENERGY", value: `${campusLoad.toFixed(1)} kW` },
+              { label: "AVG OCCUPANCY", value: `${campusOcc}%` },
+              { label: "ACTIVE ZONES", value: zones.length },
+              { label: "ALERTS", value: `${criticalCount} critical` },
+            ].map((stat, i) => {
+              const isAlert = stat.label === "ALERTS" && criticalCount > 0;
+              return (
                 <div
+                  key={i}
                   style={{
-                    fontSize: 9,
-                    color: "rgba(151,254,237,0.8)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.1em",
-                    fontWeight: 700,
-                    marginBottom: 2,
+                    background: "rgba(7, 25, 82, 0.4)",
+                    border: `1px solid ${isAlert ? "rgba(255, 75, 43, 0.5)" : "rgba(151, 254, 237, 0.2)"}`,
+                    padding: "12px 20px",
+                    borderRadius: 16,
+                    minWidth: 140,
+                    boxShadow: isAlert ? "0 0 20px rgba(255, 75, 43, 0.15)" : "none"
                   }}
                 >
-                  {label}
+                  <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>{stat.label}</p>
+                  <p style={{ fontSize: 18, fontWeight: 800, color: isAlert ? "#FF4B2B" : "#97FEED" }}>{stat.value}</p>
                 </div>
-                <div
-                  style={{
-                    fontSize: 15,
-                    fontWeight: 700,
-                    fontFamily: "monospace",
-                    color:
-                      label === "Alerts" && criticalCount > 0
-                        ? STATUS_COLORS.critical
-                        : "#97FEED",
-                  }}
-                >
-                  {val}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </header>
 
@@ -1524,8 +1544,9 @@ export default function DigitalTwinDashboard() {
 
           <Canvas
             camera={{ position: [10, 12, 18], fov: 52 }}
-            shadows
+            shadows={{ type: THREE.PCFShadowMap }} // Fixes deprecation warning
             style={{ width: "100%", height: "100%" }}
+            gl={{ antialias: true, powerPreference: "high-performance" }}
           >
             <CampusScene
               zones={zones}
