@@ -10,16 +10,17 @@ function sr(seed: number): number {
 }
 
 // ─── Building exclusion zones [x, z, radius] ─────────────────────────────────
+const BUILDING_CLEAR_RADIUS = 4.1;
 const OCCUPIED: [number, number, number][] = [
-  [-2.5, -2, 2.5],  [-10.5, 0.5, 2.5], [10.5, -14.5, 2.5],
-  [2.5, -9.5, 2.5], [12.5, -4.0, 2.5], [17, -9.5, 2.5],
-  [-5.0, 4.5, 2.5], [-5, 7.7, 2.5],    [-2.5, 7.7, 2.5],
-  [1.7, -0.5, 2.5], [7.5, 3, 2.5],     [11.0, 3, 2.5],
-  [4.0, -0.5, 2.5], [4.0, -3.5, 2.5],  [17, 0, 2.5],
-  [3, 5.3, 2.5],    [18.5, 6.0, 2.5],  [-10.0, 5, 2.5],
-  [-9.5, 8.0, 2.5], [-6.5, 9.5, 2.5],  [-11.5, 12.5, 2.5],
-  [-4, 14.2, 2.5],  [-2.0, 14.5, 2.5], [5.5, 7.5, 2.5],
-  [3.5, 10.5, 2.5], [3.5, 13.5, 2.5],
+  [-2.5, -2, BUILDING_CLEAR_RADIUS],  [-10.5, 0.5, BUILDING_CLEAR_RADIUS], [10.5, -14.5, BUILDING_CLEAR_RADIUS],
+   [2.5, -9.5, BUILDING_CLEAR_RADIUS], [12.5, -4.0, BUILDING_CLEAR_RADIUS], [17, -9.5, BUILDING_CLEAR_RADIUS],
+   [-5.0, 4.5, BUILDING_CLEAR_RADIUS], [-5, 7.7, BUILDING_CLEAR_RADIUS],    [-2.5, 7.7, BUILDING_CLEAR_RADIUS],
+   [1.7, -0.5, BUILDING_CLEAR_RADIUS], [7.5, 3, BUILDING_CLEAR_RADIUS],     [11.0, 3, BUILDING_CLEAR_RADIUS],
+   [4.0, -0.5, BUILDING_CLEAR_RADIUS], [4.0, -3.5, BUILDING_CLEAR_RADIUS],  [17, 0, BUILDING_CLEAR_RADIUS],
+   [3, 5.3, BUILDING_CLEAR_RADIUS],    [18.5, 6.0, BUILDING_CLEAR_RADIUS],  [-10.0, 5, BUILDING_CLEAR_RADIUS],
+   [-9.5, 8.0, BUILDING_CLEAR_RADIUS], [-6.5, 9.5, BUILDING_CLEAR_RADIUS],  [-11.5, 12.5, BUILDING_CLEAR_RADIUS],
+   [-4, 14.2, BUILDING_CLEAR_RADIUS],  [-2.0, 14.5, BUILDING_CLEAR_RADIUS], [5.5, 7.5, BUILDING_CLEAR_RADIUS],
+   [3.5, 10.5, BUILDING_CLEAR_RADIUS], [3.5, 13.5, BUILDING_CLEAR_RADIUS],
   [-8.5, -7, 5.5],  // sports field — keep fully clear
 ];
 
@@ -64,8 +65,9 @@ interface TreeInstance {
   rotation: number;
 }
 
-function pickType(i: number, pine: number, broad: number): TreeType {
-  const r = sr(i * 17 + 333);
+function pickType(i: number, pine: number, broad: number, trop: number): TreeType {
+  const total = pine + broad + trop;
+  const r = sr(i * 17 + 333) * total;
   if (r < pine) return 0;
   if (r < pine + broad) return 1;
   return 2;
@@ -73,8 +75,8 @@ function pickType(i: number, pine: number, broad: number): TreeType {
 
 // ─── Zones (all verified against road/building geometry by simulation) ────────
 const FOREST_ZONES = [
-  // Narrow strip above main road — "behind the library" forest
-  { cx:  10,   cz: 13.5, rx: 8,   rz: 5, count: 75, forest: true,  pine: 0.9, broad: 0.5, trop: 0.9 },
+  // behind the library forest
+  { cx:  10,   cz: 13.5, rx: 8,   rz: 5, count: 100, forest: true,  pine: 0.9, broad: 0.5, trop: 0.6 },
   // South of playground — largest open area on campus
   { cx: -5,   cz: -14,  rx: 10,   rz: 2.5, count: 25, forest: true,  pine: 0.6, broad: 0.3, trop: 0.1 },
   // West edge tree line alongside sports field
@@ -126,7 +128,7 @@ export default function CampusTrees() {
         result.push({
           x, z,
           scale: 0.65 + sr(seed + placed * 3 + 77) * 0.55,
-          type: pickType(result.length, zone.pine, zone.broad),
+          type: pickType(result.length, zone.pine, zone.broad, zone.trop),
           rotation: sr(result.length * 7 + 5) * Math.PI * 2,
         });
         placed++;
@@ -152,17 +154,20 @@ export default function CampusTrees() {
         const x = zone.cx + (sr(seed++) * 2 - 1) * zone.rx;
         const z = zone.cz + (sr(seed++) * 2 - 1) * zone.rz;
         if (!isClear(x, z, 1.1)) continue;
-        const tooClose = result.some(
+        const tooCloseToOtherBush = result.some(
           (b) => Math.sqrt((x - b.x) ** 2 + (z - b.z) ** 2) < 0.9
         );
-        if (tooClose) continue;
+        const tooCloseToTree = trees.some(
+          (t) => Math.sqrt((x - t.x) ** 2 + (z - t.z) ** 2) < 1.2
+        );
+        if (tooCloseToOtherBush || tooCloseToTree) continue;
         result.push({ x, z, scale: 0.4 + sr(seed + placed * 5) * 0.4 });
         placed++;
       }
     });
 
     return result;
-  }, []);
+  }, [trees]);
 
   const pineTrunkRef   = useRef<THREE.InstancedMesh>(null);
   const pineCanopyRef  = useRef<THREE.InstancedMesh>(null);
