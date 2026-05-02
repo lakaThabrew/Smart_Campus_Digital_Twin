@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
-import { Building2, Navigation, Eye, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Building2,
+  Navigation,
+  Eye,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import * as THREE from "three";
 import { BUILDING_DATA } from "./indoor/FloorData";
@@ -1075,23 +1081,40 @@ export default function DigitalTwinDashboard() {
   const [selectedId, setSelectedId] = useState<string>("it");
   const [walkMode, setWalkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(["Departments"]);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([
+    "Departments",
+  ]);
   const router = useRouter();
 
   const toggleCategory = (category: string) => {
-    setExpandedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category) 
-        : [...prev, category]
+    setExpandedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category],
     );
   };
 
   const categories = {
-    Departments: ["cse", "it", "civil", "textile", "transport", "electronics", "maths", "medicine", "material", "chemical", "mechanical", "intdesign", "graduate", "buildeco"],
+    Departments: [
+      "cse",
+      "it",
+      "civil",
+      "textile",
+      "transport",
+      "electronics",
+      "maths",
+      "medicine",
+      "material",
+      "chemical",
+      "mechanical",
+      "intdesign",
+      "graduate",
+      "buildeco",
+    ],
     Canteens: ["Goda canteen", "Sentra", "canteen", "wala_canteen"],
     Hostels: ["hostel_a", "hostel"],
     "Admin & Services": ["admin", "registrar", "library"],
-    Facilities: ["lagaan", "conference", "na1"]
+    Facilities: ["lagaan", "conference", "na1"],
   };
 
   useEffect(() => {
@@ -1120,7 +1143,8 @@ export default function DigitalTwinDashboard() {
         display: "flex",
         height: "100vh",
         width: "100%",
-        background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", // Richer background
+        background:
+          "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", // Richer background
         overflow: "hidden",
         color: "#fff",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif", // Modern font preference
@@ -1140,7 +1164,7 @@ export default function DigitalTwinDashboard() {
           padding: "20px 16px",
           gap: 16,
           overflowY: "auto",
-          boxShadow: "10px 0 30px rgba(0,0,0,0.3)"
+          boxShadow: "10px 0 30px rgba(0,0,0,0.3)",
         }}
       >
         {/* Search */}
@@ -1174,15 +1198,28 @@ export default function DigitalTwinDashboard() {
           Zone Status Panel ({filteredZones.length})
         </p>
 
-        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
           {Object.entries(categories).map(([category, zoneIds]) => {
-            const zonesInCategory = filteredZones.filter(z => zoneIds.includes(z.id));
+            const zonesInCategory = filteredZones.filter((z) =>
+              zoneIds.includes(z.id),
+            );
             if (zonesInCategory.length === 0) return null;
-            
+
             const isExpanded = expandedCategories.includes(category);
 
             return (
-              <div key={category} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <div
+                key={category}
+                style={{ display: "flex", flexDirection: "column", gap: 4 }}
+              >
                 <button
                   onClick={() => toggleCategory(category)}
                   style={{
@@ -1198,20 +1235,24 @@ export default function DigitalTwinDashboard() {
                     gap: 4,
                     padding: "4px 0",
                     cursor: "pointer",
-                    textAlign: "left"
+                    textAlign: "left",
                   }}
                 >
-                  {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                  {isExpanded ? (
+                    <ChevronDown size={12} />
+                  ) : (
+                    <ChevronRight size={12} />
+                  )}
                   {category} ({zonesInCategory.length})
                 </button>
-                
+
                 {isExpanded && (
                   <div
                     style={{
                       display: "grid",
                       gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
                       gap: 4,
-                      paddingLeft: 4
+                      paddingLeft: 4,
                     }}
                   >
                     {zonesInCategory.map((zone) => {
@@ -1275,11 +1316,13 @@ export default function DigitalTwinDashboard() {
           style={{
             borderRadius: 20,
             border: "1px solid rgba(151, 254, 237, 0.4)",
-            background: "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
+            background:
+              "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
             backdropFilter: "blur(10px)",
             padding: 20,
             flexShrink: 0,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(151, 254, 237, 0.1)",
+            boxShadow:
+              "0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(151, 254, 237, 0.1)",
           }}
         >
           <p
@@ -1290,7 +1333,7 @@ export default function DigitalTwinDashboard() {
               textTransform: "uppercase",
               letterSpacing: "1.5px",
               marginBottom: 6,
-              opacity: 0.8
+              opacity: 0.8,
             }}
           >
             Selected Zone
@@ -1302,7 +1345,7 @@ export default function DigitalTwinDashboard() {
               marginBottom: 16,
               lineHeight: 1.2,
               color: "#fff",
-              letterSpacing: "-0.5px"
+              letterSpacing: "-0.5px",
             }}
           >
             {selectedZone.name}
@@ -1320,10 +1363,22 @@ export default function DigitalTwinDashboard() {
             }}
           >
             {[
-              ["STATUS", selectedZone.status.toUpperCase(), STATUS_COLORS[selectedZone.status]],
-              ["Avg. Energy", `${selectedZone.energyKw.toFixed(1)} kW`, "#97FEED"],
+              [
+                "STATUS",
+                selectedZone.status.toUpperCase(),
+                STATUS_COLORS[selectedZone.status],
+              ],
+              [
+                "Avg. Energy",
+                `${selectedZone.energyKw.toFixed(1)} kW`,
+                "#97FEED",
+              ],
               ["Avg. Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
-              ["Avg. Temp", `${selectedZone.temperatureC.toFixed(1)}°C`, "#97FEED"],
+              [
+                "Avg. Temp",
+                `${selectedZone.temperatureC.toFixed(1)}°C`,
+                "#97FEED",
+              ],
             ].map(([label, value, color], i) => (
               <div
                 key={i}
@@ -1331,7 +1386,8 @@ export default function DigitalTwinDashboard() {
                   display: "flex",
                   justifyContent: "space-between",
                   paddingBottom: i < 3 ? 8 : 0,
-                  borderBottom: i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
+                  borderBottom:
+                    i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
                 }}
               >
                 <span style={{ color: "#97FEED" }}>{label}</span>
@@ -1417,7 +1473,7 @@ export default function DigitalTwinDashboard() {
             padding: "24px 30px",
             borderRadius: 24,
             border: "1px solid rgba(151, 254, 237, 0.2)",
-            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
           }}
         >
           <div>
@@ -1428,7 +1484,7 @@ export default function DigitalTwinDashboard() {
                 fontWeight: 800,
                 letterSpacing: "2px",
                 textTransform: "uppercase",
-                opacity: 0.8
+                opacity: 0.8,
               }}
             >
               Group I3 Demo • University of Moratuwa
@@ -1440,13 +1496,21 @@ export default function DigitalTwinDashboard() {
                 color: "#fff",
                 letterSpacing: "-1.5px",
                 margin: "4px 0",
-                textShadow: "0 4px 20px rgba(151, 254, 237, 0.3)"
+                textShadow: "0 4px 20px rgba(151, 254, 237, 0.3)",
               }}
             >
-              Smart Campus <span style={{ color: "#97FEED" }}>Twin Control</span>
+              Smart Campus{" "}
+              <span style={{ color: "#97FEED" }}>Twin Control</span>
             </h1>
-            <p style={{ color: "rgba(151, 254, 237, 0.6)", fontSize: 13, fontWeight: 500 }}>
-              Real-time 3D campus infrastructure monitoring — occupancy · temperature · energy states
+            <p
+              style={{
+                color: "rgba(151, 254, 237, 0.6)",
+                fontSize: 13,
+                fontWeight: 500,
+              }}
+            >
+              Real-time 3D campus infrastructure monitoring — occupancy ·
+              temperature · energy states
             </p>
           </div>
 
@@ -1467,11 +1531,30 @@ export default function DigitalTwinDashboard() {
                     padding: "12px 20px",
                     borderRadius: 16,
                     minWidth: 140,
-                    boxShadow: isAlert ? "0 0 20px rgba(255, 75, 43, 0.15)" : "none"
+                    boxShadow: isAlert
+                      ? "0 0 20px rgba(255, 75, 43, 0.15)"
+                      : "none",
                   }}
                 >
-                  <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>{stat.label}</p>
-                  <p style={{ fontSize: 18, fontWeight: 800, color: isAlert ? "#FF4B2B" : "#97FEED" }}>{stat.value}</p>
+                  <p
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 800,
+                      color: "rgba(151, 254, 237, 0.5)",
+                      marginBottom: 4,
+                    }}
+                  >
+                    {stat.label}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 800,
+                      color: isAlert ? "#FF4B2B" : "#97FEED",
+                    }}
+                  >
+                    {stat.value}
+                  </p>
                 </div>
               );
             })}
