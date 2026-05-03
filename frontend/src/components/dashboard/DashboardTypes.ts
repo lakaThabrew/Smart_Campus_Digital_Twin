@@ -302,6 +302,15 @@ export const WALK_BOUNDS = {
   maxZ: 20,
 };
 
+export const STABLE_INITIAL_ZONES: Zone[] = CAMPUS_LAYOUT.map((layout) => ({
+  id: layout.id,
+  name: layout.name,
+  energyKw: 50,
+  occupancy: 50,
+  temperatureC: 28.0,
+  status: "normal",
+}));
+
 export const generateInitialZones = (): Zone[] => {
   return CAMPUS_LAYOUT.map((layout) => {
     const energyKw = 30 + Math.random() * 50;

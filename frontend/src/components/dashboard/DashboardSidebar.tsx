@@ -36,7 +36,7 @@ export default function DashboardSidebar({
   return (
     <nav
       style={{
-        width: 320,
+        width: "320px",
         flexShrink: 0,
         background: "rgba(11, 102, 106, 0.12)",
         backdropFilter: "blur(15px)",
@@ -44,7 +44,7 @@ export default function DashboardSidebar({
         display: "flex",
         flexDirection: "column",
         padding: "20px 16px",
-        gap: 16,
+        gap: "16px",
         overflowY: "auto",
         boxShadow: "10px 0 30px rgba(0,0,0,0.3)",
       }}
@@ -161,8 +161,8 @@ export default function DashboardSidebar({
                       >
                         <span
                           style={{
-                            width: 6,
-                            height: 6,
+                            width: "6px",
+                            height: "6px",
                             borderRadius: "50%",
                             background: STATUS_COLORS[zone.status],
                             boxShadow: `0 0 3px ${STATUS_COLORS[zone.status]}`,
@@ -196,12 +196,12 @@ export default function DashboardSidebar({
       {/* Zone detail HUD */}
       <div
         style={{
-          borderRadius: 20,
+          borderRadius: "20px",
           border: "1px solid rgba(151, 254, 237, 0.4)",
           background:
             "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
           backdropFilter: "blur(10px)",
-          padding: 20,
+          padding: "20px",
           flexShrink: 0,
           boxShadow:
             "0 10px 30px rgba(0,0,0,0.4), inset 0 0 20px rgba(151, 254, 237, 0.1)",
@@ -292,17 +292,17 @@ export default function DashboardSidebar({
           </div>
           <div
             style={{
-              height: 10,
-              borderRadius: 5,
+              height: "10px",
+              borderRadius: "5px",
               background: "rgba(7,25,82,0.8)",
               border: "1px solid rgba(53,162,159,0.35)",
-              padding: 2,
+              padding: "2px",
             }}
           >
             <div
               style={{
                 height: "100%",
-                borderRadius: 3,
+                borderRadius: "3px",
                 background: STATUS_COLORS[selectedZone.status],
                 width: `${selectedZone.occupancy}%`,
                 transition: "width 0.6s ease",

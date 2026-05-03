@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Navigation, Eye } from "lucide-react";
-import { generateInitialZones, Zone } from "./dashboard/DashboardTypes";
+import { STABLE_INITIAL_ZONES, generateInitialZones, Zone } from "./dashboard/DashboardTypes";
 import { updateZone } from "./dashboard/DashboardHelpers";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import DashboardScene from "./dashboard/DashboardScene";
 
 export default function DigitalTwinDashboard() {
-  const [zones, setZones] = useState<Zone[]>(generateInitialZones());
+  const [zones, setZones] = useState<Zone[]>(STABLE_INITIAL_ZONES);
   const [selectedId, setSelectedId] = useState<string>("it");
   const [walkMode, setWalkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +50,9 @@ export default function DigitalTwinDashboard() {
   };
 
   useEffect(() => {
+    // Generate initial random stats only on the client
+    setZones(generateInitialZones());
+    
     const t = setInterval(() => setZones((prev) => prev.map(updateZone)), 5000);
     return () => clearInterval(t);
   }, []);
