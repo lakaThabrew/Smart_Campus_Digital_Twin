@@ -3,14 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Navigation, Eye } from "lucide-react";
-import { INITIAL_ZONES, Zone } from "./dashboard/DashboardTypes";
+import { generateInitialZones, Zone } from "./dashboard/DashboardTypes";
 import { updateZone } from "./dashboard/DashboardHelpers";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import DashboardScene from "./dashboard/DashboardScene";
 
 export default function DigitalTwinDashboard() {
-  const [zones, setZones] = useState<Zone[]>(INITIAL_ZONES);
+  const [zones, setZones] = useState<Zone[]>(generateInitialZones());
   const [selectedId, setSelectedId] = useState<string>("it");
   const [walkMode, setWalkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
