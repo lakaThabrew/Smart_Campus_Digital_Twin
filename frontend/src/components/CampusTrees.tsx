@@ -240,37 +240,37 @@ export default function CampusTrees() {
   return (
     <>
       {/* Pine trees */}
-      <instancedMesh ref={pineTrunkRef} args={[undefined, undefined, pines.length]} castShadow receiveShadow>
+      <instancedMesh ref={pineTrunkRef} args={[undefined, undefined, pines.length]} castShadow receiveShadow frustumCulled={false}>
         <cylinderGeometry args={[0.06, 0.10, 1.0, 6]} />
         <meshStandardMaterial color="#3d2008" roughness={1} metalness={0} />
       </instancedMesh>
-      <instancedMesh ref={pineCanopyRef} args={[undefined, undefined, pines.length]} castShadow receiveShadow>
+      <instancedMesh ref={pineCanopyRef} args={[undefined, undefined, pines.length]} castShadow receiveShadow frustumCulled={false}>
         <coneGeometry args={[0.45, 1.8, 7]} />
         <meshStandardMaterial color="#1a4d25" roughness={0.95} metalness={0} />
       </instancedMesh>
 
       {/* Broadleaf trees */}
-      <instancedMesh ref={broadTrunkRef} args={[undefined, undefined, broads.length]} castShadow receiveShadow>
+      <instancedMesh ref={broadTrunkRef} args={[undefined, undefined, broads.length]} castShadow receiveShadow frustumCulled={false}>
         <cylinderGeometry args={[0.08, 0.13, 0.8, 6]} />
         <meshStandardMaterial color="#4a2f1a" roughness={1} metalness={0} />
       </instancedMesh>
-      <instancedMesh ref={broadCanopyRef} args={[undefined, undefined, broads.length]} castShadow receiveShadow>
+      <instancedMesh ref={broadCanopyRef} args={[undefined, undefined, broads.length]} castShadow receiveShadow frustumCulled={false}>
         <sphereGeometry args={[0.7, 8, 6]} />
         <meshStandardMaterial color="#2aa143" roughness={0.9} metalness={0} />
       </instancedMesh>
 
       {/* Tropical trees */}
-      <instancedMesh ref={tropTrunkRef} args={[undefined, undefined, tropicals.length]} castShadow receiveShadow>
+      <instancedMesh ref={tropTrunkRef} args={[undefined, undefined, tropicals.length]} castShadow receiveShadow frustumCulled={false}>
         <cylinderGeometry args={[0.05, 0.09, 1.2, 5]} />
         <meshStandardMaterial color="#5c3d1e" roughness={1} metalness={0} />
       </instancedMesh>
-      <instancedMesh ref={tropCanopyRef} args={[undefined, undefined, tropicals.length]} castShadow receiveShadow>
+      <instancedMesh ref={tropCanopyRef} args={[undefined, undefined, tropicals.length]} castShadow receiveShadow frustumCulled={false}>
         <coneGeometry args={[0.8, 1.0, 6]} />
         <meshStandardMaterial color="#3a7d44" roughness={0.9} metalness={0} />
       </instancedMesh>
 
       {/* Bushes */}
-      <instancedMesh ref={bushRef} args={[undefined, undefined, bushes.length]} castShadow receiveShadow>
+      <instancedMesh ref={bushRef} args={[undefined, undefined, bushes.length]} castShadow receiveShadow frustumCulled={false}>
         <sphereGeometry args={[0.32, 7, 5]} />
         <meshStandardMaterial color="#2a5c2a" roughness={0.95} metalness={0} />
       </instancedMesh>
