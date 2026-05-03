@@ -3,10 +3,6 @@
 import { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
 
-// Large enough to cover the entire 40×40 campus — prevents frustum culling
-// from incorrectly hiding instanced meshes when walking away from origin
-const CAMPUS_BOUNDS = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 40);
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface FurnitureItem {
@@ -124,11 +120,11 @@ function Benches({ items }: { items: BenchData[] }) {
 
     if (seatRef.current) {
         seatRef.current.instanceMatrix.needsUpdate = true;
-        seatRef.current.geometry.boundingSphere = CAMPUS_BOUNDS;
+        seatRef.current.geometry.computeBoundingSphere();
     }
     if (legRef.current) {
         legRef.current.instanceMatrix.needsUpdate = true;
-        legRef.current.geometry.boundingSphere = CAMPUS_BOUNDS;
+        legRef.current.geometry.computeBoundingSphere();
     }
   }, [items]);
 
@@ -172,11 +168,11 @@ function WasteBins({ items }: { items: FurnitureItem[] }) {
 
     if (bodyRef.current) {
         bodyRef.current.instanceMatrix.needsUpdate = true;
-        bodyRef.current.geometry.boundingSphere = CAMPUS_BOUNDS;
+        bodyRef.current.geometry.computeBoundingSphere();
     }
     if (lidRef.current) {
         lidRef.current.instanceMatrix.needsUpdate = true;
-        lidRef.current.geometry.boundingSphere = CAMPUS_BOUNDS;
+        lidRef.current.geometry.computeBoundingSphere();
     }
   }, [items]);
 
