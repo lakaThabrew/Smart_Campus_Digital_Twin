@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   description: "Digital twin of campus with real-time data and visualization.",
 };
 
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +30,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>{children}</body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        <Navbar />
+        <main style={{ flex: 1 }}>
+          {children}
+        </main>
+        <Footer />
+      </body>
     </html>
   );
 }
