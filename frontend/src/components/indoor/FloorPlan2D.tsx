@@ -30,10 +30,21 @@ export default function FloorPlan2D({
 
   const SCALE = 1.25;
 
+  // Calculate the bounding box of all rooms to center them
+  const bounds = {
+    minX: Math.min(...floor.rooms.map(r => r.x), 0),
+    maxX: Math.max(...floor.rooms.map(r => r.x + r.width), 800),
+    minY: Math.min(...floor.rooms.map(r => r.y), 0),
+    maxY: Math.max(...floor.rooms.map(r => r.y + r.height), 500),
+  };
+
+  const planWidth = (bounds.maxX - bounds.minX) * SCALE;
+  const planHeight = (bounds.maxY - bounds.minY) * SCALE;
+
   useEffect(() => {
     const initialStats: Record<string, RoomStats> = {};
     floor.rooms.forEach((room) => {
-      if (room.type !== "stairs") {
+      if (room.type !== "stairs" && room.type !== "free") {
         initialStats[room.id] = {
           temp: 24 + Math.random() * 6,
           occ: 20 + Math.random() * 60,
@@ -67,9 +78,9 @@ export default function FloorPlan2D({
   return (
     <div
       style={{
-        width: floor.planImage ? "auto" : 1000 * SCALE + 50,
+        width: floor.planImage ? "auto" : planWidth + 100,
         maxWidth: "90vw",
-        height: floor.planImage ? "auto" : 500 * SCALE + 50,
+        height: floor.planImage ? "auto" : planHeight + 100,
         maxHeight: "80vh",
         position: "relative",
         borderRadius: "24px",
@@ -77,22 +88,23 @@ export default function FloorPlan2D({
         backdropFilter: "blur(12px)",
         border: "1px solid rgba(151, 254, 237, 0.25)",
         boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.6)",
-        padding: "20px",
+        padding: "40px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
-        overflow: "hidden",
+        overflow: "auto",
       }}
     >
       <div
         style={{
-          width: floor.planImage ? "100%" : 800 * SCALE,
-          height: floor.planImage ? "100%" : 500 * SCALE,
+          width: floor.planImage ? "100%" : planWidth,
+          height: floor.planImage ? "100%" : planHeight,
           position: "relative",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexShrink: 0,
         }}
       >
         {floor.planImage ? (
@@ -117,8 +129,6 @@ export default function FloorPlan2D({
                 border: "1px solid rgba(151, 254, 237, 0.2)",
               }}
             />
-            {/* Overlay rooms if they have coordinates mapped to the image */}
-            {/* For now, we just show the image for library floors since rooms aren't mapped yet */}
             <div
               style={{
                 position: "absolute",
@@ -129,13 +139,13 @@ export default function FloorPlan2D({
                 pointerEvents: "none",
               }}
             >
-              {/* Optional: Add labels or interactive points over the image if needed */}
             </div>
           </div>
         ) : (
           floor.rooms.map((room) => {
             const isHovered = hoveredRoom === room.id;
             const isStairs = room.type === "stairs";
+            const isFree = room.type === "free";
             const isOpenArea = room.name === "Open Area";
 
             return (
@@ -145,28 +155,31 @@ export default function FloorPlan2D({
                 onMouseLeave={() => setHoveredRoom(null)}
                 style={{
                   position: "absolute",
-                  left: room.x * SCALE,
-                  top: room.y * SCALE,
+                  left: (room.x - bounds.minX) * SCALE,
+                  top: (room.y - bounds.minY) * SCALE,
                   width: room.width * SCALE,
                   height: room.height * SCALE,
-                  borderRadius: "10px",
+                  borderRadius: "0px",
                   border: isHovered
-                    ? "2px solid #97FEED"
-                    : "1px solid rgba(151, 254, 237, 0.3)",
+                    ? "2.5px solid #97FEED"
+                    : "1.5px solid rgba(0, 0, 0, 0.8)",
                   background: isStairs
                     ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
-                    : isOpenArea
-                      ? "linear-gradient(135deg, rgba(144, 238, 144, 0.2) 0%, rgba(53, 162, 159, 0.3) 100%)"
-                      : isHovered
-                        ? "linear-gradient(135deg, rgba(151, 254, 237, 0.2) 0%, rgba(11, 102, 106, 0.6) 100%)"
-                        : "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
+                    : isFree
+                      ? "rgba(255, 255, 255, 0.05)"
+                      : isOpenArea
+                        ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
+                        : isHovered
+                          ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
+                          : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
                   boxShadow: isHovered
-                    ? "0 0 25px rgba(151, 254, 237, 0.4)"
-                    : "0 4px 15px rgba(0,0,0,0.2)",
+                    ? "0 0 30px rgba(151, 254, 237, 0.5)"
+                    : "0 6px 20px rgba(0,0,0,0.3)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
                   alignItems: "center",
+                  padding: "4px",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   cursor: "pointer",
                   zIndex: isHovered ? 10 : 1,
@@ -187,12 +200,16 @@ export default function FloorPlan2D({
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
                       lineHeight: 1.1,
+                      wordBreak: "break-word",
+                      whiteSpace: "normal",
+                      width: "100%",
+                      padding: "0 4px",
                     }}
                   >
                     {room.name || "UNNAMED"}
                   </div>
 
-                  {!isStairs && !isOpenArea && stats[room.id] && (
+                  {!isStairs && !isOpenArea && !isFree && stats[room.id] && (
                     <div
                       style={{
                         fontSize: room.width * SCALE < 100 ? 9 : 11,
@@ -233,7 +250,7 @@ export default function FloorPlan2D({
                           style={{
                             padding: "6px 12px",
                             cursor: "pointer",
-                            borderRadius: "6px",
+                            borderRadius: "0px",
                             border: "none",
                             background: "#071952",
                             color: "#97FEED",
@@ -253,7 +270,7 @@ export default function FloorPlan2D({
                           style={{
                             padding: "6px 12px",
                             cursor: "pointer",
-                            borderRadius: "6px",
+                            borderRadius: "0px",
                             border: "none",
                             background: "#071952",
                             color: "#97FEED",
