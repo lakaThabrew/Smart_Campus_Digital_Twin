@@ -120,24 +120,24 @@ function Benches({ items }: { items: BenchData[] }) {
 
     if (seatRef.current) {
         seatRef.current.instanceMatrix.needsUpdate = true;
-        seatRef.current.geometry.computeBoundingSphere();
+        seatRef.current.computeBoundingSphere();
     }
     if (legRef.current) {
         legRef.current.instanceMatrix.needsUpdate = true;
-        legRef.current.geometry.computeBoundingSphere();
+        legRef.current.computeBoundingSphere();
     }
   }, [items]);
 
   return (
     <>
       {/* Seat slabs */}
-      <instancedMesh ref={seatRef} args={[undefined, undefined, items.length]} castShadow receiveShadow frustumCulled={false}>
+      <instancedMesh ref={seatRef} args={[undefined, undefined, items.length]} castShadow receiveShadow>
         <boxGeometry args={[1.2, 0.08, 0.42]} />
         <meshStandardMaterial color="#7a5c3a" roughness={0.85} metalness={0} />
       </instancedMesh>
 
       {/* Legs (2 per bench) */}
-      <instancedMesh ref={legRef} args={[undefined, undefined, items.length * 2]} castShadow receiveShadow frustumCulled={false}>
+      <instancedMesh ref={legRef} args={[undefined, undefined, items.length * 2]} castShadow receiveShadow>
         <boxGeometry args={[0.08, 0.44, 0.38]} />
         <meshStandardMaterial color="#4a3825" roughness={0.9} metalness={0} />
       </instancedMesh>
@@ -167,22 +167,22 @@ function WasteBins({ items }: { items: FurnitureItem[] }) {
     });
 
     if (bodyRef.current) {
-        bodyRef.current.instanceMatrix.needsUpdate = true;
-        bodyRef.current.geometry.computeBoundingSphere();
+      bodyRef.current.instanceMatrix.needsUpdate = true;
+      bodyRef.current.computeBoundingSphere();
     }
     if (lidRef.current) {
-        lidRef.current.instanceMatrix.needsUpdate = true;
-        lidRef.current.geometry.computeBoundingSphere();
+      lidRef.current.instanceMatrix.needsUpdate = true;
+      lidRef.current.computeBoundingSphere();
     }
   }, [items]);
 
   return (
     <>
-      <instancedMesh ref={bodyRef} args={[undefined, undefined, items.length]} castShadow receiveShadow frustumCulled={false}>
+      <instancedMesh ref={bodyRef} args={[undefined, undefined, items.length]} castShadow receiveShadow>
         <cylinderGeometry args={[0.18, 0.15, 0.75, 9]} />
         <meshStandardMaterial color="#2e4a1e" roughness={0.7} metalness={0.2} />
       </instancedMesh>
-      <instancedMesh ref={lidRef} args={[undefined, undefined, items.length]} castShadow receiveShadow frustumCulled={false}>
+      <instancedMesh ref={lidRef} args={[undefined, undefined, items.length]} castShadow receiveShadow>
         <cylinderGeometry args={[0.20, 0.18, 0.08, 9]} />
         <meshStandardMaterial color="#1e3212" roughness={0.6} metalness={0.3} />
       </instancedMesh>
@@ -237,7 +237,7 @@ const BENCH_ITEMS: BenchData[] = [
 ];
 
 const BIN_POSITIONS: FurnitureItem[] = [
-  // Paired near each bench cluster
+  // Bins placed near selected seating areas and other high-traffic open spots
   { x: -5.0,  z: -3.5 },
   { x: -10.5, z: -3.5 },
   { x: -13.5, z: 11.3 },
