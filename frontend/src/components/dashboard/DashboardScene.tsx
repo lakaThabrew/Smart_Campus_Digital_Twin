@@ -4,6 +4,7 @@ import { Zone, CAMPUS_LAYOUT } from "./DashboardTypes";
 import Ground from "./GroundComponent";
 import Roads from "./RoadsComponent";
 import CampusTrees from "../CampusTrees";
+import CampusFurniture from "../CampusFurniture";
 import Building from "./BuildingComponent";
 import FirstPersonController from "./FirstPersonController";
 
@@ -49,6 +50,7 @@ export default function DashboardScene({
       <Ground />
       <Roads />
       <CampusTrees />
+      <CampusFurniture />
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);
