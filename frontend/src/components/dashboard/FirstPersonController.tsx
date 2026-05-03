@@ -30,8 +30,8 @@ export default function FirstPersonController({
   useEffect(() => {
     if (!enabled) return;
 
-    // Set initial walk camera position
-    camera.position.set(0, 1.7, 6);
+    // Set initial walk camera position at the entrance
+    camera.position.set(0, 1.7, 18);
 
     const onKey = (e: KeyboardEvent, down: boolean) => {
       keys.current[e.code] = down;

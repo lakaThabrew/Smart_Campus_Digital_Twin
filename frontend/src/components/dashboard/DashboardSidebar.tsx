@@ -56,7 +56,7 @@ export default function DashboardSidebar({
     left: isMobile ? (sidebarOpen ? 0 : "-120%") : undefined,
     height: isMobile ? "calc(100vh - 64px)" : undefined,
     transition: isMobile ? "left 200ms ease" : undefined,
-    zIndex: isMobile ? 9999 : undefined,
+    zIndex: 10000,
   };
 
   return (

@@ -16,7 +16,7 @@ export default function Navbar() {
       alignItems: "center",
       position: "fixed",
       top: 0,
-      zIndex: 1000,
+      zIndex: 20000,
       color: "white"
     }}>
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none", color: "inherit" }}>

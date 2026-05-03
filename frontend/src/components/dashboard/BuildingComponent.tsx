@@ -151,7 +151,7 @@ export default function Building({
             emissiveIntensity={1.0}
           />
         </mesh>
-        <Html center position={[0, totalH + 1.1, 0]}>
+        <Html center position={[0, totalH + 1.1, 0]} zIndexRange={[0, 1000]}>
           <div
             style={{
               background: "rgba(7,25,82,0.88)",
