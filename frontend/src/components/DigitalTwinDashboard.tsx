@@ -3,7 +3,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Navigation, Eye } from "lucide-react";
-import { STABLE_INITIAL_ZONES, generateInitialZones, Zone } from "./dashboard/DashboardTypes";
+import {
+  STABLE_INITIAL_ZONES,
+  generateInitialZones,
+  Zone,
+} from "./dashboard/DashboardTypes";
 import { updateZone } from "./dashboard/DashboardHelpers";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 import DashboardHeader from "./dashboard/DashboardHeader";
@@ -13,10 +17,13 @@ export default function DigitalTwinDashboard() {
   const [zones, setZones] = useState<Zone[]>(STABLE_INITIAL_ZONES);
   const [selectedId, setSelectedId] = useState<string>("it");
   const [walkMode, setWalkMode] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCategories, setExpandedCategories] = useState<string[]>([
     "Departments",
   ]);
+  const [runMode, setRunMode] = useState(false);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) =>
@@ -52,9 +59,25 @@ export default function DigitalTwinDashboard() {
   useEffect(() => {
     // Generate initial random stats only on the client
     setZones(generateInitialZones());
-    
+
     const t = setInterval(() => setZones((prev) => prev.map(updateZone)), 5000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      const mobile = w < 768;
+      setIsMobile(mobile);
+      setSidebarOpen(!mobile);
+    };
+    check();
+    window.addEventListener("resize", check);
+    window.addEventListener("orientationchange", check);
+    return () => {
+      window.removeEventListener("resize", check);
+      window.removeEventListener("orientationchange", check);
+    };
   }, []);
 
   const toggleWalkMode = useCallback(() => {
@@ -83,6 +106,7 @@ export default function DigitalTwinDashboard() {
         color: "#fff",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
         paddingTop: "64px",
+        flexDirection: isMobile ? "column" : "row",
       }}
     >
       <DashboardSidebar
@@ -95,6 +119,9 @@ export default function DigitalTwinDashboard() {
         expandedCategories={expandedCategories}
         toggleCategory={toggleCategory}
         categories={categories}
+        isMobile={isMobile}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
 
       <main
@@ -112,6 +139,7 @@ export default function DigitalTwinDashboard() {
           campusOcc={campusOcc}
           activeZonesCount={zones.length}
           criticalCount={criticalCount}
+          isMobile={isMobile}
         />
 
         <section
@@ -145,13 +173,48 @@ export default function DigitalTwinDashboard() {
               gap: 12,
             }}
           >
+            {isMobile && (
+              <button
+                onClick={() => setSidebarOpen((s) => !s)}
+                style={{
+                  marginRight: 8,
+                  padding: "8px 10px",
+                  borderRadius: 8,
+                  background: "rgba(7,25,82,0.6)",
+                  color: "#97FEED",
+                  border: "1px solid rgba(151,254,237,0.15)",
+                  fontSize: 14,
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Menu
+              </button>
+            )}
             <span>3D Campus Twin — University of Moratuwa</span>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              {walkMode && (
+              {walkMode && !isMobile && (
                 <span style={{ fontSize: 9, color: "#FAC75A", opacity: 0.9 }}>
                   Click canvas → WASD/Arrow keys to move · Mouse to look · Shift
                   to run · Esc to exit
                 </span>
+              )}
+              {walkMode && isMobile && (
+                <button
+                  onClick={() => setRunMode((v) => !v)}
+                  style={{
+                    padding: "4px 8px",
+                    borderRadius: 4,
+                    background: runMode ? "#FF4B2B" : "rgba(7,25,82,0.6)",
+                    border: "1px solid rgba(255, 75, 43, 0.3)",
+                    color: "#fff",
+                    fontSize: 8,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  RUN {runMode ? "ON" : "OFF"}
+                </button>
               )}
               <button
                 onClick={toggleWalkMode}
@@ -175,14 +238,92 @@ export default function DigitalTwinDashboard() {
             </div>
           </div>
 
-          <Canvas shadows dpr={[1, 2]} camera={{ position: [20, 20, 20], fov: 40 }}>
+          <Canvas
+            shadows
+            style={{ width: "100%", height: "100%", touchAction: "none" }}
+            dpr={isMobile ? [1, 1.5] : [1, 2]}
+            camera={
+              isMobile
+                ? { position: [22, 22, 22], fov: 50 }
+                : { position: [20, 20, 20], fov: 40 }
+            }
+          >
             <DashboardScene
               zones={zones}
               selectedId={selectedId}
               onSelect={setSelectedId}
               walkMode={walkMode}
+              isMobile={isMobile}
+              runMode={runMode}
             />
           </Canvas>
+
+          {isMobile && walkMode && (
+            <div
+              style={{
+                position: "absolute",
+                bottom: 40,
+                left: 0,
+                right: 0,
+                zIndex: 100,
+                display: "flex",
+                justifyContent: "space-around",
+                pointerEvents: "none",
+                opacity: 0.6,
+                padding: "0 20px",
+              }}
+            >
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    border: "2px dashed #97FEED",
+                    margin: "0 auto 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: "#97FEED",
+                    }}
+                  />
+                </div>
+                <span
+                  style={{ fontSize: 9, color: "#97FEED", fontWeight: 700 }}
+                >
+                  MOVE
+                </span>
+              </div>
+              <div style={{ textAlign: "center" }}>
+                <div
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    border: "2px dashed #97FEED",
+                    margin: "0 auto 8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Eye size={16} color="#97FEED" />
+                </div>
+                <span
+                  style={{ fontSize: 9, color: "#97FEED", fontWeight: 700 }}
+                >
+                  LOOK
+                </span>
+              </div>
+            </div>
+          )}
         </section>
       </main>
     </div>

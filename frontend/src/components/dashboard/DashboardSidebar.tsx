@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Zone, STATUS_COLORS } from "./DashboardTypes";
 import { BUILDING_DATA } from "../indoor/FloorData";
@@ -17,6 +14,9 @@ interface DashboardSidebarProps {
   expandedCategories: string[];
   toggleCategory: (category: string) => void;
   categories: Record<string, string[]>;
+  isMobile?: boolean;
+  sidebarOpen?: boolean;
+  setSidebarOpen?: (open: boolean) => void;
 }
 
 export default function DashboardSidebar({
@@ -29,26 +29,57 @@ export default function DashboardSidebar({
   expandedCategories,
   toggleCategory,
   categories,
+  isMobile = false,
+  sidebarOpen = true,
+  setSidebarOpen,
 }: DashboardSidebarProps) {
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
 
+  const navStyle: React.CSSProperties = {
+    width: isMobile ? "84%" : "320px",
+    maxWidth: isMobile ? 360 : undefined,
+    flexShrink: 0,
+    background: "rgba(11, 102, 106, 0.12)",
+    backdropFilter: "blur(15px)",
+    borderRight: isMobile ? "none" : "1px solid rgba(151, 254, 237, 0.15)",
+    display: "flex",
+    flexDirection: "column",
+    padding: isMobile ? "14px" : "20px 16px",
+    gap: "16px",
+    overflowY: "auto",
+    boxShadow: isMobile
+      ? "-4px 0 30px rgba(0,0,0,0.6)"
+      : "10px 0 30px rgba(0,0,0,0.3)",
+    position: isMobile ? "fixed" : "relative",
+    top: isMobile ? 64 : undefined,
+    left: isMobile ? (sidebarOpen ? 0 : "-120%") : undefined,
+    height: isMobile ? "calc(100vh - 64px)" : undefined,
+    transition: isMobile ? "left 200ms ease" : undefined,
+    zIndex: isMobile ? 9999 : undefined,
+  };
+
   return (
-    <nav
-      style={{
-        width: "320px",
-        flexShrink: 0,
-        background: "rgba(11, 102, 106, 0.12)",
-        backdropFilter: "blur(15px)",
-        borderRight: "1px solid rgba(151, 254, 237, 0.15)",
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px 16px",
-        gap: "16px",
-        overflowY: "auto",
-        boxShadow: "10px 0 30px rgba(0,0,0,0.3)",
-      }}
-    >
+    <nav style={navStyle}>
+      {isMobile && setSidebarOpen && (
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <button
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              background: "rgba(7,25,82,0.6)",
+              color: "#97FEED",
+              border: "1px solid rgba(151,254,237,0.15)",
+              fontSize: 14,
+              fontWeight: 800,
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
       {/* Search */}
       <input
         value={searchQuery}
@@ -59,9 +90,9 @@ export default function DashboardSidebar({
           background: "rgba(7,25,82,0.5)",
           border: "1px solid rgba(53,162,159,0.3)",
           borderRadius: 8,
-          padding: "7px 10px",
+          padding: isMobile ? "10px 12px" : "7px 10px",
           color: "#fff",
-          fontSize: 11,
+          fontSize: isMobile ? 14 : 11,
           outline: "none",
         }}
       />
@@ -148,8 +179,8 @@ export default function DashboardSidebar({
                             ? "rgba(11,102,106,0.85)"
                             : "rgba(7,25,82,0.35)",
                           border: `1px solid ${active ? "#97FEED" : "rgba(53,162,159,0.18)"}`,
-                          borderRadius: 6,
-                          padding: "4px 6px",
+                          borderRadius: 8,
+                          padding: isMobile ? "10px 12px" : "6px 8px",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
@@ -171,7 +202,7 @@ export default function DashboardSidebar({
                         />
                         <span
                           style={{
-                            fontSize: 8,
+                            fontSize: isMobile ? 14 : 8,
                             color: "#fff",
                             lineHeight: 1.2,
                             flex: 1,
@@ -268,8 +299,7 @@ export default function DashboardSidebar({
                 display: "flex",
                 justifyContent: "space-between",
                 paddingBottom: i < 3 ? 8 : 0,
-                borderBottom:
-                  i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
+                borderBottom: i < 3 ? "1px solid rgba(53,162,159,0.2)" : "none",
               }}
             >
               <span style={{ color: "#97FEED" }}>{label}</span>
@@ -318,11 +348,11 @@ export default function DashboardSidebar({
             style={{
               marginTop: 14,
               width: "100%",
-              padding: "10px",
-              borderRadius: 8,
+              padding: isMobile ? "14px" : "10px",
+              borderRadius: 10,
               border: "none",
               cursor: "pointer",
-              fontWeight: 700,
+              fontWeight: 800,
               background: "#97FEED",
               color: "#071952",
             }}

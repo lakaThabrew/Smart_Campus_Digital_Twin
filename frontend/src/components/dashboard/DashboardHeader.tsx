@@ -6,6 +6,7 @@ interface DashboardHeaderProps {
   campusOcc: number;
   activeZonesCount: number;
   criticalCount: number;
+  isMobile?: boolean;
 }
 
 export default function DashboardHeader({
@@ -13,25 +14,28 @@ export default function DashboardHeader({
   campusOcc,
   activeZonesCount,
   criticalCount,
+  isMobile = false,
 }: DashboardHeaderProps) {
   return (
     <header
       style={{
         display: "flex",
+        flexDirection: isMobile ? "column" : "row",
         justifyContent: "space-between",
-        alignItems: "flex-end",
+        alignItems: isMobile ? "flex-start" : "flex-end",
         background: "rgba(11, 102, 106, 0.15)",
         backdropFilter: "blur(10px)",
-        padding: "24px 30px",
+        padding: isMobile ? "16px 20px" : "24px 30px",
         borderRadius: 24,
         border: "1px solid rgba(151, 254, 237, 0.2)",
         boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        gap: isMobile ? 16 : 24,
       }}
     >
       <div>
         <p
           style={{
-            fontSize: 11,
+            fontSize: isMobile ? 9 : 11,
             color: "#97FEED",
             fontWeight: 800,
             letterSpacing: "2px",
@@ -43,7 +47,7 @@ export default function DashboardHeader({
         </p>
         <h1
           style={{
-            fontSize: 42,
+            fontSize: isMobile ? 24 : 42,
             fontWeight: 900,
             color: "#fff",
             letterSpacing: "-1.5px",
@@ -54,19 +58,28 @@ export default function DashboardHeader({
           Smart Campus{" "}
           <span style={{ color: "#97FEED" }}>Twin Control</span>
         </h1>
-        <p
-          style={{
-            color: "rgba(151, 254, 237, 0.6)",
-            fontSize: 13,
-            fontWeight: 500,
-          }}
-        >
-          Real-time 3D campus infrastructure monitoring — occupancy ·
-          temperature · energy states
-        </p>
+        {!isMobile && (
+          <p
+            style={{
+              color: "rgba(151, 254, 237, 0.6)",
+              fontSize: 13,
+              fontWeight: 500,
+            }}
+          >
+            Real-time 3D campus infrastructure monitoring — occupancy ·
+            temperature · energy states
+          </p>
+        )}
       </div>
 
-      <div style={{ display: "flex", gap: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(4, auto)",
+          gap: isMobile ? 8 : 16,
+          width: isMobile ? "100%" : "auto",
+        }}
+      >
         {[
           { label: "CAMPUS ENERGY", value: `${campusLoad.toFixed(1)} kW` },
           { label: "AVG OCCUPANCY", value: `${campusOcc}%` },
@@ -80,9 +93,9 @@ export default function DashboardHeader({
               style={{
                 background: "rgba(7, 25, 82, 0.4)",
                 border: `1px solid ${isAlert ? "rgba(255, 75, 43, 0.5)" : "rgba(151, 254, 237, 0.2)"}`,
-                padding: "12px 20px",
+                padding: isMobile ? "8px 12px" : "12px 20px",
                 borderRadius: 16,
-                minWidth: 140,
+                minWidth: isMobile ? 0 : 140,
                 boxShadow: isAlert
                   ? "0 0 20px rgba(255, 75, 43, 0.15)"
                   : "none",
@@ -90,7 +103,7 @@ export default function DashboardHeader({
             >
               <p
                 style={{
-                  fontSize: 9,
+                  fontSize: isMobile ? 8 : 9,
                   fontWeight: 800,
                   color: "rgba(151, 254, 237, 0.5)",
                   marginBottom: 4,
@@ -100,7 +113,7 @@ export default function DashboardHeader({
               </p>
               <p
                 style={{
-                  fontSize: 18,
+                  fontSize: isMobile ? 14 : 18,
                   fontWeight: 800,
                   color: isAlert ? "#FF4B2B" : "#97FEED",
                 }}
