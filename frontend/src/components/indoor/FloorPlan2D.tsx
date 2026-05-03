@@ -149,24 +149,25 @@ export default function FloorPlan2D({
                   top: room.y * SCALE,
                   width: room.width * SCALE,
                   height: room.height * SCALE,
-                  borderRadius: "10px",
+                  borderRadius: "0px",
                   border: isHovered
                     ? "2px solid #97FEED"
-                    : "1px solid rgba(151, 254, 237, 0.3)",
+                    : "1px solid rgba(151, 254, 237, 0.6)",
                   background: isStairs
                     ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
                     : isOpenArea
-                      ? "linear-gradient(135deg, rgba(144, 238, 144, 0.2) 0%, rgba(53, 162, 159, 0.3) 100%)"
+                      ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
                       : isHovered
-                        ? "linear-gradient(135deg, rgba(151, 254, 237, 0.2) 0%, rgba(11, 102, 106, 0.6) 100%)"
-                        : "linear-gradient(135deg, rgba(11, 102, 106, 0.4) 0%, rgba(7, 25, 82, 0.6) 100%)",
+                        ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
+                        : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
                   boxShadow: isHovered
-                    ? "0 0 25px rgba(151, 254, 237, 0.4)"
-                    : "0 4px 15px rgba(0,0,0,0.2)",
+                    ? "0 0 30px rgba(151, 254, 237, 0.5)"
+                    : "0 6px 20px rgba(0,0,0,0.3)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
                   alignItems: "center",
+                  padding: "4px",
                   transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                   cursor: "pointer",
                   zIndex: isHovered ? 10 : 1,
@@ -187,6 +188,10 @@ export default function FloorPlan2D({
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
                       lineHeight: 1.1,
+                      wordBreak: "break-word",
+                      whiteSpace: "normal",
+                      width: "100%",
+                      padding: "0 4px",
                     }}
                   >
                     {room.name || "UNNAMED"}
@@ -233,7 +238,7 @@ export default function FloorPlan2D({
                           style={{
                             padding: "6px 12px",
                             cursor: "pointer",
-                            borderRadius: "6px",
+                            borderRadius: "0px",
                             border: "none",
                             background: "#071952",
                             color: "#97FEED",
@@ -253,7 +258,7 @@ export default function FloorPlan2D({
                           style={{
                             padding: "6px 12px",
                             cursor: "pointer",
-                            borderRadius: "6px",
+                            borderRadius: "0px",
                             border: "none",
                             background: "#071952",
                             color: "#97FEED",
