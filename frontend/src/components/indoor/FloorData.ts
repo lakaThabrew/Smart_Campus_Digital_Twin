@@ -416,7 +416,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
         name: "",
         x: 490,
         y: 370,
-        width: 13,
+        width: 130,
         height: 120,
         type: "lab",
       },
