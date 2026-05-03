@@ -35,11 +35,6 @@ export default function Navbar() {
           UOM<span style={{ color: "#97FEED" }}>Twin</span>
         </span>
       </Link>
-      
-      <div style={{ display: "flex", gap: "1.5rem" }}>
-        <Link href="/" style={{ textDecoration: "none", color: "#97FEED", fontWeight: 600, fontSize: "0.9rem" }}>DASHBOARD</Link>
-        <span style={{ color: "rgba(151, 254, 237, 0.5)", fontWeight: 600, fontSize: "0.9rem" }}>INDOOR VIEW</span>
-      </div>
     </nav>
   );
 }
