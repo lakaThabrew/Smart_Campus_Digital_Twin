@@ -10,6 +10,7 @@ type Props = {
   maxFloor: number;
   goUp: () => void;
   goDown: () => void;
+  isMobile?: boolean;
 };
 
 type RoomStats = {
@@ -24,11 +25,12 @@ export default function FloorPlan2D({
   maxFloor,
   goUp,
   goDown,
+  isMobile = false,
 }: Props) {
   const [stats, setStats] = useState<Record<string, RoomStats>>({});
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
 
-  const SCALE = 1.25;
+  const SCALE = isMobile ? 0.75 : 1.25;
 
   // Calculate the bounding box of all rooms to center them
   const bounds = {
@@ -78,17 +80,17 @@ export default function FloorPlan2D({
   return (
     <div
       style={{
-        width: floor.planImage ? "auto" : planWidth + 100,
-        maxWidth: "90vw",
-        height: floor.planImage ? "auto" : planHeight + 100,
-        maxHeight: "80vh",
+        width: isMobile ? "100%" : (floor.planImage ? "auto" : planWidth + 100),
+        maxWidth: "100%",
+        height: isMobile ? "400px" : (floor.planImage ? "auto" : planHeight + 100),
+        maxHeight: isMobile ? "50vh" : "80vh",
         position: "relative",
-        borderRadius: "24px",
+        borderRadius: isMobile ? "16px" : "24px",
         background: "rgba(11, 102, 106, 0.15)",
         backdropFilter: "blur(12px)",
         border: "1px solid rgba(151, 254, 237, 0.25)",
         boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.6)",
-        padding: "40px",
+        padding: isMobile ? "10px" : "40px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

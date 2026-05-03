@@ -6,6 +6,7 @@ type Props = {
   maxFloor: number;
   goUp: () => void;
   goDown: () => void;
+  isMobile?: boolean;
 };
 
 export default function FloorNavigator({
@@ -14,24 +15,25 @@ export default function FloorNavigator({
   maxFloor,
   goUp,
   goDown,
+  isMobile = false,
 }: Props) {
   const buttonStyle = (active: boolean) => ({
-    padding: "20px 0",
-    width: "100px",
-    borderRadius: "16px",
+    padding: isMobile ? "12px 0" : "20px 0",
+    width: isMobile ? "70px" : "100px",
+    borderRadius: isMobile ? "12px" : "16px",
     border: "1px solid rgba(151, 254, 237, 0.4)",
     background: active 
       ? "linear-gradient(135deg, #0B666A 0%, #071952 100%)" 
       : "rgba(255, 255, 255, 0.05)",
     color: "#97FEED",
     fontWeight: 700,
-    fontSize: "0.8rem",
+    fontSize: isMobile ? "0.6rem" : "0.8rem",
     cursor: "pointer",
     display: "flex",
     flexDirection: "column" as const,
     alignItems: "center",
     justifyContent: "center",
-    gap: "8px",
+    gap: isMobile ? "4px" : "8px",
     transition: "all 0.3s ease",
     boxShadow: active ? "0 4px 15px rgba(151, 254, 237, 0.2)" : "none",
     backdropFilter: "blur(5px)",
@@ -41,9 +43,9 @@ export default function FloorNavigator({
     <div
       style={{
         display: "flex",
-        flexDirection: "column",
+        flexDirection: isMobile ? "row" : "column",
         justifyContent: "center",
-        gap: 20,
+        gap: isMobile ? 12 : 20,
       }}
     >
       {floor < maxFloor && (
