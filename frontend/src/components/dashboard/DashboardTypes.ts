@@ -304,9 +304,9 @@ export const WALK_BOUNDS = {
 
 export const generateInitialZones = (): Zone[] => {
   return CAMPUS_LAYOUT.map((layout) => {
-    const energyKw = 30 + Math.random() * 70;
-    const occupancy = Math.floor(20 + Math.random() * 80);
-    const temperatureC = 26 + Math.random() * 10;
+    const energyKw = 30 + Math.random() * 50;
+    const occupancy = Math.min(100, Math.floor(20 + Math.random() * 80));
+    const temperatureC = Math.min(35, 26 + Math.random() * 10);
 
     let status: ZoneStatus = "normal";
     if (temperatureC > 34 || occupancy > 85) status = "critical";
