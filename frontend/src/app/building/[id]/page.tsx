@@ -25,7 +25,6 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
     <div style={{ 
       padding: "100px 30px 60px", 
       background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", 
-      minHeight: "100vh", 
       color: "white", 
       display: "flex", 
       flexDirection: "row", 
