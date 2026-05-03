@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three";
 import { Navigation, Eye } from "lucide-react";
 import {
   STABLE_INITIAL_ZONES,
@@ -239,7 +240,7 @@ export default function DigitalTwinDashboard() {
           </div>
 
           <Canvas
-            shadows
+            shadows={{ type: THREE.PCFShadowMap }}
             style={{ width: "100%", height: "100%", touchAction: "none" }}
             dpr={isMobile ? [1, 1.5] : [1, 2]}
             camera={
