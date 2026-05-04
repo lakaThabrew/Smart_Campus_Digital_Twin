@@ -34,7 +34,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
       gap: "60px"
     }}>
       <Link 
-        href="/" 
+        href="/dashboard" 
         style={{ 
           position: "absolute", 
           top: 100, 

@@ -2,8 +2,17 @@
 
 import Link from "next/link";
 import { Building2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+  const hideNavbar = ["/", "/login", "/register"].includes(pathname);
+  const showLogout = pathname === "/dashboard";
+
+  if (hideNavbar) {
+    return null;
+  }
+
   return (
     <nav style={{
       width: "100%",
@@ -36,9 +45,26 @@ export default function Navbar() {
         </span>
       </Link>
       
-      <div style={{ display: "flex", gap: "1.5rem" }}>
-        <Link href="/" style={{ textDecoration: "none", color: "#97FEED", fontWeight: 600, fontSize: "0.9rem" }}>DASHBOARD</Link>
+      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
+        <Link href="/dashboard" style={{ textDecoration: "none", color: "#97FEED", fontWeight: 600, fontSize: "0.9rem" }}>DASHBOARD</Link>
         <span style={{ color: "rgba(151, 254, 237, 0.5)", fontWeight: 600, fontSize: "0.9rem" }}>INDOOR VIEW</span>
+        {showLogout && (
+          <Link
+            href="/"
+            style={{
+              padding: "0.5rem 1rem",
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(151, 254, 237, 0.4)",
+              borderRadius: 9999,
+              color: "#97FEED",
+              textDecoration: "none",
+              fontWeight: 600,
+              fontSize: "0.9rem"
+            }}
+          >
+            Logout
+          </Link>
+        )}
       </div>
     </nav>
   );
