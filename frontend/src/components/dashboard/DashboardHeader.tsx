@@ -95,7 +95,7 @@ export default function DashboardHeader({
         <div
           style={{
             background: criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
-            border: `1px solid ${criticalCount > 0 ? "rgba(232, 93, 36, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
+            border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
             padding: "12px 20px",
             borderRadius: 16,
             minWidth: 140,
@@ -113,13 +113,13 @@ export default function DashboardHeader({
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  background: "#E85D24",
+                  background: "#eb0909",
                   animation: "dotFlash 0.9s ease-in-out infinite",
                   flexShrink: 0,
                 }}
               />
             )}
-            <p style={{ fontSize: 18, fontWeight: 800, color: criticalCount > 0 ? "#E85D24" : "#97FEED" }}>
+            <p style={{ fontSize: 18, fontWeight: 800, color: criticalCount > 0 ? "#eb0909" : "#97FEED" }}>
               {criticalCount > 0 ? `${criticalCount} critical` : "None"}
             </p>
           </div>
@@ -128,8 +128,8 @@ export default function DashboardHeader({
       <style>{
       `
         @keyframes alertPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(232, 93, 36, 0.3); }
-          50% { opacity: 0.7; box-shadow: 0 0 35px rgba(232, 93, 36, 0.7); }
+          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(235, 9, 9, 0.3); }
+          50% { opacity: 0.7; box-shadow: 0 0 35px rgba(235, 9, 9, 0.7); }
         }
         @keyframes dotFlash {
           0%, 100% { opacity: 1; }
