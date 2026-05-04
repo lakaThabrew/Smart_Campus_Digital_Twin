@@ -49,6 +49,12 @@ export default function DashboardSidebar({
         boxShadow: "10px 0 30px rgba(0,0,0,0.3)",
       }}
     >
+      <style>{`
+        @keyframes dotFlash {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.15; }
+        }
+      `}</style>
       {/* Search */}
       <input
         value={searchQuery}
@@ -126,6 +132,22 @@ export default function DashboardSidebar({
                   <ChevronRight size={12} />
                 )}
                 {category} ({zonesInCategory.length})
+                {zonesInCategory.some(z => z.status === "critical") && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      background: "#f50707",
+                      color: "#fff",
+                      fontSize: 8,
+                      fontWeight: 800,
+                      padding: "1px 5px",
+                      borderRadius: 4,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {zonesInCategory.filter(z => z.status === "critical").length} CRITICAL
+                  </span>
+                )}
               </button>
 
               {isExpanded && (
@@ -165,8 +187,9 @@ export default function DashboardSidebar({
                             height: "6px",
                             borderRadius: "50%",
                             background: STATUS_COLORS[zone.status],
-                            boxShadow: `0 0 3px ${STATUS_COLORS[zone.status]}`,
+                            boxShadow: `0 0 ${zone.status === "critical" ? "6px" : "3px"} ${STATUS_COLORS[zone.status]}`,
                             flexShrink: 0,
+                            animation: zone.status === "critical" ? "dotFlash 0.9s ease-in-out infinite" : "none",
                           }}
                         />
                         <span

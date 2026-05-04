@@ -70,47 +70,73 @@ export default function DashboardHeader({
         {[
           { label: "CAMPUS ENERGY", value: `${campusLoad.toFixed(1)} kW` },
           { label: "AVG OCCUPANCY", value: `${campusOcc}%` },
-          { label: "ACTIVE ZONES", value: activeZonesCount },
-          { label: "ALERTS", value: `${criticalCount} critical` },
-        ].map((stat, i) => {
-          const isAlert = stat.label === "ALERTS" && criticalCount > 0;
-          return (
-            <div
-              key={i}
-              style={{
-                background: "rgba(7, 25, 82, 0.4)",
-                border: `1px solid ${isAlert ? "rgba(255, 75, 43, 0.5)" : "rgba(151, 254, 237, 0.2)"}`,
-                padding: "12px 20px",
-                borderRadius: 16,
-                minWidth: 140,
-                boxShadow: isAlert
-                  ? "0 0 20px rgba(255, 75, 43, 0.15)"
-                  : "none",
-              }}
-            >
-              <p
+          { label: "ACTIVE ZONES", value: `${activeZonesCount}` },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            style={{
+              background: "rgba(7, 25, 82, 0.4)",
+              border: "1px solid rgba(151, 254, 237, 0.2)",
+              padding: "12px 20px",
+              borderRadius: 16,
+              minWidth: 140,
+            }}
+          >
+            <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>
+              {stat.label}
+            </p>
+            <p style={{ fontSize: 18, fontWeight: 800, color: "#97FEED" }}>
+              {stat.value}
+            </p>
+          </div>
+        ))}
+
+        {/* Alert card — separate so it can pulse independently */}
+        <div
+          style={{
+            background: criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
+            border: `1px solid ${criticalCount > 0 ? "rgba(232, 93, 36, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
+            padding: "12px 20px",
+            borderRadius: 16,
+            minWidth: 140,
+            animation: criticalCount > 0 ? "alertPulse 1.8s ease-in-out infinite" : "none",
+            transition: "background 0.4s, border 0.4s",
+          }}
+        >
+          <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>
+            ALERTS
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {criticalCount > 0 && (
+              <span
                 style={{
-                  fontSize: 9,
-                  fontWeight: 800,
-                  color: "rgba(151, 254, 237, 0.5)",
-                  marginBottom: 4,
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#E85D24",
+                  animation: "dotFlash 0.9s ease-in-out infinite",
+                  flexShrink: 0,
                 }}
-              >
-                {stat.label}
-              </p>
-              <p
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: isAlert ? "#FF4B2B" : "#97FEED",
-                }}
-              >
-                {stat.value}
-              </p>
-            </div>
-          );
-        })}
+              />
+            )}
+            <p style={{ fontSize: 18, fontWeight: 800, color: criticalCount > 0 ? "#E85D24" : "#97FEED" }}>
+              {criticalCount > 0 ? `${criticalCount} critical` : "None"}
+            </p>
+          </div>
+        </div>
       </div>
+      <style>{
+      `
+        @keyframes alertPulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(232, 93, 36, 0.3); }
+          50% { opacity: 0.7; box-shadow: 0 0 35px rgba(232, 93, 36, 0.7); }
+        }
+        @keyframes dotFlash {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.2; }
+        } 
+      `
+      }</style>
     </header>
   );
 }
