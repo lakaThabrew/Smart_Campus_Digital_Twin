@@ -45,7 +45,7 @@ export default function FloorPlan2D({
 
   useEffect(() => {
     const handleResize = () => {
-      const isMobile = window.innerWidth < 768;
+      const isMobile = window.innerWidth < 1024;
       setIsMobileView(isMobile);
       
       const paddingW = isMobile ? 5 : 40;
@@ -296,17 +296,17 @@ export default function FloorPlan2D({
                       style={{
                         fontWeight: 700,
                         fontSize: isMobileView 
-                          ? `clamp(9px, ${(room.width * SCALE) * 0.15}px, 13px)`
+                          ? `${Math.min(9, Math.max(6, (room.width * SCALE) * 0.07))}px`
                           : `clamp(10px, ${(room.width * SCALE) * 0.12}px, 15px)`,
                         textTransform: "uppercase",
-                        letterSpacing: "0.5px",
-                        lineHeight: 1.1,
+                        letterSpacing: "0.4px",
+                        lineHeight: 1.0,
                         wordBreak: "break-word",
                         whiteSpace: "normal",
                         width: "100%",
-                        padding: "0 2px",
-                        display: (room.width * SCALE) < 25 ? "none" : "block", 
-                        textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+                        padding: "0 1px",
+                        display: (room.width * SCALE) < 15 ? "none" : "block", 
+                        textShadow: "0 1px 1px rgba(0,0,0,0.8)",
                       }}
                     >
                       {room.name || "UNNAMED"}
@@ -316,9 +316,9 @@ export default function FloorPlan2D({
                       <div
                         style={{
                           fontSize: isMobileView 
-                            ? `clamp(8px, ${(room.width * SCALE) * 0.12}px, 11px)`
+                            ? `${Math.min(8, Math.max(5, (room.width * SCALE) * 0.06))}px`
                             : `clamp(9px, ${(room.width * SCALE) * 0.1}px, 13px)`,
-                          marginTop: isMobileView ? 2 : 6,
+                          marginTop: isMobileView ? 1 : 6,
                           fontWeight: 600,
                           opacity: isHovered ? 1 : 0.8,
                           display: (room.height * SCALE) < 35 ? "none" : "block", 
