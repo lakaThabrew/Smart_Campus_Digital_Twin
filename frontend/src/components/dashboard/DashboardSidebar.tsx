@@ -31,7 +31,16 @@ export default function DashboardSidebar({
   categories,
 }: DashboardSidebarProps) {
   const router = useRouter();
+  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(true);
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => setPrefersReducedMotion(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   return (
     <nav
@@ -195,11 +204,7 @@ export default function DashboardSidebar({
                             boxShadow: `0 0 ${zone.status === "critical" ? "6px" : "3px"} ${STATUS_COLORS[zone.status]}`,
                             flexShrink: 0,
                             animation:
-                               zone.status === "critical" &&
-                               !(
-                                 typeof window !== "undefined" &&
-                                 window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                               )
+                               zone.status === "critical" && !prefersReducedMotion
                                  ? "sidebarDotFlash 0.9s ease-in-out infinite"
                                  : "none",
                           }}
