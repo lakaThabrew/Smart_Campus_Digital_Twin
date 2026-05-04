@@ -29,9 +29,9 @@ export default function FloorPlan2D({
 }: Props) {
   const [stats, setStats] = useState<Record<string, RoomStats>>({});
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
-
-  const SCALE = isMobile ? 0.75 : 1.25;
-
+  const [isMobileView, setIsMobileView] = useState(isMobile);
+  const [dynamicScale, setDynamicScale] = useState(isMobile ? 0.4 : 1.25);
+  
   // Calculate the bounding box of all rooms to center them
   const bounds = {
     minX: Math.min(...floor.rooms.map(r => r.x), 0),
@@ -39,6 +39,36 @@ export default function FloorPlan2D({
     minY: Math.min(...floor.rooms.map(r => r.y), 0),
     maxY: Math.max(...floor.rooms.map(r => r.y + r.height), 500),
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobileView(mobile);
+      
+      if (mobile) {
+        const paddingW = isMobileView ? 20 : 40;
+        const paddingH = 60; 
+        const availableWidth = window.innerWidth - paddingW;
+        const availableHeight = window.innerHeight * 0.7 - paddingH; // Use 70% of height for the map
+        
+        const scaleW = availableWidth / (bounds.maxX - bounds.minX);
+        const scaleH = availableHeight / (bounds.maxY - bounds.minY);
+        
+        // Ensure it's not too large on mobile but fills the space
+        const scale = Math.min(1.0, scaleW, scaleH);
+        setDynamicScale(scale);
+      } else {
+        setDynamicScale(1.25);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [bounds.maxX, bounds.minX]);
+
+  const SCALE = dynamicScale;
+
 
   const planWidth = (bounds.maxX - bounds.minX) * SCALE;
   const planHeight = (bounds.maxY - bounds.minY) * SCALE;
@@ -80,17 +110,17 @@ export default function FloorPlan2D({
   return (
     <div
       style={{
-        width: isMobile ? "100%" : (floor.planImage ? "auto" : planWidth + 100),
+        width: isMobileView ? "100%" : (floor.planImage ? "auto" : planWidth + 100),
         maxWidth: "100%",
-        height: isMobile ? "400px" : (floor.planImage ? "auto" : planHeight + 100),
-        maxHeight: isMobile ? "50vh" : "80vh",
+        height: isMobileView ? "auto" : (floor.planImage ? "auto" : planHeight + 100),
+        maxHeight: isMobileView ? "85vh" : "80vh",
         position: "relative",
-        borderRadius: isMobile ? "16px" : "24px",
+        borderRadius: isMobileView ? "16px" : "24px",
         background: "rgba(11, 102, 106, 0.15)",
         backdropFilter: "blur(12px)",
         border: "1px solid rgba(151, 254, 237, 0.25)",
         boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.6)",
-        padding: isMobile ? "10px" : "40px",
+        padding: isMobileView ? "8px" : "40px",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
