@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -19,6 +19,40 @@ interface DashboardSidebarProps {
   categories: Record<string, string[]>;
 }
 
+function useAnimatedValue(target: number, decimals = 0, duration = 600): number {
+  const [display, setDisplay] = useState(target);
+  const prev = useRef(target);
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const start = prev.current;
+    const end = target;
+    if (start === end) return;
+
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = start + (end - start) * eased;
+      setDisplay(parseFloat(current.toFixed(decimals)));
+
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        prev.current = end;
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, decimals, duration]);
+
+  return display;
+}
+
 export default function DashboardSidebar({
   zones,
   filteredZones,
@@ -32,6 +66,10 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
+
+  const animatedEnergy    = useAnimatedValue(selectedZone.energyKw, 1);
+  const animatedOccupancy = useAnimatedValue(selectedZone.occupancy, 0);
+  const animatedTemp      = useAnimatedValue(selectedZone.temperatureC, 1);
 
   return (
     <nav
@@ -273,17 +311,9 @@ export default function DashboardSidebar({
               selectedZone.status.toUpperCase(),
               STATUS_COLORS[selectedZone.status],
             ],
-            [
-              "Avg. Energy",
-              `${selectedZone.energyKw.toFixed(1)} kW`,
-              "#97FEED",
-            ],
-            ["Avg. Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
-            [
-              "Avg. Temp",
-              `${selectedZone.temperatureC.toFixed(1)}°C`,
-              "#97FEED",
-            ],
+            ["Avg. Energy",    `${animatedEnergy.toFixed(1)} kW`,    "#97FEED"],
+            ["Avg. Occupancy", `${animatedOccupancy}%`,               "#97FEED"],
+            ["Avg. Temp",      `${animatedTemp.toFixed(1)}°C`,        "#97FEED"],
           ].map(([label, value, color], i) => (
             <div
               key={i}
