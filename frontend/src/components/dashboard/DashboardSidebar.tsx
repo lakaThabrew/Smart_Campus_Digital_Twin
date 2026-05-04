@@ -54,11 +54,11 @@ export default function DashboardSidebar({
       ? "-4px 0 30px rgba(0,0,0,0.6)"
       : "10px 0 30px rgba(0,0,0,0.3)",
     position: isMobile ? "fixed" : "relative",
-    top: isMobile ? 64 : undefined,
+    top: isMobile ? (isLandscape ? 0 : 64) : undefined,
     left: isMobile ? (sidebarOpen ? 0 : "-120%") : undefined,
-    height: isMobile ? "calc(100vh - 64px)" : undefined,
+    height: isMobile ? (isLandscape ? "100vh" : "calc(100vh - 64px)") : undefined,
     transition: isMobile ? "left 200ms ease" : undefined,
-    zIndex: 10000,
+    zIndex: 11000,
   };
 
   return (
