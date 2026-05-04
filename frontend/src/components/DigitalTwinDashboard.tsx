@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { Navigation, Eye } from "lucide-react";
@@ -26,6 +26,8 @@ export default function DigitalTwinDashboard() {
   ]);
   const [runMode, setRunMode] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const sceneSectionRef = useRef<HTMLElement | null>(null);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) =>
@@ -99,8 +101,39 @@ export default function DigitalTwinDashboard() {
     }
   }, [isLandscape]);
 
+  useEffect(() => {
+    const onFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isLandscape && document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {
+        // Ignore exit errors when fullscreen is unavailable on device/browser.
+      });
+    }
+  }, [isLandscape]);
+
   const toggleWalkMode = useCallback(() => {
     setWalkMode((v) => !v);
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    const sceneEl = sceneSectionRef.current;
+    if (sceneEl) {
+      await sceneEl.requestFullscreen();
+    }
   }, []);
 
   const campusLoad = zones.reduce((a, z) => a + z.energyKw, 0);
@@ -181,6 +214,34 @@ export default function DigitalTwinDashboard() {
         </button>
       )}
 
+      {isLandscape && (
+        <button
+          onClick={() => {
+            toggleFullscreen().catch(() => {
+              // Fullscreen API may be restricted on some mobile browsers.
+            });
+          }}
+          style={{
+            position: "absolute",
+            top: 20,
+            right: 20,
+            zIndex: 11000,
+            background: "rgba(11, 102, 106, 0.9)",
+            border: "1px solid rgba(151, 254, 237, 0.3)",
+            color: "#97FEED",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            backdropFilter: "blur(5px)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+          }}
+        >
+          {isFullscreen ? "EXIT FULL" : "FULL SCREEN"}
+        </button>
+      )}
+
       {isLandscape && sidebarOpen && (
         <div
           style={{
@@ -240,6 +301,7 @@ export default function DigitalTwinDashboard() {
         )}
 
         <section
+          ref={sceneSectionRef}
           style={{
             flex: 1,
             borderRadius: isLandscape ? 0 : isMobile ? 12 : 14,
