@@ -50,7 +50,7 @@ export default function DashboardSidebar({
       }}
     >
       <style>{`
-        @keyframes dotFlash {
+        @keyframes sidebarDotFlash {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.15; }
         }
@@ -103,6 +103,11 @@ export default function DashboardSidebar({
 
           const isExpanded = expandedCategories.includes(category);
 
+          const criticalZonesCount = zonesInCategory.reduce(
+            (count, z) => (z.status === "critical" ? count + 1 : count),
+            0
+          );
+
           return (
             <div
               key={category}
@@ -132,7 +137,7 @@ export default function DashboardSidebar({
                   <ChevronRight size={12} />
                 )}
                 {category} ({zonesInCategory.length})
-                {zonesInCategory.some(z => z.status === "critical") && (
+                {criticalZonesCount > 0 && (
                   <span
                     style={{
                       marginLeft: "auto",
@@ -145,7 +150,7 @@ export default function DashboardSidebar({
                       letterSpacing: "0.05em",
                     }}
                   >
-                    {zonesInCategory.filter(z => z.status === "critical").length} CRITICAL
+                    {criticalZonesCount} CRITICAL
                   </span>
                 )}
               </button>
@@ -189,7 +194,14 @@ export default function DashboardSidebar({
                             background: STATUS_COLORS[zone.status],
                             boxShadow: `0 0 ${zone.status === "critical" ? "6px" : "3px"} ${STATUS_COLORS[zone.status]}`,
                             flexShrink: 0,
-                            animation: zone.status === "critical" ? "dotFlash 0.9s ease-in-out infinite" : "none",
+                            animation:
+                               zone.status === "critical" &&
+                               !(
+                                 typeof window !== "undefined" &&
+                                 window.matchMedia("(prefers-reduced-motion: reduce)").matches
+                               )
+                                 ? "sidebarDotFlash 0.9s ease-in-out infinite"
+                                 : "none",
                           }}
                         />
                         <span
