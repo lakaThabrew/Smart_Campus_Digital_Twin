@@ -25,6 +25,7 @@ export default function DigitalTwinDashboard() {
     "Departments",
   ]);
   const [runMode, setRunMode] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   const toggleCategory = (category: string) => {
     setExpandedCategories((prev) =>
@@ -68,9 +69,18 @@ export default function DigitalTwinDashboard() {
   useEffect(() => {
     const check = () => {
       const w = window.innerWidth;
-      const mobile = w < 768;
+      const h = window.innerHeight;
+      const mobile = w < 1024;
+      const landscape = mobile && w > h;
+      
       setIsMobile(mobile);
-      setSidebarOpen(!mobile);
+      setIsLandscape(landscape);
+      
+      if (landscape) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(!mobile);
+      }
     };
     check();
     window.addEventListener("resize", check);
@@ -106,48 +116,52 @@ export default function DigitalTwinDashboard() {
         overflow: "hidden",
         color: "#fff",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-        paddingTop: "64px",
+        paddingTop: isLandscape ? "0" : "64px",
         flexDirection: isMobile ? "column" : "row",
       }}
     >
-      <DashboardSidebar
-        zones={zones}
-        filteredZones={filteredZones}
-        selectedId={selectedId}
-        setSelectedId={setSelectedId}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        expandedCategories={expandedCategories}
-        toggleCategory={toggleCategory}
-        categories={categories}
-        isMobile={isMobile}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
+      {!isLandscape && (
+        <DashboardSidebar
+          zones={zones}
+          filteredZones={filteredZones}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          expandedCategories={expandedCategories}
+          toggleCategory={toggleCategory}
+          categories={categories}
+          isMobile={isMobile}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
+      )}
 
       <main
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          padding: 24,
-          gap: 24,
+          padding: isLandscape ? 0 : 24,
+          gap: isLandscape ? 0 : 24,
           overflow: "hidden",
         }}
       >
-        <DashboardHeader
-          campusLoad={campusLoad}
-          campusOcc={campusOcc}
-          activeZonesCount={zones.length}
-          criticalCount={criticalCount}
-          isMobile={isMobile}
-        />
+        {!isLandscape && (
+          <DashboardHeader
+            campusLoad={campusLoad}
+            campusOcc={campusOcc}
+            activeZonesCount={zones.length}
+            criticalCount={criticalCount}
+            isMobile={isMobile}
+          />
+        )}
 
         <section
           style={{
             flex: 1,
-            borderRadius: 14,
-            border: "1px solid rgba(53,162,159,0.3)",
+            borderRadius: isLandscape ? 0 : 14,
+            border: isLandscape ? "none" : "1px solid rgba(53,162,159,0.3)",
             overflow: "hidden",
             position: "relative",
           }}
