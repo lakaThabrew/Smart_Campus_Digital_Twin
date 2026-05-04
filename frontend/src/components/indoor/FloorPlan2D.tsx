@@ -40,35 +40,37 @@ export default function FloorPlan2D({
     maxY: Math.max(...floor.rooms.map(r => r.y + r.height), 500),
   };
 
+  const [userZoom, setUserZoom] = useState(1);
+  const [isPanning, setIsPanning] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobileView(mobile);
+      const isMobile = window.innerWidth < 768;
+      setIsMobileView(isMobile);
       
-      if (mobile) {
-        const paddingW = isMobileView ? 20 : 40;
-        const paddingH = 60; 
-        const availableWidth = window.innerWidth - paddingW;
-        const availableHeight = window.innerHeight * 0.7 - paddingH; // Use 70% of height for the map
-        
-        const scaleW = availableWidth / (bounds.maxX - bounds.minX);
-        const scaleH = availableHeight / (bounds.maxY - bounds.minY);
-        
-        // Ensure it's not too large on mobile but fills the space
-        const scale = Math.min(1.0, scaleW, scaleH);
-        setDynamicScale(scale);
-      } else {
-        setDynamicScale(1.25);
-      }
+      const paddingW = isMobile ? 5 : 40;
+      const paddingH = isMobile ? 5 : 60;
+      const availableWidth = window.innerWidth - paddingW * 2;
+      const availableHeight = (isMobile ? window.innerHeight * 0.7 : window.innerHeight * 0.8) - paddingH * 2;
+      
+      const contentWidth = bounds.maxX - bounds.minX;
+      const contentHeight = bounds.maxY - bounds.minY;
+      
+      const scaleW = availableWidth / contentWidth;
+      const scaleH = availableHeight / contentHeight;
+      
+      let scale = Math.min(scaleW, scaleH);
+      if (!isMobile) scale = Math.min(scale, 1.25); 
+      
+      setDynamicScale(scale);
     };
 
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [bounds.maxX, bounds.minX]);
+  }, [bounds.maxX, bounds.minX, bounds.maxY, bounds.minY]);
 
-  const SCALE = dynamicScale;
-
+  const SCALE = dynamicScale * userZoom;
 
   const planWidth = (bounds.maxX - bounds.minX) * SCALE;
   const planHeight = (bounds.maxY - bounds.minY) * SCALE;
@@ -110,216 +112,290 @@ export default function FloorPlan2D({
   return (
     <div
       style={{
-        width: isMobileView ? "100%" : (floor.planImage ? "auto" : planWidth + 100),
+        width: "100%",
         maxWidth: "100%",
-        height: isMobileView ? "auto" : (floor.planImage ? "auto" : planHeight + 100),
-        maxHeight: isMobileView ? "85vh" : "80vh",
+        height: isMobileView ? "auto" : "auto",
+        minHeight: isMobileView ? "40vh" : "auto",
         position: "relative",
-        borderRadius: isMobileView ? "16px" : "24px",
-        background: "rgba(11, 102, 106, 0.15)",
+        borderRadius: isMobileView ? "8px" : "24px",
+        background: "rgba(11, 102, 106, 0.05)",
         backdropFilter: "blur(12px)",
-        border: "1px solid rgba(151, 254, 237, 0.25)",
-        boxShadow: "0 30px 60px -12px rgba(0, 0, 0, 0.6)",
-        padding: isMobileView ? "8px" : "40px",
+        border: "1px solid rgba(151, 254, 237, 0.15)",
+        boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.5)",
+        padding: isMobileView ? "5px" : "40px",
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+        transition: "all 0.3s ease",
         overflow: "hidden",
+        touchAction: "none",
       }}
     >
+      {/* Zoom Controls */}
       <div
         style={{
-          width: floor.planImage ? "100%" : planWidth,
-          height: floor.planImage ? "100%" : planHeight,
-          position: "relative",
+          position: "absolute",
+          top: isMobileView ? 10 : 20,
+          right: isMobileView ? 10 : 20,
+          zIndex: 100,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexShrink: 0,
+          gap: "8px",
         }}
       >
-        {floor.planImage ? (
-          <div
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            <img
-              src={floor.planImage}
-              alt={`Floor ${floorNumber} Plan`}
-              style={{
-                maxWidth: "100%",
-                maxHeight: "70vh",
-                borderRadius: "16px",
-                objectFit: "contain",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
-                border: "1px solid rgba(151, 254, 237, 0.2)",
-              }}
-            />
+        <button
+          onClick={() => setUserZoom(prev => Math.min(prev + 0.2, 3))}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "6px",
+            background: "rgba(7, 25, 82, 0.8)",
+            color: "#97FEED",
+            border: "1px solid #97FEED33",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          +
+        </button>
+        <button
+          onClick={() => setUserZoom(prev => Math.max(prev - 0.2, 0.5))}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: "6px",
+            background: "rgba(7, 25, 82, 0.8)",
+            color: "#97FEED",
+            border: "1px solid #97FEED33",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          -
+        </button>
+        <button
+          onClick={() => setUserZoom(1)}
+          style={{
+            padding: "0 8px",
+            height: 32,
+            borderRadius: "6px",
+            background: "rgba(7, 25, 82, 0.8)",
+            color: "#97FEED",
+            border: "1px solid #97FEED33",
+            fontSize: "10px",
+            fontWeight: "bold",
+            cursor: "pointer",
+          }}
+        >
+          RESET
+        </button>
+      </div>
+
+      <div
+        style={{
+          width: "100%",
+          height: isMobileView ? "75vh" : "100%",
+          overflow: "auto",
+          display: "flex",
+          justifyContent: userZoom > 1 ? "flex-start" : "center",
+          alignItems: userZoom > 1 ? "flex-start" : "center",
+          cursor: isPanning ? "grabbing" : "grab",
+          WebkitOverflowScrolling: "touch",
+        }}
+        onMouseDown={() => setIsPanning(true)}
+        onMouseUp={() => setIsPanning(false)}
+        onMouseLeave={() => setIsPanning(false)}
+      >
+        <div
+          style={{
+            width: floor.planImage ? "100%" : Math.max(planWidth, 200),
+            height: floor.planImage ? "100%" : Math.max(planHeight, 200),
+            position: "relative",
+            flexShrink: 0,
+            margin: userZoom > 1 ? "20px" : "0",
+          }}
+        >
+          {floor.planImage ? (
             <div
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
+                position: "relative",
                 width: "100%",
                 height: "100%",
-                pointerEvents: "none",
+                display: "flex",
+                justifyContent: "center",
               }}
             >
-            </div>
-          </div>
-        ) : (
-          floor.rooms.map((room) => {
-            const isHovered = hoveredRoom === room.id;
-            const isStairs = room.type === "stairs";
-            const isFree = room.type === "free";
-            const isOpenArea = room.name === "Open Area";
-
-            return (
-              <div
-                key={room.id}
-                onMouseEnter={() => setHoveredRoom(room.id)}
-                onMouseLeave={() => setHoveredRoom(null)}
+              <img
+                src={floor.planImage}
+                alt={`Floor ${floorNumber} Plan`}
                 style={{
-                  position: "absolute",
-                  left: (room.x - bounds.minX) * SCALE,
-                  top: (room.y - bounds.minY) * SCALE,
-                  width: room.width * SCALE,
-                  height: room.height * SCALE,
-                  borderRadius: "0px",
-                  border: isHovered
-                    ? "2.5px solid #97FEED"
-                    : "1.5px solid rgba(0, 0, 0, 0.8)",
-                  background: isStairs
-                    ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
-                    : isFree
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : isOpenArea
-                        ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
-                        : isHovered
-                          ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
-                          : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
-                  boxShadow: isHovered
-                    ? "0 0 30px rgba(151, 254, 237, 0.5)"
-                    : "0 6px 20px rgba(0,0,0,0.3)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  padding: "4px",
-                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                  cursor: "pointer",
-                  zIndex: isHovered ? 10 : 1,
-                  overflow: "hidden",
+                  maxWidth: userZoom > 1 ? "none" : "100%",
+                  maxHeight: userZoom > 1 ? "none" : (isMobileView ? "60vh" : "70vh"),
+                  width: userZoom > 1 ? `${100 * userZoom}%` : "auto",
+                  borderRadius: isMobileView ? "8px" : "16px",
+                  objectFit: "contain",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+                  border: "1px solid rgba(151, 254, 237, 0.2)",
+                  transition: "width 0.3s ease",
                 }}
-              >
+              />
+            </div>
+          ) : (
+            floor.rooms.map((room) => {
+              const isHovered = hoveredRoom === room.id;
+              const isStairs = room.type === "stairs";
+              const isFree = room.type === "free";
+              const isOpenArea = room.name === "Open Area";
+
+              return (
                 <div
+                  key={room.id}
+                  onMouseEnter={() => setHoveredRoom(room.id)}
+                  onMouseLeave={() => setHoveredRoom(null)}
                   style={{
-                    textAlign: "center",
-                    color: isHovered ? "#97FEED" : "#fff",
-                    textShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    position: "absolute",
+                    left: (room.x - bounds.minX) * SCALE,
+                    top: (room.y - bounds.minY) * SCALE,
+                    width: room.width * SCALE,
+                    height: room.height * SCALE,
+                    borderRadius: "0px",
+                    border: isHovered
+                      ? "2.5px solid #97FEED"
+                      : "1.5px solid rgba(0, 0, 0, 0.8)",
+                    background: isStairs
+                      ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
+                      : isFree
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : isOpenArea
+                          ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
+                          : isHovered
+                            ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
+                            : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
+                    boxShadow: isHovered
+                      ? "0 0 30px rgba(151, 254, 237, 0.5)"
+                      : "0 6px 20px rgba(0,0,0,0.3)",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "4px",
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                    zIndex: isHovered ? 10 : 1,
+                    overflow: "hidden",
                   }}
                 >
                   <div
                     style={{
-                      fontWeight: 700,
-                      fontSize: room.width * SCALE < 100 ? 10 : 13,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      lineHeight: 1.1,
-                      wordBreak: "break-word",
-                      whiteSpace: "normal",
-                      width: "100%",
-                      padding: "0 4px",
+                      textAlign: "center",
+                      color: isHovered ? "#97FEED" : "#fff",
+                      textShadow: "0 2px 4px rgba(0,0,0,0.3)",
                     }}
                   >
-                    {room.name || "UNNAMED"}
-                  </div>
-
-                  {!isStairs && !isOpenArea && !isFree && stats[room.id] && (
                     <div
                       style={{
-                        fontSize: room.width * SCALE < 100 ? 9 : 11,
-                        marginTop: 6,
-                        fontWeight: 600,
-                        opacity: isHovered ? 1 : 0.8,
+                        fontWeight: 700,
+                        fontSize: isMobileView 
+                          ? `clamp(9px, ${(room.width * SCALE) * 0.15}px, 13px)`
+                          : `clamp(10px, ${(room.width * SCALE) * 0.12}px, 15px)`,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        lineHeight: 1.1,
+                        wordBreak: "break-word",
+                        whiteSpace: "normal",
+                        width: "100%",
+                        padding: "0 2px",
+                        display: (room.width * SCALE) < 25 ? "none" : "block", 
+                        textShadow: "0 1px 2px rgba(0,0,0,0.8)",
                       }}
                     >
-                      <div
-                        style={{
-                          color:
-                            stats[room.id].temp > 30 ? "#FF4B2B" : "#97FEED",
-                        }}
-                      >
-                        {stats[room.id].temp.toFixed(1)}°C
-                      </div>
-                      <div
-                        style={{
-                          color:
-                            stats[room.id].occ > 70 ? "#F5A623" : "#97FEED",
-                        }}
-                      >
-                        {Math.round(stats[room.id].occ)}%
-                      </div>
+                      {room.name || "UNNAMED"}
                     </div>
-                  )}
 
-                  {isStairs && (
-                    <div
-                      style={{ display: "flex", gap: "8px", marginTop: "10px" }}
-                    >
-                      {floorNumber < maxFloor && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goUp();
-                          }}
+                    {!isStairs && !isOpenArea && !isFree && stats[room.id] && (
+                      <div
+                        style={{
+                          fontSize: isMobileView 
+                            ? `clamp(8px, ${(room.width * SCALE) * 0.12}px, 11px)`
+                            : `clamp(9px, ${(room.width * SCALE) * 0.1}px, 13px)`,
+                          marginTop: isMobileView ? 2 : 6,
+                          fontWeight: 600,
+                          opacity: isHovered ? 1 : 0.8,
+                          display: (room.height * SCALE) < 35 ? "none" : "block", 
+                          textShadow: "0 1px 2px rgba(0,0,0,0.8)",
+                        }}
+                      >
+                        <div
                           style={{
-                            padding: "6px 12px",
-                            cursor: "pointer",
-                            borderRadius: "0px",
-                            border: "none",
-                            background: "#071952",
-                            color: "#97FEED",
-                            fontWeight: "bold",
-                            fontSize: 10,
+                            color:
+                              stats[room.id].temp > 30 ? "#FF4B2B" : "#97FEED",
                           }}
                         >
-                          UP
-                        </button>
-                      )}
-                      {floorNumber > minFloor && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            goDown();
-                          }}
+                          {stats[room.id].temp.toFixed(1)}°C
+                        </div>
+                        <div
                           style={{
-                            padding: "6px 12px",
-                            cursor: "pointer",
-                            borderRadius: "0px",
-                            border: "none",
-                            background: "#071952",
-                            color: "#97FEED",
-                            fontWeight: "bold",
-                            fontSize: 10,
+                            color:
+                              stats[room.id].occ > 70 ? "#F5A623" : "#97FEED",
                           }}
                         >
-                          DN
-                        </button>
-                      )}
-                    </div>
-                  )}
+                          {Math.round(stats[room.id].occ)}%
+                        </div>
+                      </div>
+                    )}
+
+                    {isStairs && (
+                      <div
+                        style={{ display: "flex", gap: isMobileView ? "4px" : "8px", marginTop: isMobileView ? "4px" : "10px" }}
+                      >
+                        {floorNumber < maxFloor && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              goUp();
+                            }}
+                            style={{
+                              padding: isMobileView ? "6px 10px" : "6px 12px",
+                              cursor: "pointer",
+                              borderRadius: "4px",
+                              border: "none",
+                              background: "#071952",
+                              color: "#97FEED",
+                              fontWeight: "bold",
+                              fontSize: isMobileView ? 9 : 10,
+                            }}
+                          >
+                            UP
+                          </button>
+                        )}
+                        {floorNumber > minFloor && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              goDown();
+                            }}
+                            style={{
+                              padding: isMobileView ? "6px 10px" : "6px 12px",
+                              cursor: "pointer",
+                              borderRadius: "4px",
+                              border: "none",
+                              background: "#071952",
+                              color: "#97FEED",
+                              fontWeight: "bold",
+                              fontSize: isMobileView ? 9 : 10,
+                            }}
+                          >
+                            DN
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );

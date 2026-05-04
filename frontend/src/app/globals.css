@@ -4,9 +4,9 @@
   --background: #071952;
   --foreground: #ffffff;
   --color-primary: #071952;
-  --color-secondary: #0B666A;
-  --color-accent: #35A29F;
-  --color-highlight: #97FEED;
+  --color-secondary: #0b666a;
+  --color-accent: #35a29f;
+  --color-highlight: #97feed;
   --color-white: #ffffff;
   --color-black: #000000;
 }
@@ -24,10 +24,22 @@
   --font-mono: var(--font-geist-mono);
 }
 
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  margin: 0;
+  min-height: 100vh;
 }
 
 /* Custom Scrollbar for Digital Twin UI */
@@ -40,10 +52,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #35A29F;
+  background: #35a29f;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #97FEED;
+  background: #97feed;
 }

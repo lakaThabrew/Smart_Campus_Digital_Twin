@@ -72,10 +72,10 @@ export default function DigitalTwinDashboard() {
       const h = window.innerHeight;
       const mobile = w < 1024;
       const landscape = mobile && w > h;
-      
+
       setIsMobile(mobile);
       setIsLandscape(landscape);
-      
+
       if (landscape) {
         setSidebarOpen(false);
       } else {
@@ -117,14 +117,14 @@ export default function DigitalTwinDashboard() {
     <div
       style={{
         display: "flex",
-        height: "100vh",
+        minHeight: "100dvh",
         width: "100%",
         background:
           "radial-gradient(circle at center, #0B666A 0%, #071952 100%)",
         overflow: "hidden",
         color: "#fff",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-        paddingTop: isLandscape ? "0" : "64px",
+        paddingTop: isLandscape ? "0" : isMobile ? "68px" : "64px",
         flexDirection: isMobile ? "column" : "row",
       }}
     >
@@ -181,7 +181,7 @@ export default function DigitalTwinDashboard() {
       )}
 
       {isLandscape && sidebarOpen && (
-        <div 
+        <div
           style={{
             position: "fixed",
             top: 0,
@@ -190,12 +190,12 @@ export default function DigitalTwinDashboard() {
             height: "100%",
             zIndex: 10500,
             background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(3px)"
+            backdropFilter: "blur(3px)",
           }}
           onClick={() => setSidebarOpen(false)}
         >
-          <div 
-            style={{ width: "280px", height: "100%" }} 
+          <div
+            style={{ width: "280px", height: "100%" }}
             onClick={(e) => e.stopPropagation()}
           >
             <DashboardSidebar
@@ -222,8 +222,8 @@ export default function DigitalTwinDashboard() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          padding: isLandscape ? 0 : 24,
-          gap: isLandscape ? 0 : 24,
+          padding: isLandscape ? 0 : isMobile ? 12 : 24,
+          gap: isLandscape ? 0 : isMobile ? 12 : 24,
           overflow: "hidden",
         }}
       >
@@ -240,7 +240,7 @@ export default function DigitalTwinDashboard() {
         <section
           style={{
             flex: 1,
-            borderRadius: isLandscape ? 0 : 14,
+            borderRadius: isLandscape ? 0 : isMobile ? 12 : 14,
             border: isLandscape ? "none" : "1px solid rgba(53,162,159,0.3)",
             overflow: "hidden",
             position: "relative",
@@ -257,15 +257,16 @@ export default function DigitalTwinDashboard() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              flexWrap: "wrap",
               background: "rgba(11,102,106,0.8)",
               borderBottom: "1px solid rgba(53,162,159,0.4)",
-              padding: "7px 14px",
+              padding: isMobile ? "10px 12px" : "7px 14px",
               fontSize: 10,
               textTransform: "uppercase",
               letterSpacing: "0.16em",
               color: "#97FEED",
               fontWeight: 700,
-              gap: 12,
+              gap: 8,
             }}
           >
             {isMobile && (
@@ -286,8 +287,18 @@ export default function DigitalTwinDashboard() {
                 Menu
               </button>
             )}
-            <span>3D Campus Twin — University of Moratuwa</span>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ flex: "1 1 180px", minWidth: 0, lineHeight: 1.3 }}>
+              3D Campus Twin — University of Moratuwa
+            </span>
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+                flexWrap: "wrap",
+                justifyContent: isMobile ? "flex-start" : "flex-end",
+              }}
+            >
               {walkMode && !isMobile && (
                 <span style={{ fontSize: 9, color: "#FAC75A", opacity: 0.9 }}>
                   Click canvas → WASD/Arrow keys to move · Mouse to look · Shift

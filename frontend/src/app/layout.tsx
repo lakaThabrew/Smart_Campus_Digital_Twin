@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -17,6 +18,12 @@ export const metadata: Metadata = {
   description: "Digital twin of campus with real-time data and visualization.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -32,9 +39,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Navbar />
-        <main style={{ flex: 1 }}>
-          {children}
-        </main>
+        <main style={{ flex: 1 }}>{children}</main>
         <Footer />
       </body>
     </html>

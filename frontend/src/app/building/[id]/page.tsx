@@ -31,23 +31,24 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
 
   return (
     <div style={{ 
-      padding: isMobile ? "80px 20px 40px" : "100px 30px 60px", 
+      padding: isMobile ? "80px 16px 40px" : "100px 30px 60px", 
       minHeight: "100vh",
       background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", 
       color: "white", 
       display: "flex", 
       flexDirection: isMobile ? "column" : "row", 
-      alignItems: isMobile ? "flex-start" : "center", 
+      alignItems: isMobile ? "center" : "center", 
       justifyContent: isMobile ? "flex-start" : "center",
       position: "relative",
-      gap: isMobile ? "30px" : "60px"
+      gap: isMobile ? "20px" : "60px",
+      overflowX: "hidden"
     }}>
       <Link 
         href="/" 
         style={{ 
-          position: isMobile ? "fixed" : "absolute", 
-          top: isMobile ? 80 : 100, 
-          left: isMobile ? 20 : 30, 
+          position: "absolute", 
+          top: isMobile ? "24px" : "100px", 
+          left: isMobile ? "16px" : "30px", 
           display: "flex", 
           alignItems: "center", 
           gap: 5, 
@@ -57,74 +58,99 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
           fontWeight: 600,
           zIndex: 50,
           background: isMobile ? "rgba(7,25,82,0.8)" : "transparent",
-          padding: isMobile ? "6px 12px" : "0",
+          padding: isMobile ? "8px 16px" : "0",
           borderRadius: "100px",
           border: isMobile ? "1px solid rgba(151,254,237,0.3)" : "none",
           backdropFilter: isMobile ? "blur(5px)" : "none"
         }}
       >
-        <ChevronLeft size={isMobile ? 16 : 20} />
-        Back
+        <style>{`
+          a:hover { filter: brightness(1.2); }
+        `}</style>
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          <ChevronLeft size={isMobile ? 16 : 20} />
+          <span style={{ marginLeft: "4px" }}>BACK</span>
+        </span>
       </Link>
 
       {/* Left Sidebar: Controls & Info */}
       <div style={{ 
         display: "flex", 
         flexDirection: "column", 
-        alignItems: "flex-start", 
+        alignItems: isMobile ? "center" : "flex-start", 
         width: isMobile ? "100%" : "350px",
-        marginTop: isMobile ? "40px" : 0
+        marginTop: isMobile ? "20px" : 0,
+        textAlign: isMobile ? "center" : "left"
       }}>
         <h1 style={{ 
-          marginBottom: "0.2rem", 
+          marginBottom: "0.5rem", 
           color: "#97FEED", 
-          fontSize: isMobile ? "2rem" : "2.8rem", 
+          fontSize: isMobile ? "1.8rem" : "2.8rem", 
           fontWeight: 800, 
-          letterSpacing: "-1px",
+          letterSpacing: "-0.5px",
           textShadow: "0 4px 10px rgba(0,0,0,0.3)",
           lineHeight: 1.1
         }}>
           {building.name}
         </h1>
         <div style={{ 
-          marginBottom: isMobile ? "1.5rem" : "2.5rem", 
+          marginBottom: isMobile ? "1rem" : "2.5rem", 
           background: "rgba(151, 254, 237, 0.1)", 
-          padding: "6px 16px", 
+          padding: "6px 20px", 
           borderRadius: "100px", 
           border: "1px solid rgba(151, 254, 237, 0.3)",
           color: "#97FEED",
-          fontSize: isMobile ? "0.8rem" : "0.9rem",
+          fontSize: isMobile ? "0.75rem" : "0.9rem",
           fontWeight: 700,
           textTransform: "uppercase",
-          letterSpacing: "2px"
+          letterSpacing: "1.5px"
         }}>
-          Level {floor === -1 ? "Basement" : floor}
+          Level {floor === 0 ? "Ground" : floor < 0 ? "Basement" : floor}
         </div>
 
         {!isMobile && (
-          <FloorNavigator
-            floor={floor}
-            minFloor={building.minFloor}
-            maxFloor={building.maxFloor}
-            goUp={() => setFloor((f) => f + 1)}
-            goDown={() => setFloor((f) => f - 1)}
-          />
+          <div style={{ width: '100%' }}>
+            <div style={{ marginBottom: '15px', fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Select Floor</div>
+            <FloorNavigator
+              floor={floor}
+              minFloor={building.minFloor}
+              maxFloor={building.maxFloor}
+              goUp={() => setFloor((f) => f + 1)}
+              goDown={() => setFloor((f) => f - 1)}
+            />
+          </div>
         )}
       </div>
 
       {/* Right Area: Enlarged Map */}
-      <FloorPlan2D
-        floor={building.floors[floorIndex]}
-        floorNumber={floor}
-        minFloor={building.minFloor}
-        maxFloor={building.maxFloor}
-        goUp={() => setFloor((f) => f + 1)}
-        goDown={() => setFloor((f) => f - 1)}
-        isMobile={isMobile}
-      />
+      <div style={{ 
+        width: '100%', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        maxWidth: isMobile ? '100%' : '800px'
+      }}>
+        <FloorPlan2D
+          floor={building.floors[floorIndex]}
+          floorNumber={floor}
+          minFloor={building.minFloor}
+          maxFloor={building.maxFloor}
+          goUp={() => setFloor((f) => f + 1)}
+          goDown={() => setFloor((f) => f - 1)}
+          isMobile={isMobile}
+        />
+      </div>
       
       {isMobile && (
-        <div style={{ width: "100%", display: "flex", justifyContent: "center", marginTop: "10px" }}>
+        <div style={{ 
+          width: "100%", 
+          display: "flex", 
+          flexDirection: "column",
+          alignItems: "center", 
+          marginTop: "20px",
+          gap: "10px"
+        }}>
+          <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Select Floor</div>
           <FloorNavigator
             floor={floor}
             minFloor={building.minFloor}
