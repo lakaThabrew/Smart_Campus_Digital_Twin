@@ -17,6 +17,7 @@ interface DashboardSidebarProps {
   isMobile?: boolean;
   sidebarOpen?: boolean;
   setSidebarOpen?: (open: boolean) => void;
+  isLandscape?: boolean;
 }
 
 export default function DashboardSidebar({
@@ -32,6 +33,7 @@ export default function DashboardSidebar({
   isMobile = false,
   sidebarOpen = true,
   setSidebarOpen,
+  isLandscape = false,
 }: DashboardSidebarProps) {
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];

@@ -91,6 +91,14 @@ export default function DigitalTwinDashboard() {
     };
   }, []);
 
+  useEffect(() => {
+    if (isLandscape) {
+      document.body.classList.add("full-screen-landscape");
+    } else {
+      document.body.classList.remove("full-screen-landscape");
+    }
+  }, [isLandscape]);
+
   const toggleWalkMode = useCallback(() => {
     setWalkMode((v) => !v);
   }, []);
@@ -120,6 +128,16 @@ export default function DigitalTwinDashboard() {
         flexDirection: isMobile ? "column" : "row",
       }}
     >
+      <style>{`
+        body.full-screen-landscape nav,
+        body.full-screen-landscape footer {
+          display: none !important;
+        }
+        body.full-screen-landscape main {
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+      `}</style>
       {!isLandscape && (
         <DashboardSidebar
           zones={zones}
@@ -134,7 +152,69 @@ export default function DigitalTwinDashboard() {
           isMobile={isMobile}
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
+          isLandscape={isLandscape}
         />
+      )}
+
+      {isLandscape && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          style={{
+            position: "absolute",
+            top: 20,
+            left: 20,
+            zIndex: 11000,
+            background: "rgba(11, 102, 106, 0.9)",
+            border: "1px solid rgba(151, 254, 237, 0.3)",
+            color: "#97FEED",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            fontSize: "12px",
+            fontWeight: "bold",
+            cursor: "pointer",
+            backdropFilter: "blur(5px)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+          }}
+        >
+          MENU
+        </button>
+      )}
+
+      {isLandscape && sidebarOpen && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 10500,
+            background: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(3px)"
+          }}
+          onClick={() => setSidebarOpen(false)}
+        >
+          <div 
+            style={{ width: "280px", height: "100%" }} 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DashboardSidebar
+              zones={zones}
+              filteredZones={filteredZones}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              expandedCategories={expandedCategories}
+              toggleCategory={toggleCategory}
+              categories={categories}
+              isMobile={true}
+              sidebarOpen={true}
+              setSidebarOpen={setSidebarOpen}
+              isLandscape={true}
+            />
+          </div>
+        </div>
       )}
 
       <main
