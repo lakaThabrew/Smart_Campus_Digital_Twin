@@ -117,7 +117,7 @@ export default function DigitalTwinDashboard() {
     <div
       style={{
         display: "flex",
-        minHeight: "100dvh",
+        height: "100dvh",
         width: "100%",
         background:
           "radial-gradient(circle at center, #0B666A 0%, #071952 100%)",
@@ -126,6 +126,7 @@ export default function DigitalTwinDashboard() {
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
         paddingTop: isLandscape ? "0" : isMobile ? "68px" : "64px",
         flexDirection: isMobile ? "column" : "row",
+        position: "relative",
       }}
     >
       <style>{`
@@ -222,9 +223,10 @@ export default function DigitalTwinDashboard() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          padding: isLandscape ? 0 : isMobile ? 12 : 24,
-          gap: isLandscape ? 0 : isMobile ? 12 : 24,
+          padding: isLandscape ? 0 : isMobile ? 8 : 24,
+          gap: isLandscape ? 0 : isMobile ? 8 : 24,
           overflow: "hidden",
+          minHeight: 0,
         }}
       >
         {!isLandscape && (
@@ -244,6 +246,7 @@ export default function DigitalTwinDashboard() {
             border: isLandscape ? "none" : "1px solid rgba(53,162,159,0.3)",
             overflow: "hidden",
             position: "relative",
+            minHeight: 0,
           }}
         >
           {/* Toolbar */}

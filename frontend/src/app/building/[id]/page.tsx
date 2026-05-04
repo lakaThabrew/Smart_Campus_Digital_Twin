@@ -31,7 +31,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
 
   return (
     <div style={{ 
-      padding: isMobile ? "80px 16px 40px" : "100px 30px 60px", 
+      padding: isMobile ? "120px 16px 40px" : "100px 30px 60px", 
       minHeight: "100vh",
       background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)", 
       color: "white", 
@@ -47,7 +47,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
         href="/" 
         style={{ 
           position: "absolute", 
-          top: isMobile ? "24px" : "100px", 
+          top: isMobile ? "85px" : "100px", 
           left: isMobile ? "16px" : "30px", 
           display: "flex", 
           alignItems: "center", 
@@ -56,8 +56,8 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
           textDecoration: "none",
           fontSize: isMobile ? 12 : 14,
           fontWeight: 600,
-          zIndex: 50,
-          background: isMobile ? "rgba(7,25,82,0.8)" : "transparent",
+          zIndex: 1000,
+          background: isMobile ? "rgba(7,25,82,0.9)" : "transparent",
           padding: isMobile ? "8px 16px" : "0",
           borderRadius: "100px",
           border: isMobile ? "1px solid rgba(151,254,237,0.3)" : "none",
@@ -79,7 +79,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
         flexDirection: "column", 
         alignItems: isMobile ? "center" : "flex-start", 
         width: isMobile ? "100%" : "350px",
-        marginTop: isMobile ? "20px" : 0,
+        marginTop: isMobile ? "10px" : 0,
         textAlign: isMobile ? "center" : "left"
       }}>
         <h1 style={{ 
