@@ -133,7 +133,7 @@ export default function FloorPlan2D({
         alignItems: "center",
         transition: "all 0.3s ease",
         overflow: "hidden",
-        touchAction: "none",
+        touchAction: "pan-x pan-y",
       }}
     >
       {/* Zoom Controls */}
