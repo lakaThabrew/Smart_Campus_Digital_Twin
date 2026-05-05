@@ -6,6 +6,7 @@ import {
 import { useRouter } from "next/navigation";
 import { Zone, STATUS_COLORS } from "./DashboardTypes";
 import { BUILDING_DATA } from "../indoor/FloorData";
+import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
 
 interface DashboardSidebarProps {
   zones: Zone[];
@@ -31,16 +32,9 @@ export default function DashboardSidebar({
   categories,
 }: DashboardSidebarProps) {
   const router = useRouter();
-  const [prefersReducedMotion, setPrefersReducedMotion] = React.useState(true);
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
 
-  React.useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onChange = () => setPrefersReducedMotion(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   return (
     <nav

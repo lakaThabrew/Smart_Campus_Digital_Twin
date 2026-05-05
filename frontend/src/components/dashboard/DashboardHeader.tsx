@@ -1,5 +1,6 @@
 import React from "react";
 import { Zone } from "./DashboardTypes";
+import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
 
 interface DashboardHeaderProps {
   campusLoad: number;
@@ -14,6 +15,7 @@ export default function DashboardHeader({
   activeZonesCount,
   criticalCount,
 }: DashboardHeaderProps) {
+  const prefersReducedMotion = usePrefersReducedMotion()
   return (
     <header
       style={{
@@ -114,7 +116,7 @@ export default function DashboardHeader({
                   height: 8,
                   borderRadius: "50%",
                   background: "#eb0909",
-                  animation: "dotFlash 0.9s ease-in-out infinite",
+                  animation: !prefersReducedMotion ? "dotFlash 0.9s ease-in-out infinite" : "none",
                   flexShrink: 0,
                 }}
               />
