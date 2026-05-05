@@ -18,7 +18,7 @@ export default function Ground() {
         <circleGeometry args={[5, 32]} />
         <meshStandardMaterial color="#3a9a30" roughness={0.9} />
       </mesh>
-      <Html center position={[-8.5, 0.45, -7]}>
+      <Html center position={[-8.5, 0.45, -7]} zIndexRange={[0, 1000]}>
         <div
           style={{
             background: "rgba(7,25,82,0.88)",
