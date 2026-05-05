@@ -25,7 +25,6 @@ export default function FirstPersonController({
   const moveStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const lookStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const moveOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const lookOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!enabled) return;
