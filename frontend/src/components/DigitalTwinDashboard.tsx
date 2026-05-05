@@ -125,14 +125,21 @@ export default function DigitalTwinDashboard() {
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-      return;
-    }
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
 
-    const sceneEl = sceneSectionRef.current;
-    if (sceneEl) {
-      await sceneEl.requestFullscreen();
+      const sceneEl = sceneSectionRef.current;
+      if (sceneEl) {
+        await sceneEl.requestFullscreen().catch((err) => {
+          console.warn("Fullscreen request failed:", err);
+          // Fullscreen API may be restricted on some mobile browsers or by user permissions
+        });
+      }
+    } catch (error) {
+      console.error("Fullscreen toggle error:", error);
     }
   }, []);
 

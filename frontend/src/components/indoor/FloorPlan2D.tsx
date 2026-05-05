@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Floor } from "./FloorData";
 
 type Props = {
@@ -31,37 +31,41 @@ export default function FloorPlan2D({
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const [isMobileView, setIsMobileView] = useState(isMobile);
   const [dynamicScale, setDynamicScale] = useState(isMobile ? 0.4 : 1.25);
-  
-  // Calculate the bounding box of all rooms to center them
-  const bounds = {
-    minX: Math.min(...floor.rooms.map(r => r.x), 0),
-    maxX: Math.max(...floor.rooms.map(r => r.x + r.width), 800),
-    minY: Math.min(...floor.rooms.map(r => r.y), 0),
-    maxY: Math.max(...floor.rooms.map(r => r.y + r.height), 500),
-  };
-
   const [userZoom, setUserZoom] = useState(1);
   const [isPanning, setIsPanning] = useState(false);
+
+  // Calculate the bounding box of all rooms to center them (memoized to prevent unnecessary recalculations)
+  const bounds = useMemo(
+    () => ({
+      minX: Math.min(...floor.rooms.map((r) => r.x), 0),
+      maxX: Math.max(...floor.rooms.map((r) => r.x + r.width), 800),
+      minY: Math.min(...floor.rooms.map((r) => r.y), 0),
+      maxY: Math.max(...floor.rooms.map((r) => r.y + r.height), 500),
+    }),
+    [floor.rooms],
+  );
 
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.innerWidth < 1024;
       setIsMobileView(isMobile);
-      
+
       const paddingW = isMobile ? 5 : 40;
       const paddingH = isMobile ? 5 : 60;
       const availableWidth = window.innerWidth - paddingW * 2;
-      const availableHeight = (isMobile ? window.innerHeight * 0.7 : window.innerHeight * 0.8) - paddingH * 2;
-      
+      const availableHeight =
+        (isMobile ? window.innerHeight * 0.7 : window.innerHeight * 0.8) -
+        paddingH * 2;
+
       const contentWidth = bounds.maxX - bounds.minX;
       const contentHeight = bounds.maxY - bounds.minY;
-      
+
       const scaleW = availableWidth / contentWidth;
       const scaleH = availableHeight / contentHeight;
-      
+
       let scale = Math.min(scaleW, scaleH);
-      if (!isMobile) scale = Math.min(scale, 1.25); 
-      
+      if (!isMobile) scale = Math.min(scale, 1.25);
+
       setDynamicScale(scale);
     };
 
@@ -144,7 +148,7 @@ export default function FloorPlan2D({
         }}
       >
         <button
-          onClick={() => setUserZoom(prev => Math.min(prev + 0.2, 3))}
+          onClick={() => setUserZoom((prev) => Math.min(prev + 0.2, 3))}
           style={{
             width: 32,
             height: 32,
@@ -159,7 +163,7 @@ export default function FloorPlan2D({
           +
         </button>
         <button
-          onClick={() => setUserZoom(prev => Math.max(prev - 0.2, 0.5))}
+          onClick={() => setUserZoom((prev) => Math.max(prev - 0.2, 0.5))}
           style={{
             width: 32,
             height: 32,
@@ -230,7 +234,8 @@ export default function FloorPlan2D({
                 alt={`Floor ${floorNumber} Plan`}
                 style={{
                   maxWidth: userZoom > 1 ? "none" : "100%",
-                  maxHeight: userZoom > 1 ? "none" : (isMobileView ? "60vh" : "70vh"),
+                  maxHeight:
+                    userZoom > 1 ? "none" : isMobileView ? "60vh" : "70vh",
                   width: userZoom > 1 ? `${100 * userZoom}%` : "auto",
                   borderRadius: isMobileView ? "8px" : "16px",
                   objectFit: "contain",
@@ -295,9 +300,9 @@ export default function FloorPlan2D({
                     <div
                       style={{
                         fontWeight: 700,
-                        fontSize: isMobileView 
-                          ? `${Math.min(9, Math.max(6, (room.width * SCALE) * 0.07))}px`
-                          : `clamp(10px, ${(room.width * SCALE) * 0.12}px, 15px)`,
+                        fontSize: isMobileView
+                          ? `${Math.min(9, Math.max(6, room.width * SCALE * 0.07))}px`
+                          : `clamp(10px, ${room.width * SCALE * 0.12}px, 15px)`,
                         textTransform: "uppercase",
                         letterSpacing: "0.4px",
                         lineHeight: 1.0,
@@ -305,7 +310,7 @@ export default function FloorPlan2D({
                         whiteSpace: "normal",
                         width: "100%",
                         padding: "0 1px",
-                        display: (room.width * SCALE) < 15 ? "none" : "block", 
+                        display: room.width * SCALE < 15 ? "none" : "block",
                         textShadow: "0 1px 1px rgba(0,0,0,0.8)",
                       }}
                     >
@@ -315,13 +320,13 @@ export default function FloorPlan2D({
                     {!isStairs && !isOpenArea && !isFree && stats[room.id] && (
                       <div
                         style={{
-                          fontSize: isMobileView 
-                            ? `${Math.min(8, Math.max(5, (room.width * SCALE) * 0.06))}px`
-                            : `clamp(9px, ${(room.width * SCALE) * 0.1}px, 13px)`,
+                          fontSize: isMobileView
+                            ? `${Math.min(8, Math.max(5, room.width * SCALE * 0.06))}px`
+                            : `clamp(9px, ${room.width * SCALE * 0.1}px, 13px)`,
                           marginTop: isMobileView ? 1 : 6,
                           fontWeight: 600,
                           opacity: isHovered ? 1 : 0.8,
-                          display: (room.height * SCALE) < 35 ? "none" : "block", 
+                          display: room.height * SCALE < 35 ? "none" : "block",
                           textShadow: "0 1px 2px rgba(0,0,0,0.8)",
                         }}
                       >
@@ -346,7 +351,11 @@ export default function FloorPlan2D({
 
                     {isStairs && (
                       <div
-                        style={{ display: "flex", gap: isMobileView ? "4px" : "8px", marginTop: isMobileView ? "4px" : "10px" }}
+                        style={{
+                          display: "flex",
+                          gap: isMobileView ? "4px" : "8px",
+                          marginTop: isMobileView ? "4px" : "10px",
+                        }}
                       >
                         {floorNumber < maxFloor && (
                           <button

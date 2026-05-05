@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 type Props = {
   floor: number;
   minFloor?: number;
@@ -17,13 +19,27 @@ export default function FloorNavigator({
   goDown,
   isMobile = false,
 }: Props) {
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === "ArrowUp" && floor < maxFloor) {
+        goUp();
+      } else if (e.key === "ArrowDown" && floor > minFloor) {
+        goDown();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [floor, minFloor, maxFloor, goUp, goDown]);
+
   const buttonStyle = (active: boolean) => ({
     padding: isMobile ? "12px 0" : "20px 0",
     width: isMobile ? "70px" : "100px",
     borderRadius: isMobile ? "12px" : "16px",
     border: "1px solid rgba(151, 254, 237, 0.4)",
-    background: active 
-      ? "linear-gradient(135deg, #0B666A 0%, #071952 100%)" 
+    background: active
+      ? "linear-gradient(135deg, #0B666A 0%, #071952 100%)"
       : "rgba(255, 255, 255, 0.05)",
     color: "#97FEED",
     fontWeight: 700,
@@ -40,7 +56,9 @@ export default function FloorNavigator({
   });
 
   return (
-    <div
+    <nav
+      role="navigation"
+      aria-label="Floor navigation"
       style={{
         display: "flex",
         flexDirection: isMobile ? "row" : "column",
@@ -49,40 +67,52 @@ export default function FloorNavigator({
       }}
     >
       {floor < maxFloor && (
-        <button 
-          onClick={goUp} 
+        <button
+          onClick={goUp}
+          aria-label={`Go to floor ${floor + 1}`}
+          title="Go up (Arrow Up)"
           style={buttonStyle(true)}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(-4px)";
-            e.currentTarget.style.boxShadow = "0 10px 30px rgba(151, 254, 237, 0.4)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 30px rgba(151, 254, 237, 0.4)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 15px rgba(151, 254, 237, 0.2)";
+            e.currentTarget.style.boxShadow =
+              "0 4px 15px rgba(151, 254, 237, 0.2)";
           }}
         >
-          <span style={{ fontSize: "1.5rem" }}>↑</span>
+          <span style={{ fontSize: "1.5rem" }} aria-hidden="true">
+            ↑
+          </span>
           UP
         </button>
       )}
 
       {floor > minFloor && (
-        <button 
-          onClick={goDown} 
+        <button
+          onClick={goDown}
+          aria-label={`Go to floor ${floor - 1}`}
+          title="Go down (Arrow Down)"
           style={buttonStyle(true)}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = "translateY(4px)";
-            e.currentTarget.style.boxShadow = "0 10px 30px rgba(151, 254, 237, 0.4)";
+            e.currentTarget.style.boxShadow =
+              "0 10px 30px rgba(151, 254, 237, 0.4)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = "translateY(0)";
-            e.currentTarget.style.boxShadow = "0 4px 15px rgba(151, 254, 237, 0.2)";
+            e.currentTarget.style.boxShadow =
+              "0 4px 15px rgba(151, 254, 237, 0.2)";
           }}
         >
-          <span style={{ fontSize: "1.5rem" }}>↓</span>
+          <span style={{ fontSize: "1.5rem" }} aria-hidden="true">
+            ↓
+          </span>
           DOWN
         </button>
       )}
-    </div>
+    </nav>
   );
 }

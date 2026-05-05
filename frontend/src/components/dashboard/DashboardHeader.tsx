@@ -87,6 +87,8 @@ export default function DashboardHeader({
         ].map((stat, i) => (
           <div
             key={i}
+            role="region"
+            aria-label={`${stat.label}: ${stat.value}`}
             style={{
               background: "rgba(7, 25, 82, 0.4)",
               border: "1px solid rgba(151, 254, 237, 0.2)",

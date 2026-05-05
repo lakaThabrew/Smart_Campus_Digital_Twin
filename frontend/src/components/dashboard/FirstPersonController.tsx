@@ -18,14 +18,14 @@ export default function FirstPersonController({
   const yaw = useRef(0);
   const pitch = useRef(-0.15);
   const pointerLocked = useRef(false);
-  
+
   // Touch states
   const moveTouchId = useRef<number | null>(null);
   const lookTouchId = useRef<number | null>(null);
-  const moveStart = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
-  const lookStart = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
-  const moveOffset = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
-  const lookOffset = useRef<{ x: number, y: number }>({ x: 0, y: 0 });
+  const moveStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const lookStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const moveOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const lookOffset = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!enabled) return;
@@ -63,7 +63,7 @@ export default function FirstPersonController({
         const touch = e.changedTouches[i];
         const x = touch.clientX;
         const isLeft = x < window.innerWidth / 2;
-        
+
         if (isLeft && moveTouchId.current === null) {
           moveTouchId.current = touch.identifier;
           moveStart.current = { x: touch.clientX, y: touch.clientY };
@@ -80,7 +80,7 @@ export default function FirstPersonController({
         if (touch.identifier === moveTouchId.current) {
           moveOffset.current = {
             x: (touch.clientX - moveStart.current.x) / 50,
-            y: (touch.clientY - moveStart.current.y) / 50
+            y: (touch.clientY - moveStart.current.y) / 50,
           };
         } else if (touch.identifier === lookTouchId.current) {
           const dx = touch.clientX - lookStart.current.x;
@@ -110,8 +110,8 @@ export default function FirstPersonController({
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("pointerlockchange", onPointerLockChange);
     document.addEventListener("click", onClick);
-    
-    if (isMobile) {
+
+    if (isMobile && gl?.domElement) {
       gl.domElement.addEventListener("touchstart", onTouchStart);
       gl.domElement.addEventListener("touchmove", onTouchMove);
       gl.domElement.addEventListener("touchend", onTouchEnd);
@@ -123,13 +123,18 @@ export default function FirstPersonController({
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("pointerlockchange", onPointerLockChange);
       document.removeEventListener("click", onClick);
-      
-      if (isMobile) {
+
+      if (isMobile && gl?.domElement) {
         gl.domElement.removeEventListener("touchstart", onTouchStart);
         gl.domElement.removeEventListener("touchmove", onTouchMove);
         gl.domElement.removeEventListener("touchend", onTouchEnd);
       }
-      
+
+      // Reset touch state refs
+      moveTouchId.current = null;
+      lookTouchId.current = null;
+      moveOffset.current = { x: 0, y: 0 };
+
       if (document.exitPointerLock) document.exitPointerLock();
     };
   }, [enabled, camera, isMobile, gl]);
@@ -143,7 +148,9 @@ export default function FirstPersonController({
     if (!enabled) return;
 
     const speed =
-      keys.current["ShiftLeft"] || keys.current["ShiftRight"] || runMode ? 12 : 6;
+      keys.current["ShiftLeft"] || keys.current["ShiftRight"] || runMode
+        ? 12
+        : 6;
     const dt = Math.min(delta, 0.05);
 
     euler.set(pitch.current, yaw.current, 0, "YXZ");
@@ -171,8 +178,10 @@ export default function FirstPersonController({
       camera.position.addScaledVector(right, moveX * speed * dt);
     }
 
-    // Keep height fixed at eye level
-    camera.position.y = 1.7;
+    // Keep height fixed at eye level (maintain user's vertical position)
+    if (!keys.current["KeyQ"] && !keys.current["KeyE"]) {
+      camera.position.y = 1.7;
+    }
     // Clamp to campus bounds
     camera.position.x = clamp(
       camera.position.x,
