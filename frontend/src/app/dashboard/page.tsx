@@ -1,16 +1,30 @@
+"use client";
+
 import DigitalTwinDashboard from "@/components/DigitalTwinDashboard";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { useAuth } from "@/components/auth/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default async function Page() {
-  const cookieStore = await cookies();
-  const sessionCookie =
-    cookieStore.get("session") ??
-    cookieStore.get("auth-token") ??
-    cookieStore.get("token");
+export default function Page() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
-  if (!sessionCookie?.value) {
-    redirect("/login");
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "radial-gradient(circle at center, #0B666A 0%, #071952 100%)" }}>
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect
   }
 
   return <DigitalTwinDashboard />;

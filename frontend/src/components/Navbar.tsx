@@ -3,15 +3,21 @@
 import Link from "next/link";
 import { Building2 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "./auth/AuthContext";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
   const hideNavbar = ["/", "/login", "/register"].includes(pathname);
   const showLogout = pathname === "/dashboard";
 
   if (hideNavbar) {
     return null;
   }
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <nav style={{
@@ -44,26 +50,33 @@ export default function Navbar() {
           UOM<span style={{ color: "#97FEED" }}>Twin</span>
         </span>
       </Link>
-      
+
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
         <Link href="/dashboard" style={{ textDecoration: "none", color: "#97FEED", fontWeight: 600, fontSize: "0.9rem" }}>DASHBOARD</Link>
         <span style={{ color: "rgba(151, 254, 237, 0.5)", fontWeight: 600, fontSize: "0.9rem" }}>INDOOR VIEW</span>
         {showLogout && (
-          <Link
-            href="/"
+          <button
+            onClick={handleLogout}
             style={{
               padding: "0.5rem 1rem",
               background: "rgba(255,255,255,0.1)",
               border: "1px solid rgba(151, 254, 237, 0.4)",
               borderRadius: 9999,
               color: "#97FEED",
-              textDecoration: "none",
               fontWeight: 600,
-              fontSize: "0.9rem"
+              fontSize: "0.9rem",
+              cursor: "pointer",
+              transition: "all 0.2s"
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.2)";
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.1)";
             }}
           >
             Logout
-          </Link>
+          </button>
         )}
       </div>
     </nav>
