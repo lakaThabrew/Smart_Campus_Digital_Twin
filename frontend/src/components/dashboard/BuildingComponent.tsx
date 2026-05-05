@@ -17,17 +17,38 @@ export default function Building({
 }) {
   const meshRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
+  const wallMatRef  = useRef<THREE.MeshStandardMaterial>(null!);
+  const orbMatRef   = useRef<THREE.MeshStandardMaterial>(null!);
+  const currentEmissive = useRef(new THREE.Color(STATUS_COLORS[zone.status]));
+  const currentOrb      = useRef(new THREE.Color(STATUS_COLORS[zone.status]));
   const [w, h, d] = layout.size;
   const [px, , pz] = layout.position;
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
+
+    // Hover/select lift — unchanged
     const targetY = hovered || selected ? 0.1 : 0;
     meshRef.current.position.y = THREE.MathUtils.lerp(
       meshRef.current.position.y,
       targetY,
       delta * 5,
     );
+
+    // Emissive color lerp — building wall
+    if (wallMatRef.current) {
+      const targetEmissive = new THREE.Color(STATUS_COLORS[zone.status]);
+      currentEmissive.current.lerp(targetEmissive, delta * 3);
+      wallMatRef.current.emissive.copy(currentEmissive.current);
+    }
+
+    // Color lerp — status orb
+    if (orbMatRef.current) {
+      const targetOrb = new THREE.Color(STATUS_COLORS[zone.status]);
+      currentOrb.current.lerp(targetOrb, delta * 3);
+      orbMatRef.current.color.copy(currentOrb.current);
+      orbMatRef.current.emissive.copy(currentOrb.current);
+    }
   });
 
   const wallColor = selected ? "#d8eeff" : layout.wallColor;
@@ -134,6 +155,7 @@ export default function Building({
         <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial
+            ref={wallMatRef}
             color={wallColor}
             emissive={emissive}
             emissiveIntensity={emissiveInt}
@@ -146,6 +168,7 @@ export default function Building({
         <mesh position={[0, totalH + 0.4, 0]}>
           <sphereGeometry args={[0.16, 12, 12]} />
           <meshStandardMaterial
+            ref={orbMatRef}
             color={STATUS_COLORS[zone.status]}
             emissive={STATUS_GLOW[zone.status]}
             emissiveIntensity={1.0}
