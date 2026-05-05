@@ -206,9 +206,51 @@ export default function FloorPlan2D({
           cursor: isPanning ? "grabbing" : "grab",
           WebkitOverflowScrolling: "touch",
         }}
-        onMouseDown={() => setIsPanning(true)}
-        onMouseUp={() => setIsPanning(false)}
-        onMouseLeave={() => setIsPanning(false)}
+        onMouseDown={(e) => {
+          const container = e.currentTarget;
+          setIsPanning(true);
+          container.dataset.panStartX = String(e.clientX);
+          container.dataset.panStartY = String(e.clientY);
+          container.dataset.panScrollLeft = String(container.scrollLeft);
+          container.dataset.panScrollTop = String(container.scrollTop);
+        }}
+        onMouseMove={(e) => {
+          if (!isPanning) return;
+
+          const container = e.currentTarget;
+          const panStartX = Number(container.dataset.panStartX);
+          const panStartY = Number(container.dataset.panStartY);
+          const panScrollLeft = Number(container.dataset.panScrollLeft);
+          const panScrollTop = Number(container.dataset.panScrollTop);
+
+          if (
+            Number.isNaN(panStartX) ||
+            Number.isNaN(panStartY) ||
+            Number.isNaN(panScrollLeft) ||
+            Number.isNaN(panScrollTop)
+          ) {
+            return;
+          }
+
+          container.scrollLeft = panScrollLeft - (e.clientX - panStartX);
+          container.scrollTop = panScrollTop - (e.clientY - panStartY);
+        }}
+        onMouseUp={(e) => {
+          const container = e.currentTarget;
+          setIsPanning(false);
+          delete container.dataset.panStartX;
+          delete container.dataset.panStartY;
+          delete container.dataset.panScrollLeft;
+          delete container.dataset.panScrollTop;
+        }}
+        onMouseLeave={(e) => {
+          const container = e.currentTarget;
+          setIsPanning(false);
+          delete container.dataset.panStartX;
+          delete container.dataset.panStartY;
+          delete container.dataset.panScrollLeft;
+          delete container.dataset.panScrollTop;
+        }}
       >
         <div
           style={{
