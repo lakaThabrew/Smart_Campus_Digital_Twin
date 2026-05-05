@@ -22,11 +22,12 @@ export default function Building({
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
+
     const targetY = hovered || selected ? 0.1 : 0;
     meshRef.current.position.y = THREE.MathUtils.lerp(
       meshRef.current.position.y,
       targetY,
-      delta * 5,
+      delta * 5
     );
   });
 
@@ -43,7 +44,7 @@ export default function Building({
   const Roof = () => {
     if (layout.roofType === "flat") {
       return (
-        <mesh position={[0, h + 0.09, 0]}>
+        <mesh position={[0, h + 0.09, 0]} frustumCulled castShadow receiveShadow>
           <boxGeometry args={[w + 0.15, 0.18, d + 0.15]} />
           <meshStandardMaterial
             color={layout.roofColor}
@@ -53,20 +54,29 @@ export default function Building({
         </mesh>
       );
     }
+
     if (layout.roofType === "gabled") {
       const run = d / 2;
       const slopeLen = Math.hypot(run, roofHeight);
       const angle = Math.atan2(roofHeight, run);
+
       return (
         <group position={[0, h, 0]}>
           <mesh
+            frustumCulled
+            castShadow
+            receiveShadow
             rotation={[angle, 0, 0]}
             position={[0, roofHeight / 2, run / 2]}
           >
             <boxGeometry args={[w + 0.3, 0.14, slopeLen + 0.1]} />
             <meshStandardMaterial color={layout.roofColor} roughness={0.6} />
           </mesh>
+
           <mesh
+            frustumCulled
+            castShadow
+            receiveShadow
             rotation={[-angle, 0, 0]}
             position={[0, roofHeight / 2, -run / 2]}
           >
@@ -76,9 +86,13 @@ export default function Building({
         </group>
       );
     }
+
     if (layout.roofType === "hip") {
       return (
         <mesh
+          frustumCulled
+          castShadow
+          receiveShadow
           position={[0, h + roofHeight / 2, 0]}
           rotation={[0, Math.PI / 4, 0]}
         >
@@ -87,8 +101,15 @@ export default function Building({
         </mesh>
       );
     }
+
     return (
-      <mesh position={[0, h + 0.05, 0]} rotation={[0.12, 0, 0]}>
+      <mesh
+        position={[0, h + 0.05, 0]}
+        rotation={[0.12, 0, 0]}
+        frustumCulled
+        castShadow
+        receiveShadow
+      >
         <boxGeometry args={[w + 0.2, 0.18, d + 0.3]} />
         <meshStandardMaterial color={layout.roofColor} roughness={0.5} />
       </mesh>
@@ -99,12 +120,18 @@ export default function Building({
     const rows = Math.max(1, Math.floor(h / 1.5));
     const cols = Math.max(2, Math.floor(w / 1.1));
     const wins = [];
+
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const wx = -w / 2 + 0.55 + c * ((w - 0.55) / cols);
         const wy = 0.55 + r * ((h - 0.5) / rows);
+
         wins.push(
-          <mesh key={`${r}-${c}`} position={[wx, wy, d / 2 + 0.015]}>
+          <mesh
+            key={`${r}-${c}`}
+            position={[wx, wy, d / 2 + 0.015]}
+            frustumCulled
+          >
             <boxGeometry args={[0.28, 0.32, 0.04]} />
             <meshStandardMaterial
               color={selected ? "#aaddff" : "#88bbee"}
@@ -113,10 +140,11 @@ export default function Building({
               roughness={0.1}
               metalness={0.4}
             />
-          </mesh>,
+          </mesh>
         );
       }
     }
+
     return <>{wins}</>;
   };
 
@@ -131,7 +159,7 @@ export default function Building({
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
       >
-        <mesh position={[0, h / 2, 0]} castShadow receiveShadow>
+        <mesh position={[0, h / 2, 0]} castShadow receiveShadow frustumCulled>
           <boxGeometry args={[w, h, d]} />
           <meshStandardMaterial
             color={wallColor}
@@ -141,9 +169,12 @@ export default function Building({
             metalness={0.08}
           />
         </mesh>
+
         {layout.id !== "lagaan" && <Windows />}
+
         <Roof />
-        <mesh position={[0, totalH + 0.4, 0]}>
+
+        <mesh position={[0, totalH + 0.4, 0]} frustumCulled>
           <sphereGeometry args={[0.16, 12, 12]} />
           <meshStandardMaterial
             color={STATUS_COLORS[zone.status]}
@@ -151,11 +182,14 @@ export default function Building({
             emissiveIntensity={1.0}
           />
         </mesh>
+
         <Html center position={[0, totalH + 1.1, 0]}>
           <div
             style={{
               background: "rgba(7,25,82,0.88)",
-              border: `1px solid ${selected ? STATUS_COLORS[zone.status] : "#35A29F55"}`,
+              border: `1px solid ${
+                selected ? STATUS_COLORS[zone.status] : "#35A29F55"
+              }`,
               color: "#fff",
               fontSize: "10px",
               fontWeight: 600,
