@@ -178,8 +178,13 @@ export default function FirstPersonController({
       camera.position.addScaledVector(right, moveX * speed * dt);
     }
 
-    // Keep height fixed at eye level (maintain user's vertical position)
-    if (!keys.current["KeyQ"] && !keys.current["KeyE"]) {
+    // Handle vertical adjustment
+    if (keys.current["KeyQ"]) {
+      camera.position.y -= speed * dt;
+    } else if (keys.current["KeyE"]) {
+      camera.position.y += speed * dt;
+    } else {
+      // Return to eye level if no vertical keys are pressed
       camera.position.y = 1.7;
     }
     // Clamp to campus bounds

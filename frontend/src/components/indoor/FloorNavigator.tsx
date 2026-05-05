@@ -22,9 +22,19 @@ export default function FloorNavigator({
   // Keyboard navigation support
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
+      // Ignore if typing in an input or textarea
+      if (
+        document.activeElement instanceof HTMLInputElement ||
+        document.activeElement instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+
       if (e.key === "ArrowUp" && floor < maxFloor) {
+        e.preventDefault();
         goUp();
       } else if (e.key === "ArrowDown" && floor > minFloor) {
+        e.preventDefault();
         goDown();
       }
     };

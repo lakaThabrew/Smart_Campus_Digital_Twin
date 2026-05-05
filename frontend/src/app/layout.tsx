@@ -26,6 +26,7 @@ export const viewport: Viewport = {
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function RootLayout({
   children,
@@ -39,7 +40,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Navbar />
-        <main style={{ flex: 1 }}>{children}</main>
+        <main style={{ flex: 1 }}>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </main>
         <Footer />
       </body>
     </html>

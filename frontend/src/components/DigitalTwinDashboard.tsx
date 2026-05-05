@@ -99,6 +99,9 @@ export default function DigitalTwinDashboard() {
     } else {
       document.body.classList.remove("full-screen-landscape");
     }
+    return () => {
+      document.body.classList.remove("full-screen-landscape");
+    };
   }, [isLandscape]);
 
   useEffect(() => {

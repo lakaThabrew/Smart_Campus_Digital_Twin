@@ -44,7 +44,7 @@ export default function DashboardHeader({
             opacity: 0.8,
           }}
         >
-          Group I • University of Moratuwa
+          Group I3 • University of Moratuwa
         </p>
         <h1
           style={{

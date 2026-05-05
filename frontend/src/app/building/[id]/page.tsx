@@ -45,14 +45,16 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
     }}>
       <Link 
         href="/" 
-        style={{ 
-          position: "absolute", 
-          top: isMobile ? "85px" : "100px", 
-          left: isMobile ? "16px" : "30px", 
-          display: "flex", 
-          alignItems: "center", 
-          gap: 5, 
-          color: "#97FEED", 
+        onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.2)")}
+        onMouseLeave={(e) => (e.currentTarget.style.filter = "none")}
+        style={{
+          position: "absolute",
+          top: isMobile ? "85px" : "100px",
+          left: isMobile ? "16px" : "30px",
+          display: "flex",
+          alignItems: "center",
+          gap: 5,
+          color: "#97FEED",
           textDecoration: "none",
           fontSize: isMobile ? 12 : 14,
           fontWeight: 600,
@@ -61,12 +63,10 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
           padding: isMobile ? "8px 16px" : "0",
           borderRadius: "100px",
           border: isMobile ? "1px solid rgba(151,254,237,0.3)" : "none",
-          backdropFilter: isMobile ? "blur(5px)" : "none"
+          backdropFilter: isMobile ? "blur(5px)" : "none",
+          transition: "filter 0.3s ease",
         }}
       >
-        <style>{`
-          a:hover { filter: brightness(1.2); }
-        `}</style>
         <span style={{ display: 'flex', alignItems: 'center' }}>
           <ChevronLeft size={isMobile ? 16 : 20} />
           <span style={{ marginLeft: "4px" }}>BACK</span>
