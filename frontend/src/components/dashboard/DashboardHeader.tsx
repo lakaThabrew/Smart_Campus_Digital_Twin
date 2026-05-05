@@ -1,5 +1,5 @@
 import React from "react";
-import { Zone } from "./DashboardTypes";
+import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
 
 interface DashboardHeaderProps {
   campusLoad: number;
@@ -16,6 +16,7 @@ export default function DashboardHeader({
   criticalCount,
   isMobile = false,
 }: DashboardHeaderProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   return (
     <header
       style={{
@@ -83,47 +84,139 @@ export default function DashboardHeader({
         {[
           { label: "CAMPUS ENERGY", value: `${campusLoad.toFixed(1)} kW` },
           { label: "AVG OCCUPANCY", value: `${campusOcc}%` },
-          { label: "ACTIVE ZONES", value: activeZonesCount },
-          { label: "ALERTS", value: `${criticalCount} critical` },
-        ].map((stat, i) => {
-          const isAlert = stat.label === "ALERTS" && criticalCount > 0;
-          return (
-            <div
-              key={i}
+          { label: "ACTIVE ZONES", value: `${activeZonesCount}` },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            style={{
+              background: "rgba(7, 25, 82, 0.4)",
+              border: "1px solid rgba(151, 254, 237, 0.2)",
+              padding: isMobile ? "8px 12px" : "12px 20px",
+              borderRadius: 16,
+              minWidth: isMobile ? 0 : 140,
+            }}
+          >
+            <p
               style={{
-                background: "rgba(7, 25, 82, 0.4)",
-                border: `1px solid ${isAlert ? "rgba(255, 75, 43, 0.5)" : "rgba(151, 254, 237, 0.2)"}`,
-                padding: isMobile ? "8px 12px" : "12px 20px",
-                borderRadius: 16,
-                minWidth: isMobile ? 0 : 140,
-                boxShadow: isAlert
-                  ? "0 0 20px rgba(255, 75, 43, 0.15)"
-                  : "none",
+                fontSize: isMobile ? 8 : 9,
+                fontWeight: 800,
+                color: "rgba(151, 254, 237, 0.5)",
+                marginBottom: 4,
               }}
             >
-              <p
+              {stat.label}
+            </p>
+            <p
+              style={{
+                fontSize: isMobile ? 14 : 18,
+                fontWeight: 800,
+                color: "#97FEED",
+              }}
+            >
+              {stat.value}
+            </p>
+          </div>
+        ))}
+
+        <div
+          style={{
+            background:
+              criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
+            border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
+            padding: isMobile ? "8px 12px" : "12px 20px",
+            borderRadius: 16,
+            minWidth: isMobile ? 0 : 140,
+            animation:
+              criticalCount > 0 && !prefersReducedMotion ? "alertPulse 1.8s ease-in-out infinite" : "none",
+            boxShadow:
+              criticalCount > 0 ? "0 0 20px rgba(235, 9, 9, 0.15)" : "none",
+            transition: prefersReducedMotion ? "none" : "background 0.4s, border 0.4s, box-shadow 0.4s",
+          }}
+        >
+          <p
+            style={{
+              fontSize: isMobile ? 8 : 9,
+              fontWeight: 800,
+              color: "rgba(151, 254, 237, 0.5)",
+              marginBottom: 4,
+            }}
+          >
+            ALERTS
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {criticalCount > 0 && (
+              <span
                 style={{
-                  fontSize: isMobile ? 8 : 9,
-                  fontWeight: 800,
-                  color: "rgba(151, 254, 237, 0.5)",
-                  marginBottom: 4,
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#eb0909",
+                  animation: !prefersReducedMotion ? "dotFlash 0.9s ease-in-out infinite" : "none",
+                  flexShrink: 0,
                 }}
-              >
-                {stat.label}
-              </p>
-              <p
+              />
+            )}
+            <p
+              style={{
+                fontSize: isMobile ? 14 : 18,
+                fontWeight: 800,
+                color: criticalCount > 0 ? "#eb0909" : "#97FEED",
+              }}
+            >
+              {criticalCount > 0 ? `${criticalCount} critical` : "None"}
+            </p>
+          </div>
+        </div>
+
+        {/* Alert card — separate so it can pulse independently */}
+        <div
+          style={{
+            background: criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
+            border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
+            padding: "12px 20px",
+            borderRadius: 16,
+            minWidth: 140,
+            animation:
+               criticalCount > 0 && !prefersReducedMotion ? "alertPulse 1.8s ease-in-out infinite" : "none",
+             boxShadow:
+               criticalCount > 0 && prefersReducedMotion ? "0 0 0 2px rgba(235, 9, 9, 0.25), 0 0 20px rgba(235, 9, 9, 0.2)" : "none",
+             transition: prefersReducedMotion ? "none" : "background 0.4s, border 0.4s, box-shadow 0.4s",
+          }}
+        >
+          <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>
+            ALERTS
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {criticalCount > 0 && (
+              <span
                 style={{
-                  fontSize: isMobile ? 14 : 18,
-                  fontWeight: 800,
-                  color: isAlert ? "#FF4B2B" : "#97FEED",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#eb0909",
+                  animation: !prefersReducedMotion ? "dotFlash 0.9s ease-in-out infinite" : "none",
+                  flexShrink: 0,
                 }}
-              >
-                {stat.value}
-              </p>
-            </div>
-          );
-        })}
+              />
+            )}
+            <p style={{ fontSize: 18, fontWeight: 800, color: criticalCount > 0 ? "#eb0909" : "#97FEED" }}>
+              {criticalCount > 0 ? `${criticalCount} critical` : "None"}
+            </p>
+          </div>
+        </div>
       </div>
+      <style>{
+      `
+        @keyframes alertPulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(235, 9, 9, 0.3); }
+          50% { opacity: 0.7; box-shadow: 0 0 35px rgba(235, 9, 9, 0.7); }
+        }
+        @keyframes dotFlash {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.2; }
+        } 
+      `
+      }</style>
     </header>
   );
 }

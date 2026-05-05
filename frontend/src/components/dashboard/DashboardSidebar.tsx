@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Zone, STATUS_COLORS } from "./DashboardTypes";
 import { BUILDING_DATA } from "../indoor/FloorData";
+import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
 
 interface DashboardSidebarProps {
   zones: Zone[];
@@ -37,6 +38,7 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   const navStyle: React.CSSProperties = {
     width: isMobile ? "84%" : "320px",
@@ -82,6 +84,12 @@ export default function DashboardSidebar({
           </button>
         </div>
       )}
+      <style>{`
+        @keyframes sidebarDotFlash {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.15; }
+        }
+      `}</style>
       {/* Search */}
       <input
         value={searchQuery}
@@ -130,6 +138,11 @@ export default function DashboardSidebar({
 
           const isExpanded = expandedCategories.includes(category);
 
+          const criticalZonesCount = zonesInCategory.reduce(
+            (count, z) => (z.status === "critical" ? count + 1 : count),
+            0
+          );
+
           return (
             <div
               key={category}
@@ -159,6 +172,22 @@ export default function DashboardSidebar({
                   <ChevronRight size={12} />
                 )}
                 {category} ({zonesInCategory.length})
+                {criticalZonesCount > 0 && (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      background: "#f50707",
+                      color: "#fff",
+                      fontSize: 8,
+                      fontWeight: 800,
+                      padding: "1px 5px",
+                      borderRadius: 4,
+                      letterSpacing: "0.05em",
+                    }}
+                  >
+                    {criticalZonesCount} CRITICAL
+                  </span>
+                )}
               </button>
 
               {isExpanded && (
@@ -198,8 +227,12 @@ export default function DashboardSidebar({
                             height: "6px",
                             borderRadius: "50%",
                             background: STATUS_COLORS[zone.status],
-                            boxShadow: `0 0 3px ${STATUS_COLORS[zone.status]}`,
+                            boxShadow: `0 0 ${zone.status === "critical" ? "6px" : "3px"} ${STATUS_COLORS[zone.status]}`,
                             flexShrink: 0,
+                            animation:
+                              zone.status === "critical" && !prefersReducedMotion
+                                ? "sidebarDotFlash 0.9s ease-in-out infinite"
+                                : "none",
                           }}
                         />
                         <span
