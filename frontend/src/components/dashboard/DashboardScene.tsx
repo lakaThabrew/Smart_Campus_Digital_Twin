@@ -13,6 +13,8 @@ interface DashboardSceneProps {
   selectedId: string;
   onSelect: (id: string) => void;
   walkMode: boolean;
+  isMobile?: boolean;
+  runMode?: boolean;
 }
 
 export default function DashboardScene({
@@ -20,6 +22,8 @@ export default function DashboardScene({
   selectedId,
   onSelect,
   walkMode,
+  isMobile = false,
+  runMode = false,
 }: DashboardSceneProps) {
   return (
     <>
@@ -67,15 +71,23 @@ export default function DashboardScene({
       })}
 
       {walkMode ? (
-        <FirstPersonController enabled={walkMode} />
+        <FirstPersonController
+          enabled={walkMode}
+          isMobile={isMobile}
+          runMode={runMode}
+        />
       ) : (
         <OrbitControls
           makeDefault
           enablePan
-          panSpeed={1.5}
-          minDistance={6}
-          maxDistance={38}
-          maxPolarAngle={Math.PI / 2.15}
+          enableRotate
+          enableZoom
+          panSpeed={isMobile ? 0.9 : 1.5}
+          rotateSpeed={isMobile ? 0.6 : 1}
+          zoomSpeed={isMobile ? 0.8 : 1}
+          minDistance={isMobile ? 5 : 6}
+          maxDistance={isMobile ? 50 : 38}
+          maxPolarAngle={Math.PI / (isMobile ? 2.05 : 2.15)}
           autoRotate={false}
           target={[1, 0, 1]}
         />
