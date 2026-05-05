@@ -58,7 +58,11 @@ export default function DashboardSidebar({
     position: isMobile ? "fixed" : "relative",
     top: isMobile ? (isLandscape ? 0 : 64) : undefined,
     left: isMobile ? (sidebarOpen ? 0 : "-120%") : undefined,
-    height: isMobile ? (isLandscape ? "100vh" : "calc(100vh - 64px)") : undefined,
+    height: isMobile
+      ? isLandscape
+        ? "100vh"
+        : "calc(100vh - 64px)"
+      : undefined,
     transition: isMobile ? "left 200ms ease" : undefined,
     zIndex: 11000,
   };
@@ -140,7 +144,7 @@ export default function DashboardSidebar({
 
           const criticalZonesCount = zonesInCategory.reduce(
             (count, z) => (z.status === "critical" ? count + 1 : count),
-            0
+            0,
           );
 
           return (
@@ -230,7 +234,8 @@ export default function DashboardSidebar({
                             boxShadow: `0 0 ${zone.status === "critical" ? "6px" : "3px"} ${STATUS_COLORS[zone.status]}`,
                             flexShrink: 0,
                             animation:
-                              zone.status === "critical" && !prefersReducedMotion
+                              zone.status === "critical" &&
+                              !prefersReducedMotion
                                 ? "sidebarDotFlash 0.9s ease-in-out infinite"
                                 : "none",
                           }}

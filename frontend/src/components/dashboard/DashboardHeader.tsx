@@ -56,8 +56,7 @@ export default function DashboardHeader({
             textShadow: "0 4px 20px rgba(151, 254, 237, 0.3)",
           }}
         >
-          Smart Campus{" "}
-          <span style={{ color: "#97FEED" }}>Twin Control</span>
+          Smart Campus <span style={{ color: "#97FEED" }}>Twin Control</span>
         </h1>
         {!isMobile && (
           <p
@@ -121,16 +120,22 @@ export default function DashboardHeader({
         <div
           style={{
             background:
-              criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
+              criticalCount > 0
+                ? "rgba(232, 93, 36, 0.15)"
+                : "rgba(7, 25, 82, 0.4)",
             border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
             padding: isMobile ? "8px 12px" : "12px 20px",
             borderRadius: 16,
             minWidth: isMobile ? 0 : 140,
             animation:
-              criticalCount > 0 && !prefersReducedMotion ? "alertPulse 1.8s ease-in-out infinite" : "none",
+              criticalCount > 0 && !prefersReducedMotion
+                ? "alertPulse 1.8s ease-in-out infinite"
+                : "none",
             boxShadow:
               criticalCount > 0 ? "0 0 20px rgba(235, 9, 9, 0.15)" : "none",
-            transition: prefersReducedMotion ? "none" : "background 0.4s, border 0.4s, box-shadow 0.4s",
+            transition: prefersReducedMotion
+              ? "none"
+              : "background 0.4s, border 0.4s, box-shadow 0.4s",
           }}
         >
           <p
@@ -151,7 +156,9 @@ export default function DashboardHeader({
                   height: 8,
                   borderRadius: "50%",
                   background: "#eb0909",
-                  animation: !prefersReducedMotion ? "dotFlash 0.9s ease-in-out infinite" : "none",
+                  animation: !prefersReducedMotion
+                    ? "dotFlash 0.9s ease-in-out infinite"
+                    : "none",
                   flexShrink: 0,
                 }}
               />
@@ -171,19 +178,35 @@ export default function DashboardHeader({
         {/* Alert card — separate so it can pulse independently */}
         <div
           style={{
-            background: criticalCount > 0 ? "rgba(232, 93, 36, 0.15)" : "rgba(7, 25, 82, 0.4)",
+            background:
+              criticalCount > 0
+                ? "rgba(232, 93, 36, 0.15)"
+                : "rgba(7, 25, 82, 0.4)",
             border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
             padding: "12px 20px",
             borderRadius: 16,
             minWidth: 140,
             animation:
-               criticalCount > 0 && !prefersReducedMotion ? "alertPulse 1.8s ease-in-out infinite" : "none",
-             boxShadow:
-               criticalCount > 0 && prefersReducedMotion ? "0 0 0 2px rgba(235, 9, 9, 0.25), 0 0 20px rgba(235, 9, 9, 0.2)" : "none",
-             transition: prefersReducedMotion ? "none" : "background 0.4s, border 0.4s, box-shadow 0.4s",
+              criticalCount > 0 && !prefersReducedMotion
+                ? "alertPulse 1.8s ease-in-out infinite"
+                : "none",
+            boxShadow:
+              criticalCount > 0 && prefersReducedMotion
+                ? "0 0 0 2px rgba(235, 9, 9, 0.25), 0 0 20px rgba(235, 9, 9, 0.2)"
+                : "none",
+            transition: prefersReducedMotion
+              ? "none"
+              : "background 0.4s, border 0.4s, box-shadow 0.4s",
           }}
         >
-          <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>
+          <p
+            style={{
+              fontSize: 9,
+              fontWeight: 800,
+              color: "rgba(151, 254, 237, 0.5)",
+              marginBottom: 4,
+            }}
+          >
             ALERTS
           </p>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -194,19 +217,26 @@ export default function DashboardHeader({
                   height: 8,
                   borderRadius: "50%",
                   background: "#eb0909",
-                  animation: !prefersReducedMotion ? "dotFlash 0.9s ease-in-out infinite" : "none",
+                  animation: !prefersReducedMotion
+                    ? "dotFlash 0.9s ease-in-out infinite"
+                    : "none",
                   flexShrink: 0,
                 }}
               />
             )}
-            <p style={{ fontSize: 18, fontWeight: 800, color: criticalCount > 0 ? "#eb0909" : "#97FEED" }}>
+            <p
+              style={{
+                fontSize: 18,
+                fontWeight: 800,
+                color: criticalCount > 0 ? "#eb0909" : "#97FEED",
+              }}
+            >
               {criticalCount > 0 ? `${criticalCount} critical` : "None"}
             </p>
           </div>
         </div>
       </div>
-      <style>{
-      `
+      <style>{`
         @keyframes alertPulse {
           0%, 100% { opacity: 1; box-shadow: 0 0 20px rgba(235, 9, 9, 0.3); }
           50% { opacity: 0.7; box-shadow: 0 0 35px rgba(235, 9, 9, 0.7); }
@@ -215,8 +245,7 @@ export default function DashboardHeader({
           0%, 100% { opacity: 1; }
           50% { opacity: 0.2; }
         } 
-      `
-      }</style>
+      `}</style>
     </header>
   );
 }
