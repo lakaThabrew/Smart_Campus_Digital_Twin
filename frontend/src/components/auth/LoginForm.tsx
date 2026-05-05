@@ -42,9 +42,9 @@ export default function LoginForm() {
           <div className="flex justify-between items-center mt-2">
             <p className="text-red-500 text-sm hidden">Password is required.</p>
 
-            <button type="button" className="text-sm text-cyan-300 hover:text-cyan-100 ml-auto">
+            <Link href="/forgot-password" className="text-sm text-cyan-300 hover:text-cyan-100 ml-auto">
               Forgot Password?
-            </button>
+            </Link>
           </div>
         </div>
 
