@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Zone, STATUS_COLORS } from "./DashboardTypes";
 import { BUILDING_DATA } from "../indoor/FloorData";
 import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
+import { useAnimatedValue } from "@/app/hooks/useAnimatedValue";
 
 interface DashboardSidebarProps {
   zones: Zone[];
@@ -33,6 +34,10 @@ export default function DashboardSidebar({
 }: DashboardSidebarProps) {
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
+
+  const animatedEnergy    = useAnimatedValue(selectedZone.energyKw, 1);
+  const animatedOccupancy = useAnimatedValue(selectedZone.occupancy, 0);
+  const animatedTemp      = useAnimatedValue(selectedZone.temperatureC, 1);
 
   const prefersReducedMotion = usePrefersReducedMotion()
 
@@ -284,17 +289,9 @@ export default function DashboardSidebar({
               selectedZone.status.toUpperCase(),
               STATUS_COLORS[selectedZone.status],
             ],
-            [
-              "Avg. Energy",
-              `${selectedZone.energyKw.toFixed(1)} kW`,
-              "#97FEED",
-            ],
-            ["Avg. Occupancy", `${selectedZone.occupancy}%`, "#97FEED"],
-            [
-              "Avg. Temp",
-              `${selectedZone.temperatureC.toFixed(1)}°C`,
-              "#97FEED",
-            ],
+            ["Avg. Energy",    `${animatedEnergy.toFixed(1)} kW`,    "#97FEED"],
+            ["Avg. Occupancy", `${animatedOccupancy}%`,               "#97FEED"],
+            ["Avg. Temp",      `${animatedTemp.toFixed(1)}°C`,        "#97FEED"],
           ].map(([label, value, color], i) => (
             <div
               key={i}
