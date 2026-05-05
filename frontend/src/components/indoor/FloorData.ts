@@ -20,7 +20,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
     rooms: [
       {
         id: "ee1_1",
-        name: "",
+        name: "Room 101",
         x: 10,
         y: 10,
         width: 80,
@@ -29,7 +29,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_2",
-        name: "",
+        name: "Lab 102",
         x: 90,
         y: 10,
         width: 80,
@@ -38,7 +38,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_3",
-        name: "",
+        name: "Room 103",
         x: 170,
         y: 10,
         width: 110,
@@ -47,7 +47,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_4",
-        name: "",
+        name: "Lab 104",
         x: 280,
         y: 10,
         width: 110,
@@ -56,7 +56,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_5",
-        name: "",
+        name: "Lab 105",
         x: 390,
         y: 10,
         width: 80,
@@ -65,7 +65,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_6",
-        name: "",
+        name: "Lab 106",
         x: 470,
         y: 10,
         width: 70,
@@ -74,7 +74,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_7",
-        name: "",
+        name: "Lab 107",
         x: 540,
         y: 10,
         width: 60,
@@ -83,7 +83,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_8",
-        name: "",
+        name: "Lab 108",
         x: 600,
         y: 10,
         width: 80,
@@ -92,7 +92,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_9",
-        name: "",
+        name: "Lab 109",
         x: 680,
         y: 10,
         width: 110,
@@ -101,7 +101,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_10",
-        name: "",
+        name: "Room 110",
         x: 10,
         y: 130,
         width: 80,
@@ -110,7 +110,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_11",
-        name: "",
+        name: "Lab 111",
         x: 10,
         y: 230,
         width: 80,
@@ -119,7 +119,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_12",
-        name: "",
+        name: "Lecture Hall A",
         x: 110,
         y: 150,
         width: 200,
@@ -128,7 +128,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_13",
-        name: "",
+        name: "Lecture Hall B",
         x: 410,
         y: 150,
         width: 300,
@@ -155,7 +155,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_16",
-        name: "",
+        name: "Room 112",
         x: 740,
         y: 130,
         width: 50,
@@ -164,7 +164,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       }, 
       {
         id: "ee1_17",
-        name: "",
+        name: "Office 113",
         x: 10,
         y: 330,
         width: 80,
@@ -173,7 +173,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_18",
-        name: "",
+        name: "Office 114",
         x: 90,
         y: 370,
         width: 100,
@@ -182,7 +182,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_19",
-        name: "",
+        name: "Office 115",
         x: 190,
         y: 370,
         width: 200,
@@ -191,7 +191,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_20",
-        name: "",
+        name: "Lab 116",
         x: 390,
         y: 370,
         width: 100,
@@ -200,7 +200,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_21",
-        name: "",
+        name: "Lab 117",
         x: 490,
         y: 370,
         width: 130,
@@ -209,7 +209,7 @@ export const SUMANADASA_FLOORS: Floor[] = [
       },
       {
         id: "ee1_22",
-        name: "",
+        name: "Lab 118",
         x: 620,
         y: 370,
         width: 170,

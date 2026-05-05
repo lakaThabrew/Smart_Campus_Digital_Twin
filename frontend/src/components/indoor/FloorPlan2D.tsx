@@ -10,6 +10,8 @@ type Props = {
   maxFloor: number;
   goUp: () => void;
   goDown: () => void;
+  selectedRoomId?: string;
+  onSelectRoom?: (roomId: string) => void;
 };
 
 type RoomStats = {
@@ -24,6 +26,8 @@ export default function FloorPlan2D({
   maxFloor,
   goUp,
   goDown,
+  selectedRoomId,
+  onSelectRoom,
 }: Props) {
   const [stats, setStats] = useState<Record<string, RoomStats>>({});
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
@@ -144,6 +148,7 @@ export default function FloorPlan2D({
         ) : (
           floor.rooms.map((room) => {
             const isHovered = hoveredRoom === room.id;
+            const isSelected = selectedRoomId === room.id;
             const isStairs = room.type === "stairs";
             const isFree = room.type === "free";
             const isOpenArea = room.name === "Open Area";
@@ -153,6 +158,8 @@ export default function FloorPlan2D({
                 key={room.id}
                 onMouseEnter={() => setHoveredRoom(room.id)}
                 onMouseLeave={() => setHoveredRoom(null)}
+                onClick={() => onSelectRoom?.(room.id)}
+                title={room.name ? `${room.name} (${room.id})` : room.id}
                 style={{
                   position: "absolute",
                   left: (room.x - bounds.minX) * SCALE,
@@ -160,21 +167,28 @@ export default function FloorPlan2D({
                   width: room.width * SCALE,
                   height: room.height * SCALE,
                   borderRadius: "0px",
-                  border: isHovered
-                    ? "2.5px solid #97FEED"
-                    : "1.5px solid rgba(0, 0, 0, 0.8)",
-                  background: isStairs
-                    ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
-                    : isFree
-                      ? "rgba(255, 255, 255, 0.05)"
-                      : isOpenArea
-                        ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
-                        : isHovered
-                          ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
-                          : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
-                  boxShadow: isHovered
-                    ? "0 0 30px rgba(151, 254, 237, 0.5)"
-                    : "0 6px 20px rgba(0,0,0,0.3)",
+                  border: isSelected
+                    ? "3px solid #FFD166"
+                    : isHovered
+                      ? "2.5px solid #97FEED"
+                      : "1.5px solid rgba(0, 0, 0, 0.8)",
+                  background: isSelected
+                    ? "linear-gradient(135deg, rgba(255, 209, 102, 0.35) 0%, rgba(255, 219, 133, 0.25) 100%)"
+                    : isStairs
+                      ? "linear-gradient(135deg, #FFD166 0%, #F5A623 100%)"
+                      : isFree
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : isOpenArea
+                          ? "linear-gradient(135deg, rgba(144, 238, 144, 0.3) 0%, rgba(53, 162, 159, 0.4) 100%)"
+                          : isHovered
+                            ? "linear-gradient(135deg, rgba(151, 254, 237, 0.4) 0%, rgba(11, 102, 106, 0.8) 100%)"
+                            : "linear-gradient(135deg, rgba(11, 102, 106, 0.75) 0%, rgba(7, 25, 82, 0.9) 100%)",
+                  boxShadow: isSelected
+                    ? "0 0 30px rgba(255, 209, 102, 0.35)"
+                    : isHovered
+                      ? "0 0 30px rgba(151, 254, 237, 0.5)"
+                      : "0 6px 20px rgba(0,0,0,0.3)",
+
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "center",
