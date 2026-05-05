@@ -153,6 +153,22 @@ export default function DigitalTwinDashboard() {
     z.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  // Shared button style for landscape mode controls
+  const landscapeButtonStyle = {
+    position: "absolute" as const,
+    zIndex: 11000,
+    background: "rgba(11, 102, 106, 0.9)",
+    border: "1px solid rgba(151, 254, 237, 0.3)",
+    color: "#97FEED",
+    padding: "8px 12px",
+    borderRadius: "8px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    backdropFilter: "blur(5px)",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+  } as const;
+
   return (
     <div
       style={{
@@ -198,55 +214,25 @@ export default function DigitalTwinDashboard() {
       )}
 
       {isLandscape && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          style={{
-            position: "absolute",
-            top: 20,
-            left: 20,
-            zIndex: 11000,
-            background: "rgba(11, 102, 106, 0.9)",
-            border: "1px solid rgba(151, 254, 237, 0.3)",
-            color: "#97FEED",
-            padding: "8px 12px",
-            borderRadius: "8px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            backdropFilter: "blur(5px)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
-          }}
-        >
-          MENU
-        </button>
-      )}
+        <>
+          <button
+            onClick={() => setSidebarOpen(true)}
+            style={{ ...landscapeButtonStyle, top: 20, left: 20 }}
+          >
+            MENU
+          </button>
 
-      {isLandscape && (
-        <button
-          onClick={() => {
-            toggleFullscreen().catch(() => {
-              // Fullscreen API may be restricted on some mobile browsers.
-            });
-          }}
-          style={{
-            position: "absolute",
-            top: 20,
-            right: 20,
-            zIndex: 11000,
-            background: "rgba(11, 102, 106, 0.9)",
-            border: "1px solid rgba(151, 254, 237, 0.3)",
-            color: "#97FEED",
-            padding: "8px 12px",
-            borderRadius: "8px",
-            fontSize: "12px",
-            fontWeight: "bold",
-            cursor: "pointer",
-            backdropFilter: "blur(5px)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
-          }}
-        >
-          {isFullscreen ? "EXIT FULL" : "FULL SCREEN"}
-        </button>
+          <button
+            onClick={() => {
+              toggleFullscreen().catch(() => {
+                // Fullscreen API may be restricted on some mobile browsers.
+              });
+            }}
+            style={{ ...landscapeButtonStyle, top: 20, right: 20 }}
+          >
+            {isFullscreen ? "EXIT FULL" : "FULL SCREEN"}
+          </button>
+        </>
       )}
 
       {isLandscape && sidebarOpen && (

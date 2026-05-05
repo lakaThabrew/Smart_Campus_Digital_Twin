@@ -176,67 +176,6 @@ export default function DashboardHeader({
             </p>
           </div>
         </div>
-
-        {/* Alert card — separate so it can pulse independently */}
-        <div
-          style={{
-            background:
-              criticalCount > 0
-                ? "rgba(232, 93, 36, 0.15)"
-                : "rgba(7, 25, 82, 0.4)",
-            border: `1px solid ${criticalCount > 0 ? "rgba(235, 9, 9, 0.6)" : "rgba(151, 254, 237, 0.2)"}`,
-            padding: "12px 20px",
-            borderRadius: 16,
-            minWidth: 140,
-            animation:
-              criticalCount > 0 && !prefersReducedMotion
-                ? "alertPulse 1.8s ease-in-out infinite"
-                : "none",
-            boxShadow:
-              criticalCount > 0 && prefersReducedMotion
-                ? "0 0 0 2px rgba(235, 9, 9, 0.25), 0 0 20px rgba(235, 9, 9, 0.2)"
-                : "none",
-            transition: prefersReducedMotion
-              ? "none"
-              : "background 0.4s, border 0.4s, box-shadow 0.4s",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 9,
-              fontWeight: 800,
-              color: "rgba(151, 254, 237, 0.5)",
-              marginBottom: 4,
-            }}
-          >
-            ALERTS
-          </p>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            {criticalCount > 0 && (
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "#eb0909",
-                  animation: !prefersReducedMotion
-                    ? "dotFlash 0.9s ease-in-out infinite"
-                    : "none",
-                  flexShrink: 0,
-                }}
-              />
-            )}
-            <p
-              style={{
-                fontSize: 18,
-                fontWeight: 800,
-                color: criticalCount > 0 ? "#eb0909" : "#97FEED",
-              }}
-            >
-              {criticalCount > 0 ? `${criticalCount} critical` : "None"}
-            </p>
-          </div>
-        </div>
       </div>
       <style>{`
         @keyframes alertPulse {
