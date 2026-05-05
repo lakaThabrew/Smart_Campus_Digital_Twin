@@ -156,6 +156,10 @@ export default function DigitalTwinDashboard() {
     z.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
+  const showToolbarMenu = isMobile && !isLandscape;
+
+  const topInset = isLandscape ? 64 : isMobile ? 68 : 64;
+
   // Shared button style for landscape mode controls
   const landscapeButtonStyle = {
     position: "absolute" as const,
@@ -183,7 +187,7 @@ export default function DigitalTwinDashboard() {
         overflow: "hidden",
         color: "#fff",
         fontFamily: "'Inter', 'Segoe UI', system-ui, sans-serif",
-        paddingTop: isLandscape ? "0" : isMobile ? "68px" : "64px",
+        paddingTop: `${topInset}px`,
         flexDirection: isMobile ? "column" : "row",
         position: "relative",
       }}
@@ -220,7 +224,7 @@ export default function DigitalTwinDashboard() {
         <>
           <button
             onClick={() => setSidebarOpen(true)}
-            style={{ ...landscapeButtonStyle, top: 20, left: 20 }}
+            style={{ ...landscapeButtonStyle, top: 12, left: 20 }}
           >
             MENU
           </button>
@@ -231,7 +235,7 @@ export default function DigitalTwinDashboard() {
                 // Fullscreen API may be restricted on some mobile browsers.
               });
             }}
-            style={{ ...landscapeButtonStyle, top: 20, right: 20 }}
+            style={{ ...landscapeButtonStyle, top: 12, right: 20 }}
           >
             {isFullscreen ? "EXIT FULL" : "FULL SCREEN"}
           </button>
@@ -330,7 +334,7 @@ export default function DigitalTwinDashboard() {
               gap: 8,
             }}
           >
-            {isMobile && (
+            {showToolbarMenu && (
               <button
                 onClick={() => setSidebarOpen((s) => !s)}
                 style={{
