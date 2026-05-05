@@ -1,5 +1,4 @@
 import React from "react";
-import { Zone } from "./DashboardTypes";
 import { usePrefersReducedMotion } from "@/app/hooks/usePrefersReducedMotion";
 
 interface DashboardHeaderProps {
@@ -101,8 +100,11 @@ export default function DashboardHeader({
             padding: "12px 20px",
             borderRadius: 16,
             minWidth: 140,
-            animation: criticalCount > 0 ? "alertPulse 1.8s ease-in-out infinite" : "none",
-            transition: "background 0.4s, border 0.4s",
+            animation:
+               criticalCount > 0 && !prefersReducedMotion ? "alertPulse 1.8s ease-in-out infinite" : "none",
+             boxShadow:
+               criticalCount > 0 && prefersReducedMotion ? "0 0 0 2px rgba(235, 9, 9, 0.25), 0 0 20px rgba(235, 9, 9, 0.2)" : "none",
+             transition: prefersReducedMotion ? "none" : "background 0.4s, border 0.4s, box-shadow 0.4s",
           }}
         >
           <p style={{ fontSize: 9, fontWeight: 800, color: "rgba(151, 254, 237, 0.5)", marginBottom: 4 }}>
