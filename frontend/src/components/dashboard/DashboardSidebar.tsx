@@ -40,10 +40,15 @@ export default function DashboardSidebar({
   const router = useRouter();
   const selectedZone = zones.find((z) => z.id === selectedId) ?? zones[0];
 
-  const animatedEnergy    = useAnimatedValue(selectedZone.energyKw, 1);
-  const animatedOccupancy = useAnimatedValue(selectedZone.occupancy, 0);
-  const animatedTemp      = useAnimatedValue(selectedZone.temperatureC, 1);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const animatedEnergyValue = useAnimatedValue(selectedZone.energyKw, 1);
+  const animatedOccupancyValue = useAnimatedValue(selectedZone.occupancy, 0);
+  const animatedTempValue = useAnimatedValue(selectedZone.temperatureC, 1);
+  const animatedEnergy = prefersReducedMotion ? selectedZone.energyKw : animatedEnergyValue;
+  const animatedOccupancy = prefersReducedMotion
+    ? selectedZone.occupancy
+    : animatedOccupancyValue;
+  const animatedTemp = prefersReducedMotion ? selectedZone.temperatureC : animatedTempValue;
 
   const navStyle: React.CSSProperties = {
     width: isMobile ? "84%" : "320px",
