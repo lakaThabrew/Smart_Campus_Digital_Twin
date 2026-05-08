@@ -91,25 +91,6 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
       position: "relative",
       gap: "40px"
     }}>
-      <Link 
-        href="/" 
-        style={{ 
-          position: "absolute", 
-          top: 100, 
-          left: 30, 
-          display: "flex", 
-          alignItems: "center", 
-          gap: 5, 
-          color: "#97FEED", 
-          textDecoration: "none",
-          fontSize: 14,
-          fontWeight: 600
-        }}
-      >
-        <ChevronLeft size={20} />
-        Back to Dashboard
-      </Link>
-
       {/* Breadcrumb */}
       <div style={{ display: "flex", gap: 10, alignItems: "center", color: "#97FEED", fontSize: 13, fontWeight: 600, textTransform: "uppercase", letterSpacing: "1px" }}>
         <Link href="/" style={{ color: "#97FEED", textDecoration: "none" }}>
@@ -157,6 +138,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
               }}
             />
 
+            {!isMobile && (
             <div style={{ maxHeight: 250, overflowY: "auto", paddingRight: 4, display: "grid", gap: 10 }}>
               {roomResults.length === 0 ? (
                 <div style={{ padding: "18px", borderRadius: 18, background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.75)", fontSize: "0.95rem" }}>
@@ -189,9 +171,11 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
                 ))
               )}
             </div>
+            )}
           </div>
 
           {/* Building Details - Bottom */}
+          {!isMobile && (
           <div style={{ padding: "28px", borderRadius: 28, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(151, 254, 237, 0.18)", boxShadow: "0 30px 60px rgba(0,0,0,0.18)", display: "flex", flexDirection: "column", gap: 28 }}>
             <div>
               <h1 style={{ margin: 0, color: "#97FEED", fontSize: "2.8rem", fontWeight: 800, lineHeight: 1.05 }}>
@@ -253,6 +237,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
               </div>
             )}
           </div>
+          )}
         </div>
 
         {/* Right Side: Floor Plan */}
