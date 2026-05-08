@@ -4,7 +4,10 @@ import React, { useState, useEffect } from "react";
 import { Stars } from "@react-three/drei";
 
 export default function EnvironmentLighting() {
-  const [isNight, setIsNight] = useState(false);
+  const [isNight, setIsNight] = useState(() => {
+    const currentHour = new Date().getHours();
+    return currentHour >= 18 || currentHour < 6;
+  });
 
   useEffect(() => {
     const checkTime = () => {
