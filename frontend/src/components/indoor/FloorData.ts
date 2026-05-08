@@ -666,7 +666,7 @@ export const IT_FLOORS: Floor[] = [
         type: "room",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_0",
         name: "Main Stairs",
         x: 400,
         y: 50,
@@ -689,7 +689,7 @@ export const IT_FLOORS: Floor[] = [
         type: "lab",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_1",
         name: "Main Stairs",
         x: 400,
         y: 50,
@@ -712,7 +712,7 @@ export const IT_FLOORS: Floor[] = [
         type: "lab",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_2",
         name: "Main Stairs",
         x: 400,
         y: 50,
@@ -735,7 +735,7 @@ export const IT_FLOORS: Floor[] = [
         type: "office",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_3",
         name: "Main Stairs",
         x: 400,
         y: 50,
@@ -758,7 +758,7 @@ export const IT_FLOORS: Floor[] = [
         type: "lab",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_4",
         name: "Main Stairs",
         x: 400,
         y: 50,
@@ -781,7 +781,7 @@ export const IT_FLOORS: Floor[] = [
         type: "room",
       },
       {
-        id: "it_stairs",
+        id: "it_stairs_5",
         name: "Main Stairs",
         x: 450,
         y: 250,
@@ -1010,7 +1010,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "room",
       },
       {
-        id: "lib0_stairs_1",
+        id: "lib1_stairs_1",
         name: "Stairs 1",
         x: 150,
         y: 240,
@@ -1019,7 +1019,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "stairs",
       },
       {
-        id: "lib0_stairs_2",
+        id: "lib1_stairs_2",
         name: "Stairs 2",
         x: 610,
         y: 270,
@@ -1096,7 +1096,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "free",
       },
       {
-        id: "lib0_stairs_1",
+        id: "lib2_stairs_1",
         name: "Stairs 1",
         x: 150,
         y: 240,
@@ -1105,7 +1105,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "stairs",
       },
       {
-        id: "lib0_stairs_2",
+        id: "lib2_stairs_2",
         name: "Stairs 2",
         x: 610,
         y: 270,
@@ -1200,7 +1200,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "office",
       },
       {
-        id: "lib0_stairs_1",
+        id: "lib3_stairs_1",
         name: "Stairs 1",
         x: 150,
         y: 240,
@@ -1209,7 +1209,7 @@ export const LIBRARY_FLOORS: Floor[] = [
         type: "stairs",
       },
       {
-        id: "lib0_stairs_2",
+        id: "lib3_stairs_2",
         name: "Stairs 2",
         x: 610,
         y: 270,

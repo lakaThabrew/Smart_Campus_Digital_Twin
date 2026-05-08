@@ -32,9 +32,16 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
   const [floor, setFloor] = useState(building.minFloor);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const currentFloor = building.floors[floor - building.minFloor];
-  const floorIndex = floor - building.minFloor;
 
   useEffect(() => {
     if (selectedRoomId && !currentFloor.rooms.some((room) => room.id === selectedRoomId)) {
@@ -115,9 +122,9 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
       </div>
 
       {/* Top Row: Search and Floor Plan */}
-      <div style={{ display: "flex", gap: 40, width: "100%", maxWidth: "1400px", alignItems: "flex-start" }}>
+      <div style={{ display: "flex", gap: 40, width: "100%", maxWidth: "1400px", alignItems: "flex-start", flexDirection: isMobile ? "column" : "row" }}>
         {/* Left Column: Search Bar and Building Details */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 28, width: "400px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 28, width: isMobile ? "100%" : "400px", maxWidth: isMobile ? "100%" : "400px" }}>
           {/* Room Search - Top */}
           <div style={{ padding: "22px", borderRadius: 28, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(151, 254, 237, 0.15)", display: "flex", flexDirection: "column", gap: 16 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -136,6 +143,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
               placeholder="Search rooms, labs, offices..."
+              aria-label="Search for rooms, labs, or offices by name, type, or ID"
               style={{
                 width: "100%",
                 padding: "14px 16px",
@@ -175,7 +183,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
                       transition: "all 0.2s ease",
                     }}
                   >
-                    <span style={{ fontSize: "0.98rem", fontWeight: 700 }}>{room.name || room.id}</span>
+                    <span style={{ fontSize: "0.98rem", fontWeight: 700 }}>{room.name?.trim() || room.id}</span>
                     <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)" }}>{room.id} · {getRoomTypeLabel(room.type)}</span>
                   </button>
                 ))
@@ -197,50 +205,53 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
               </div>
             </div>
 
-            {/* Minimap and Floor Navigator */}
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 18, flex: 1 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
-                  <div style={{ color: "#97FEED", fontSize: "0.9rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
-                    Minimap
+            {/* Minimap and Floor Navigator - Hidden on mobile */}
+            {!isMobile && (
+              <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 18, flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+                    <div style={{ color: "#97FEED", fontSize: "0.9rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
+                      Minimap
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem" }}>
+                      {currentFloor.rooms.length} spaces
+                    </div>
                   </div>
-                  <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.82rem" }}>
-                    {currentFloor.rooms.length} spaces
-                  </div>
-                </div>
-                <div style={{ position: "relative", minHeight: 180, width: "100%", borderRadius: 20, background: "rgba(0, 0, 0, 0.2)", border: "1px solid rgba(151, 254, 237, 0.18)" }}>
-                  {currentFloor.rooms.map((room) => {
-                    const left = (room.x - bounds.minX) * previewScale;
-                    const top = (room.y - bounds.minY) * previewScale;
-                    const width = room.width * previewScale;
-                    const height = room.height * previewScale;
-                    const isSelected = room.id === selectedRoomId;
-                    const isStairs = room.type === "stairs";
-                    const isFree = room.type === "free";
+                  <div style={{ position: "relative", minHeight: 180, width: "100%", borderRadius: 20, background: "rgba(0, 0, 0, 0.2)", border: "1px solid rgba(151, 254, 237, 0.18)" }}>
+                    {currentFloor.rooms.map((room) => {
+                      const left = (room.x - bounds.minX) * previewScale;
+                      const top = (room.y - bounds.minY) * previewScale;
+                      const width = room.width * previewScale;
+                      const height = room.height * previewScale;
+                      const isSelected = room.id === selectedRoomId;
+                      const isStairs = room.type === "stairs";
+                      const isFree = room.type === "free";
 
-                    return (
-                      <button
-                        key={room.id}
-                        onClick={() => setSelectedRoomId(room.id)}
-                        title={room.name || room.id}
-                        style={{
-                          position: "absolute",
-                          left,
-                          top,
-                          width,
-                          height,
-                          borderRadius: 4,
-                          border: isSelected ? "1px solid #FFD166" : "1px solid rgba(255,255,255,0.08)",
-                          background: isSelected ? "rgba(255, 209, 102, 0.3)" : isStairs ? "rgba(255, 209, 102, 0.25)" : isFree ? "rgba(255,255,255,0.1)" : "rgba(151, 254, 237, 0.16)",
-                          cursor: "pointer",
-                          padding: 0,
-                        }}
-                      />
-                    );
-                  })}
+                      return (
+                        <button
+                          key={room.id}
+                          onClick={() => setSelectedRoomId(room.id)}
+                          title={room.name?.trim() || room.id}
+                          aria-label={`Select ${room.name?.trim() || room.id} (${getRoomTypeLabel(room.type)})`}
+                          style={{
+                            position: "absolute",
+                            left,
+                            top,
+                            width,
+                            height,
+                            borderRadius: 4,
+                            border: isSelected ? "1px solid #FFD166" : "1px solid rgba(255,255,255,0.08)",
+                            background: isSelected ? "rgba(255, 209, 102, 0.3)" : isStairs ? "rgba(255, 209, 102, 0.25)" : isFree ? "rgba(255,255,255,0.1)" : "rgba(151, 254, 237, 0.16)",
+                            cursor: "pointer",
+                            padding: 0,
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -265,7 +276,7 @@ export default function DynamicBuildingPage({ params }: { params: Promise<{ id: 
                     Room details
                   </div>
                   <div style={{ marginTop: 8, fontSize: "1.15rem", fontWeight: 800, color: "white" }}>
-                    {selectedRoom.name || selectedRoom.id}
+                    {selectedRoom.name?.trim() || selectedRoom.id}
                   </div>
                 </div>
                 <button
