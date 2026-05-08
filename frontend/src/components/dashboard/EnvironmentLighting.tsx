@@ -24,7 +24,7 @@ export default function EnvironmentLighting() {
     // Check immediately
     checkTime();
 
-    // Check every 1 minute so it updates instantly when testing
+    // Check every 10 seconds so it updates quickly when testing
     const interval = setInterval(checkTime, 10000);
     return () => clearInterval(interval);
   }, []);
