@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
+import { TimeOfDay } from "./dashboard/DashboardTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,7 +17,26 @@ interface FurnitureItem {
 // Structure: base plate → pole → arm → lamp head
 // Kept as individual meshes in a group so each lamp is one logical object.
 
-function LampPost({ x, z, rotation = 0 }: { x: number; z: number; rotation?: number }) {
+type LampSettings = {
+  lensColor: string;
+  lensEmissive: string;
+  lensEmissiveIntensity: number;
+  pointIntensity: number;
+  pointDistance: number;
+  pointColor: string;
+};
+
+function LampPost({
+  x,
+  z,
+  rotation = 0,
+  lampSettings,
+}: {
+  x: number;
+  z: number;
+  rotation?: number;
+  lampSettings: LampSettings;
+}) {
   const POLE_H   = 3.2;
   const ARM_LEN  = 0.6;
   const HEAD_Y   = POLE_H + 0.1;
@@ -51,9 +71,9 @@ function LampPost({ x, z, rotation = 0 }: { x: number; z: number; rotation?: num
       <mesh position={[ARM_LEN, HEAD_Y - 0.26, 0]}>
         <circleGeometry args={[0.09, 8]} />
         <meshStandardMaterial
-          color="#ffe87a"
-          emissive="#ffcc44"
-          emissiveIntensity={1.8}
+          color={lampSettings.lensColor}
+          emissive={lampSettings.lensEmissive}
+          emissiveIntensity={lampSettings.lensEmissiveIntensity}
           roughness={0.1}
           metalness={0}
           side={THREE.DoubleSide}
@@ -63,10 +83,10 @@ function LampPost({ x, z, rotation = 0 }: { x: number; z: number; rotation?: num
       {/* Point light — small radius so it only lights nearby ground */}
       <pointLight
         position={[ARM_LEN, HEAD_Y - 0.3, 0]}
-        intensity={4}
-        distance={5}
+        intensity={lampSettings.pointIntensity}
+        distance={lampSettings.pointDistance}
         decay={2}
-        color="#ffe099"
+        color={lampSettings.pointColor}
       />
     </group>
   );
@@ -252,16 +272,57 @@ const BIN_POSITIONS: FurnitureItem[] = [
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export default function CampusFurniture() {
+export default function CampusFurniture({ timeOfDay }: { timeOfDay: TimeOfDay }) {
   // Memoize so arrays are stable references between renders
   const benches = useMemo(() => BENCH_ITEMS, []);
   const bins    = useMemo(() => BIN_POSITIONS, []);
+  const lampSettingsByTime: Record<TimeOfDay, LampSettings> = {
+    morning: {
+      lensColor: "#fff0bf",
+      lensEmissive: "#ffd87b",
+      lensEmissiveIntensity: 0.55,
+      pointIntensity: 1.1,
+      pointDistance: 3.8,
+      pointColor: "#ffe5ab",
+    },
+    day: {
+      lensColor: "#c8c8c8",
+      lensEmissive: "#000000",
+      lensEmissiveIntensity: 0,
+      pointIntensity: 0,
+      pointDistance: 0,
+      pointColor: "#ffffff",
+    },
+    evening: {
+      lensColor: "#ffe280",
+      lensEmissive: "#ffc757",
+      lensEmissiveIntensity: 1.2,
+      pointIntensity: 2.4,
+      pointDistance: 4.4,
+      pointColor: "#ffd98c",
+    },
+    night: {
+      lensColor: "#ffe87a",
+      lensEmissive: "#ffcc44",
+      lensEmissiveIntensity: 1.8,
+      pointIntensity: 4,
+      pointDistance: 5,
+      pointColor: "#ffe099",
+    },
+  };
+  const lampSettings = lampSettingsByTime[timeOfDay];
 
   return (
     <>
       {/* Street lamps — individual components (complex multi-mesh shape + light) */}
       {LAMP_POSITIONS.map((pos, i) => (
-        <LampPost key={i} x={pos.x} z={pos.z} rotation={pos.rotation} />
+        <LampPost
+          key={i}
+          x={pos.x}
+          z={pos.z}
+          rotation={pos.rotation}
+          lampSettings={lampSettings}
+        />
       ))}
 
       {/* Benches */}
