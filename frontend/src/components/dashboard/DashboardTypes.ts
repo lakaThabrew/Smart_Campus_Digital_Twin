@@ -1,4 +1,10 @@
 export type ZoneStatus = "normal" | "busy" | "critical";
+export type TimeOfDay = "morning" | "day" | "evening" | "night";
+
+export const MORNING_START_HOUR = 6;
+export const DAY_START_HOUR = 10;
+export const EVENING_START_HOUR = 17;
+export const NIGHT_START_HOUR = 19;
 
 export type Zone = {
   id: string;

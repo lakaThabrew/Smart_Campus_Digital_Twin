@@ -1,6 +1,6 @@
 import React from "react";
 import { OrbitControls } from "@react-three/drei";
-import { Zone, CAMPUS_LAYOUT } from "./DashboardTypes";
+import { Zone, CAMPUS_LAYOUT, TimeOfDay } from "./DashboardTypes";
 import Ground from "./GroundComponent";
 import Roads from "./RoadsComponent";
 import CampusTrees from "../CampusTrees";
@@ -14,6 +14,7 @@ interface DashboardSceneProps {
   selectedId: string;
   onSelect: (id: string) => void;
   walkMode: boolean;
+  timeOfDay: TimeOfDay;
   isMobile?: boolean;
   runMode?: boolean;
 }
@@ -23,17 +24,18 @@ export default function DashboardScene({
   selectedId,
   onSelect,
   walkMode,
+  timeOfDay,
   isMobile = false,
   runMode = false,
 }: DashboardSceneProps) {
   return (
     <>
-      <EnvironmentLighting />
+      <EnvironmentLighting timeOfDay={timeOfDay} />
 
       <Ground />
       <Roads />
       <CampusTrees />
-      <CampusFurniture />
+      <CampusFurniture timeOfDay={timeOfDay} />
 
       {CAMPUS_LAYOUT.map((layout) => {
         const zone = zones.find((z) => z.id === layout.id);

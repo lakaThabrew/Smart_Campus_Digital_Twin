@@ -7,9 +7,13 @@ import { Navigation, Eye, Maximize, Minimize } from "lucide-react";
 import {
   STABLE_INITIAL_ZONES,
   generateInitialZones,
+  TimeOfDay,
   Zone,
 } from "./dashboard/DashboardTypes";
-import { updateZone } from "./dashboard/DashboardHelpers";
+import {
+  getCurrentTimeOfDay,
+  updateZone,
+} from "./dashboard/DashboardHelpers";
 import DashboardSidebar from "./dashboard/DashboardSidebar";
 import DashboardHeader from "./dashboard/DashboardHeader";
 import DashboardScene from "./dashboard/DashboardScene";
@@ -27,6 +31,10 @@ export default function DigitalTwinDashboard() {
   const [runMode, setRunMode] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [timeOverride, setTimeOverride] = useState<TimeOfDay | null>(null);
+  const [autoTimeOfDay, setAutoTimeOfDay] = useState<TimeOfDay | undefined>(
+    undefined,
+  );
   const sceneSectionRef = useRef<HTMLElement | null>(null);
 
   const toggleCategory = (category: string) => {
@@ -66,6 +74,15 @@ export default function DigitalTwinDashboard() {
 
     const t = setInterval(() => setZones((prev) => prev.map(updateZone)), 5000);
     return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const checkTime = () => {
+      setAutoTimeOfDay(getCurrentTimeOfDay());
+    };
+    checkTime();
+    const interval = setInterval(checkTime, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -155,6 +172,7 @@ export default function DigitalTwinDashboard() {
   const filteredZones = zones.filter((z) =>
     z.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+  const activeTimeOfDay = timeOverride ?? autoTimeOfDay ?? "day";
 
   const showToolbarMenu = isMobile && !isLandscape;
 
@@ -353,7 +371,8 @@ export default function DigitalTwinDashboard() {
               </button>
             )}
             <span style={{ flex: "1 1 180px", minWidth: 0, lineHeight: 1.3 }}>
-              3D Campus Twin — University of Moratuwa
+              3D Campus Twin — University of Moratuwa · {activeTimeOfDay.toUpperCase()}
+              {timeOverride ? " (MANUAL)" : " (AUTO)"}
             </span>
             <div
               style={{
@@ -364,6 +383,44 @@ export default function DigitalTwinDashboard() {
                 justifyContent: isMobile ? "flex-start" : "flex-end",
               }}
             >
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  fontSize: isMobile ? 8 : 9,
+                  letterSpacing: "0.06em",
+                  color: "#fff",
+                }}
+              >
+                Time
+                <select
+                  aria-label="Select time of day mode"
+                  value={timeOverride ?? "auto"}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setTimeOverride(value === "auto" ? null : (value as TimeOfDay));
+                  }}
+                  style={{
+                    borderRadius: 6,
+                    border: "1px solid rgba(151,254,237,0.35)",
+                    background: "rgba(7,25,82,0.6)",
+                    color: "#fff",
+                    padding: "4px 8px",
+                    fontSize: isMobile ? 9 : 10,
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="auto">Auto</option>
+                  <option value="morning">Morning</option>
+                  <option value="day">Day</option>
+                  <option value="evening">Evening</option>
+                  <option value="night">Night</option>
+                </select>
+              </label>
               {walkMode && !isMobile && (
                 <span style={{ fontSize: 9, color: "#FAC75A", opacity: 0.9 }}>
                   Click canvas → WASD/Arrow keys to move · Mouse to look · Shift
@@ -447,6 +504,7 @@ export default function DigitalTwinDashboard() {
               selectedId={selectedId}
               onSelect={setSelectedId}
               walkMode={walkMode}
+              timeOfDay={activeTimeOfDay}
               isMobile={isMobile}
               runMode={runMode}
             />
