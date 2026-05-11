@@ -32,8 +32,8 @@ export default function DigitalTwinDashboard() {
   const [isLandscape, setIsLandscape] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [timeOverride, setTimeOverride] = useState<TimeOfDay | null>(null);
-  const [autoTimeOfDay, setAutoTimeOfDay] = useState<TimeOfDay>(() =>
-    getCurrentTimeOfDay(),
+  const [autoTimeOfDay, setAutoTimeOfDay] = useState<TimeOfDay | undefined>(
+    undefined,
   );
   const sceneSectionRef = useRef<HTMLElement | null>(null);
 
@@ -172,7 +172,7 @@ export default function DigitalTwinDashboard() {
   const filteredZones = zones.filter((z) =>
     z.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-  const activeTimeOfDay = timeOverride ?? autoTimeOfDay;
+  const activeTimeOfDay = timeOverride ?? autoTimeOfDay ?? "day";
 
   const showToolbarMenu = isMobile && !isLandscape;
 
